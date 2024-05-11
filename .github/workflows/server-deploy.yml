@@ -21,6 +21,7 @@ jobs:
             npm i -g pm2
             npm i -g yarn
             pm2 stop dishzero
+            pm2 delete dishzero
             git pull
             yarn install
             yarn build
