@@ -15,7 +15,7 @@ jobs:
           username: 'ubuntu'
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /home/ubuntu/dishzero/DishZero/backend
+            cd /home/ubuntu/DishZero/backend
             export NVM_DIR=~/.nvm
             source ~/.nvm/nvm.sh
             npm i -g pm2
