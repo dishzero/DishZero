@@ -493,7 +493,7 @@ const Return = ({ noTimer }) => {
                 setOpen={setForceSignInDialog}
                 dialogTitle={'Dish is not signed out'}
                 loading={false}>
-                <DialogContent sx={{ minWidth: '420px', textAlign: 'center' }}>
+                <DialogContent sx={{ textAlign: 'center' }}>
                     <Typography variant="body1" fontWeight="bold" sx={{ mb: '1rem' }}>
                         This dish is not signed out. You can force sign in and sign out the dish.
                     </Typography>
