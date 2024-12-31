@@ -58,7 +58,7 @@ export const getUsers = async (req: Request, res: Response) => {
             })
             return res.status(500).json({ error: 'internal_server_error' })
         }
-    }else {
+    } else {
         try {
             let users = await getAllUsers()
             Logger.info({

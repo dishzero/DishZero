@@ -1,4 +1,3 @@
-/*eslint-disable*/
 import { styled } from '@mui/material'
 import { DataGrid, DataGridProps } from '@mui/x-data-grid'
 
