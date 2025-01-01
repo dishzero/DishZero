@@ -1,12 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useAuth } from '../../contexts/AuthContext'
 import adminApi from '../adminApi'
-import { Dish } from './constants'
+import { Dish, mockDishes } from './constants'
 import AdminDishesHeader from './dishesHeader'
 import AdminDishesTable from './dishesTable'
 import { Box } from '@mui/material'
 import { useEffect, useState } from 'react'
 
-export default function AdminDishes() {
+export default function AdminDishesPage() {
     const { sessionToken } = useAuth()
 
     const [filteredRows, setFilteredRows] = useState<Dish[]>([]) // rows visible in table
@@ -19,6 +20,7 @@ export default function AdminDishes() {
         if (sessionToken) {
             setLoadingDishes(true)
             dishData = await adminApi.getAllDishes(sessionToken, true)
+            // dishData = mockDishes
             setLoadingDishes(false)
         }
         setAllRows(dishData)
@@ -28,6 +30,7 @@ export default function AdminDishes() {
         let dishTypes: string[] = []
         if (sessionToken) {
             dishTypes = await adminApi.getDishTypes(sessionToken)
+            // dishTypes = ['mug', 'container']
         }
         setDishTypes(dishTypes)
     }

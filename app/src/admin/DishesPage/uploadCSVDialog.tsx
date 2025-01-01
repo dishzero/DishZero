@@ -1,24 +1,21 @@
-/*eslint-disable*/
 import {
     Accordion,
     AccordionDetails,
     AccordionSummary,
     Box,
-    Button,
     Dialog,
     DialogContent,
     IconButton,
     LinearProgress,
     Link,
-    TextField,
     Tooltip,
     Typography,
 } from '@mui/material'
 import { useState } from 'react'
-import { DISHZERO_COLOR, DISHZERO_COLOR_LIGHT, StyledContainedButton } from './constants'
+import { StyledContainedButton } from './constants'
 import adminApi from '../adminApi'
 import { useAuth } from '../../contexts/AuthContext'
-import CustomDialogTitle from '../CustomDialogTitle'
+import CustomDialogTitle from './customDialogTitle'
 import { usePreventReload } from './addNewDish'
 import { useSnackbar } from 'notistack'
 import { ExpandMore, FileCopyOutlined } from '@mui/icons-material'
@@ -29,7 +26,7 @@ interface Props {
     fetchDishes: () => void
 }
 
-// const templateFileUrl = 'https://disherzero.s3.amazonaws.com/dish_template.csv'
+// TODO use s3 bucket?
 const templateFileUrl = 'https://drive.google.com/file/d/1P_8xxtuHDy8iZLHqbNDyCHusU0mW9eux/view?usp=sharing'
 
 export default function UploadCSVDialog({ open, setOpen, fetchDishes }: Props) {
@@ -115,12 +112,10 @@ export default function UploadCSVDialog({ open, setOpen, fetchDishes }: Props) {
                             registered = new Date().toISOString()
                         }
                     } catch (e) {
-                        console.log(e)
                         newResults.push(`Failed to parse line: "${line}"; with error message: "${e}"`)
                         continue
                     }
                     const response = await adminApi.addDish(sessionToken, qid, type, status, timesBorrowed, registered)
-                    console.log(response)
                     if (response && response.status != 200) {
                         newResults.push(
                             `Failed to add dish: ${qid}; with error message: "${response.response.data.message}"`,
@@ -192,9 +187,9 @@ export default function UploadCSVDialog({ open, setOpen, fetchDishes }: Props) {
                         <LinearProgress
                             sx={{
                                 mt: '15px',
-                                backgroundColor: DISHZERO_COLOR_LIGHT,
+                                backgroundColor: 'primary.light',
                                 '& .MuiLinearProgress-bar': {
-                                    backgroundColor: DISHZERO_COLOR,
+                                    backgroundColor: 'primary.main',
                                 },
                             }}
                         />

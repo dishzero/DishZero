@@ -1,18 +1,11 @@
 import { GridRowId } from '@mui/x-data-grid'
 import axios from 'axios'
-import { DishStatus } from './Dishes/constants'
+import { DishStatus } from './DishesPage/constants'
+import { User } from './UserPage/constants'
 
 type StatusItem = {
     email: string
     count: number
-}
-
-type DishStatusByUser = {
-    userId: string
-    emailAddress: string
-    inUse: number
-    overdue: number
-    role: string
 }
 
 export const headers = (token: string) => {
@@ -39,6 +32,7 @@ const adminApi = {
         const transactions = response?.data.transactions
         return transactions
     },
+
     getDishByQid: async function (token: string, qid: string) {
         const response = await axios
             .get(`${this.serverAddress}/api/dish?qid=${qid}}`, {
@@ -296,12 +290,12 @@ const adminApi = {
             const inUseDishesByUser = await this.getInUseDishesForEachUser(token)
             const overdueDishesByUser = await this.getOverdueDishesForEachUser(token)
             const users = await this.getUsers(token)
-            const result: Array<DishStatusByUser> = []
+            const result: Array<User> = []
             if (inUseDishesByUser.length > 0 && overdueDishesByUser.length > 0) {
                 for (let i = 0; i < users.length; i++) {
                     result.push({
                         userId: users[i].id,
-                        emailAddress: users[i].email,
+                        email: users[i].email,
                         inUse: inUseDishesByUser[i].count,
                         overdue: overdueDishesByUser[i].count,
                         role: users[i].role,

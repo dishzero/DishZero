@@ -43,7 +43,16 @@ import CustomDialogTitle from '../admin/CustomDialogTitle'
 import { theme } from 'antd'
 import { useSnackbar } from 'notistack'
 
-const PopUpModal = memo(({ dishType, error, message, reportToggle, qid, isMobile }) => {
+interface Props {
+    dishType: string
+    error: string
+    message: string
+    reportToggle: () => void
+    qid: string
+    isMobile: boolean
+}
+
+const PopUpModal = memo(({ dishType, error, message, reportToggle, qid, isMobile }: Props) => {
     let avatarIcon
     if (error) {
         avatarIcon = ErrorIcon

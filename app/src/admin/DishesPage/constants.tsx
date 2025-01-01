@@ -1,10 +1,6 @@
 import { Button, Chip, Tooltip, styled } from '@mui/material'
 import { GridColDef } from '@mui/x-data-grid'
-import { dishTagColor } from '../../routes/admin'
-
-export const capitalizeFirstLetter = (string: string) => {
-    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase()
-}
+import { capitalizeFirstLetter } from '../AdminHome/constants'
 
 export type Dish = {
     id: string
@@ -17,6 +13,31 @@ export type Dish = {
     userId: string | null
     borrowedAt: string | null // rename to dateBorrowed?
     // notes: string | null // use to add notes to dish -> future work?
+}
+
+export function tagColor(text) {
+    switch (text) {
+        case 'mug':
+            return '#496EA5'
+        case 'dish':
+            return '#68B49A'
+        case 'borrowed':
+            return '#68B49A'
+        case 'returned':
+            return '#29604D'
+        case 'available':
+            return '#29604D'
+        case 'overdue':
+            return '#BF4949'
+        case 'broken':
+            return '#BF4949'
+        case 'lost':
+            return '#BF4949'
+        case 'unavailable':
+            return '#BF4949'
+        default:
+            return ''
+    }
 }
 
 export enum DishStatus {
@@ -34,14 +55,6 @@ export enum DishCondition {
     shattered = 'shattered',
     good = 'good',
 }
-
-export const DISHZERO_COLOR_DARK = '#006049'
-export const DISHZERO_COLOR = '#48b697'
-export const DISHZERO_COLOR_LIGHT = '#a7ffe9'
-
-export const SECONDARY_DARK = '#964A65'
-export const SECONDARY = '#B56983'
-export const SECONDARY_LIGHT = '#C5899E'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const StyledOutlinedButton = styled(Button)(({ theme }) => ({
@@ -79,7 +92,7 @@ export const generateColumns = (dishTypes: string[]): GridColDef[] => [
             return capitalizeFirstLetter(value)
         },
         renderCell(params) {
-            const color = dishTagColor(params.value) ?? 'inherit'
+            const color = tagColor(params.value) ?? 'inherit'
             return (
                 <>
                     {params && (
@@ -109,7 +122,7 @@ export const generateColumns = (dishTypes: string[]): GridColDef[] => [
             return capitalizeFirstLetter(value)
         },
         renderCell(params) {
-            const color = dishTagColor(params.value) ?? 'inherit'
+            const color = tagColor(params.value) ?? 'inherit'
             return (
                 <>
                     {params && (
@@ -160,6 +173,9 @@ export const generateColumns = (dishTypes: string[]): GridColDef[] => [
         minWidth: 100,
         maxWidth: 150,
         flex: 1,
+        type: 'number',
+        align: 'left',
+        headerAlign: 'left',
     },
     {
         field: 'registered',
@@ -171,5 +187,30 @@ export const generateColumns = (dishTypes: string[]): GridColDef[] => [
         valueFormatter({ value }: { value: string }) {
             return new Date(value).toLocaleDateString()
         },
+    },
+]
+
+export const mockDishes: Array<Dish> = [
+    {
+        id: '1',
+        qid: 1,
+        type: 'mug',
+        status: DishStatus.available,
+        condition: DishCondition.good,
+        timesBorrowed: 2,
+        registered: '2024-02-29T12:57:05.733Z',
+        userId: null,
+        borrowedAt: null,
+    },
+    {
+        id: '1',
+        qid: 1,
+        type: 'mug',
+        status: DishStatus.borrowed,
+        condition: DishCondition.good,
+        timesBorrowed: 2,
+        registered: '2024-02-29T12:57:05.733Z',
+        userId: 'wiskel@ualberta.ca',
+        borrowedAt: '2024-02-29T22:57:05.733Z',
     },
 ]

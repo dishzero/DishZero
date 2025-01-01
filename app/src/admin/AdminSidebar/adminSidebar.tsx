@@ -1,4 +1,4 @@
-import { Email, Home, Person2, RoomService } from '@mui/icons-material'
+import { Email, Home, Person2, RoomService, Settings } from '@mui/icons-material'
 import { Drawer, List, ListItemButton, Typography, styled } from '@mui/material'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -57,6 +57,7 @@ export default function AdminSidebar() {
                 <AdminSidebarItem url="/admin/dishes" icon={<RoomService />} text="Dishes" />
                 <AdminSidebarItem url="/admin/users" icon={<Person2 />} text="Users" />
                 <AdminSidebarItem url="/admin/email" icon={<Email />} text="Email" />
+                <AdminSidebarItem url="/admin/settings" icon={<Settings />} text="Settings" />
             </List>
         </StyledDrawer>
     )
