@@ -11,7 +11,7 @@ function splitTransactions(transactionData) {
     let inUse = false
     const transactionRows = transactionData.flatMap((transaction) => {
         const list: Transaction[] = []
-        inUse = false
+        inUse = true
 
         if (transaction.returned.timestamp && transaction.returned.timestamp != '') {
             // get the return transaction
@@ -23,7 +23,7 @@ function splitTransactions(transactionData) {
                 transactionType: 'returned',
                 timestamp: transaction.returned.timestamp,
             })
-            inUse = true
+            inUse = false
         }
         // get the borrow transaction
         list.push({
