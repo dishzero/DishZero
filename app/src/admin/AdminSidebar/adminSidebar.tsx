@@ -6,21 +6,21 @@ import { Link } from 'react-router-dom'
 import AdminSidebarItem from './adminSidebarItem'
 import DishzeroSidebarLogo from '../../assets/dishzero-sidebar-logo.png'
 
-const SIDEBAR_WIDTH = 300
+export const SIDEBAR_WIDTH = '300px'
 
 const StyledDrawer = styled(Drawer)(({ theme }) => ({
     whiteSpace: 'nowrap',
-    left: 0,
-    overflowY: 'auto',
+    overflowY: 'scroll',
     overflowX: 'hidden',
     height: '100%',
     width: SIDEBAR_WIDTH,
     '& .MuiDrawer-paper': {
-        position: 'absolute',
         backgroundColor: theme.palette.grey[800],
         width: SIDEBAR_WIDTH,
         overflowX: 'hidden',
+        height: '100%',
     },
+    border: '2px solid red',
 }))
 
 export default function AdminSidebar() {
@@ -32,7 +32,7 @@ export default function AdminSidebar() {
     // TODO create a JSON for this then loop through
     return (
         <StyledDrawer variant="permanent" open={open} onClose={handleDrawerChange}>
-            <List>
+            <List sx={{ border: '2px solid red' }}>
                 <ListItemButton component={Link} to="/" sx={{ m: '0.75rem' }}>
                     <img alt="logo" src={DishzeroSidebarLogo} width="43px" height="43px" />
                     <Typography variant="h5" color="white" marginLeft="0.75rem">

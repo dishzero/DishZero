@@ -1,6 +1,5 @@
 import leaf_icon from '../assets/leaf-green.svg'
 import { MobileView, BrowserView } from 'react-device-detect'
-import Toolbar from '../admin/AdminSidebar/adminSidebar'
 import '../styles/admin.css'
 import { Box, ThemeProvider, createTheme } from '@mui/material'
 import AdminDishesPage from '../admin/DishesPage/dishesPage'
@@ -8,6 +7,7 @@ import { SnackbarProvider } from 'notistack'
 import Email from '../admin/EmailPage/email'
 import AdminUserPage from '../admin/UserPage/userPage'
 import AdminHomePage from '../admin/AdminHome/adminHomePage'
+import AdminSidebar, { SIDEBAR_WIDTH } from '../admin/AdminSidebar/adminSidebar'
 
 export default function Admin({ path }: { path?: string }) {
     const theme = createTheme({
@@ -39,12 +39,17 @@ export default function Admin({ path }: { path?: string }) {
 
                 {/* on desktop */}
                 <BrowserView>
-                    <Box display="flex">
-                        <Toolbar />
-                        {path == 'dishes' && <AdminDishesPage />}
-                        {path == 'users' && <AdminUserPage />}
-                        {path == 'email' && <Email />}
-                        {(path == '' || !path) && <AdminHomePage />}
+                    <Box
+                        display="flex"
+                        flexDirection={'column'}
+                        sx={{ border: '2px solid blue', height: 'fit-content' }}>
+                        <AdminSidebar />
+                        <Box display={'flex'} sx={{ marginLeft: SIDEBAR_WIDTH }}>
+                            {path == 'dishes' && <AdminDishesPage />}
+                            {path == 'users' && <AdminUserPage />}
+                            {path == 'email' && <Email />}
+                            {(path == '' || !path) && <AdminHomePage />}
+                        </Box>
                     </Box>
                 </BrowserView>
             </SnackbarProvider>
