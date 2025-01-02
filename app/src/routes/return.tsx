@@ -2,15 +2,8 @@
 import { useState, useEffect, memo } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import React from 'react'
-//import Scanner from "../widgets/scanner"
-//import DishAPI from "../features/api"
 import '../styles/QRScanner.css'
-//import { Button, Modal } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faClose } from '@fortawesome/free-solid-svg-icons'
-import Cookies from 'js-cookie'
 import { AppHeader } from '../widgets/appHeader'
-import Scanner from '../widgets/scanner'
 import CameraInput from '../widgets/cameraScanner'
 import BottomTextInput from '../widgets/bottomTextInput'
 import {
@@ -18,9 +11,7 @@ import {
     Typography,
     Box,
     Avatar,
-    FormGroup,
     FormControlLabel,
-    Checkbox,
     FormControl,
     RadioGroup,
     Radio,
@@ -28,7 +19,6 @@ import {
     DialogContent,
 } from '@mui/material'
 import { useAuth } from '../contexts/AuthContext'
-import { BallTriangle } from 'react-loader-spinner'
 import plateIcon from '../assets/dish_icon_contained.svg'
 import mugIcon from '../assets/mug_icon_contained.svg'
 import MobileBackground from '../assets/leaf-mobile-background.png'
@@ -37,11 +27,9 @@ import ErrorIcon from '../assets/error_icon.svg'
 import CloseIcon from '../assets/X_icon.svg'
 import axios from 'axios'
 import adminApi from '../admin/adminApi'
-import { Dish, DishStatus } from '../admin/Dishes/constants'
-import { Close } from '@mui/icons-material'
-import CustomDialogTitle from '../admin/CustomDialogTitle'
-import { theme } from 'antd'
+import { Dish, DishStatus } from '../admin/DishesPage/constants'
 import { useSnackbar } from 'notistack'
+import CustomDialogTitle from '../admin/DishesPage/customDialogTitle'
 
 interface Props {
     dishType: string

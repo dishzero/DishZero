@@ -8,12 +8,15 @@ import AdminStatContainer from './statContainer'
 function calculateStats(allRows: Transaction[], inUseTransactions: Transaction[]) {
     const totalBorrowed = (allRows.length - inUseTransactions.length) / 2 + inUseTransactions.length
     const currentlyInUse = inUseTransactions.length
-    const overdue = inUseTransactions.filter(
-        (transaction) => Math.floor(Date.now() - new Date(transaction.timestamp).getTime() / (1000 * 3600 * 24)) > 2,
-    ).length
+
     const lost = inUseTransactions.filter(
         (transaction) => Math.floor(Date.now() - new Date(transaction.timestamp).getTime() / (1000 * 3600 * 24)) > 30,
     ).length
+    const overdue =
+        inUseTransactions.filter(
+            (transaction) =>
+                Math.floor(Date.now() - new Date(transaction.timestamp).getTime() / (1000 * 3600 * 24)) > 2,
+        ).length - lost
     return { 'Total Borrowed': totalBorrowed, 'Currently In Use': currentlyInUse, Overdue: overdue, Lost: lost }
 }
 

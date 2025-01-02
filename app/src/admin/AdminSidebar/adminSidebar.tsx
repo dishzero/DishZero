@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Email, Home, Person2, RoomService, Settings } from '@mui/icons-material'
 import { Drawer, List, ListItemButton, Typography, styled } from '@mui/material'
 import { useState } from 'react'
@@ -28,7 +29,7 @@ export default function AdminSidebar() {
     const handleDrawerChange = () => {
         setOpen(!open)
     }
-
+    // TODO create a JSON for this then loop through
     return (
         <StyledDrawer variant="permanent" open={open} onClose={handleDrawerChange}>
             <List>
@@ -57,7 +58,7 @@ export default function AdminSidebar() {
                 <AdminSidebarItem url="/admin/dishes" icon={<RoomService />} text="Dishes" />
                 <AdminSidebarItem url="/admin/users" icon={<Person2 />} text="Users" />
                 <AdminSidebarItem url="/admin/email" icon={<Email />} text="Email" />
-                <AdminSidebarItem url="/admin/settings" icon={<Settings />} text="Settings" />
+                {/* <AdminSidebarItem url="/admin/settings" icon={<Settings />} text="Settings" /> */}
             </List>
         </StyledDrawer>
     )
