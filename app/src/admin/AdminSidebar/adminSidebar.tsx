@@ -20,7 +20,6 @@ const StyledDrawer = styled(Drawer)(({ theme }) => ({
         overflowX: 'hidden',
         height: '100%',
     },
-    border: '2px solid red',
 }))
 
 export default function AdminSidebar() {
@@ -32,7 +31,7 @@ export default function AdminSidebar() {
     // TODO create a JSON for this then loop through
     return (
         <StyledDrawer variant="permanent" open={open} onClose={handleDrawerChange}>
-            <List sx={{ border: '2px solid red' }}>
+            <List>
                 <ListItemButton component={Link} to="/" sx={{ m: '0.75rem' }}>
                     <img alt="logo" src={DishzeroSidebarLogo} width="43px" height="43px" />
                     <Typography variant="h5" color="white" marginLeft="0.75rem">

@@ -39,10 +39,7 @@ export default function Admin({ path }: { path?: string }) {
 
                 {/* on desktop */}
                 <BrowserView>
-                    <Box
-                        display="flex"
-                        flexDirection={'column'}
-                        sx={{ border: '2px solid blue', height: 'fit-content' }}>
+                    <Box display="flex" flexDirection={'column'} sx={{ height: 'fit-content' }}>
                         <AdminSidebar />
                         <Box display={'flex'} sx={{ marginLeft: SIDEBAR_WIDTH }}>
                             {path == 'dishes' && <AdminDishesPage />}
