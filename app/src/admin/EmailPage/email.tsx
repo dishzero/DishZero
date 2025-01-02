@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
-import {} from './styledEmail'
 import { Alert, Avatar, Box, Button, Fade, TextField, Typography } from '@mui/material'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../../contexts/AuthContext'
 import axios from 'axios'
-import { headers } from './adminApi'
+import { headers } from '../adminApi'
 
 function Email() {
     const { sessionToken } = useAuth()

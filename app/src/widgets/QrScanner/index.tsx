@@ -1,35 +1,35 @@
-import * as React from 'react';
+import * as React from 'react'
 
-import { styles } from './styles';
-import { useQrReader } from './hooks';
+import { styles } from './styles'
+import { useQrReader } from './hooks'
 
-import { QrReaderProps } from './types';
+import { QrReaderProps } from './types'
 
 export const QrReader: React.FC<QrReaderProps> = ({
-  // videoContainerStyle,
-  // containerStyle,
-  videoStyle,
-  constraints,
-  // ViewFinder,
-  scanDelay,
-  // className,
-  onResult,
-  onError,
-  videoId,
-  deviceIndex
-}) => {
-  useQrReader({
+    // videoContainerStyle,
+    // containerStyle,
+    videoStyle,
     constraints,
+    // ViewFinder,
     scanDelay,
+    // className,
     onResult,
-    videoId,
     onError,
-    deviceIndex
-  });
+    videoId,
+    deviceIndex,
+}) => {
+    useQrReader({
+        constraints,
+        scanDelay,
+        onResult,
+        videoId,
+        onError,
+        deviceIndex,
+    })
 
-  return (
-    <>
-    {/* <div className={className} style={containerStyle}>
+    return (
+        <>
+            {/* <div className={className} style={containerStyle}>
       <div
         style={{
           ...styles.container,
@@ -37,26 +37,26 @@ export const QrReader: React.FC<QrReaderProps> = ({
         }}
       >
         {!!ViewFinder && <ViewFinder />} */}
-        <video
-          muted
-          id={videoId}
-          style={{
-            ...styles.video,
-            ...videoStyle,
-            // transform: constraints?.facingMode === 'environment' && 'scaleX(-1)',
-          }}
-        />
-      {/* </div>
+            <video
+                muted
+                id={videoId}
+                style={{
+                    ...styles.video,
+                    ...videoStyle,
+                    // transform: constraints?.facingMode === 'environment' && 'scaleX(-1)',
+                }}
+            />
+            {/* </div>
     </div> */}
-    </>
-  );
-};
+        </>
+    )
+}
 
-QrReader.displayName = 'QrReader';
+QrReader.displayName = 'QrReader'
 QrReader.defaultProps = {
-  constraints: {
-    facingMode: 'user',
-  },
-  videoId: 'video',
-  scanDelay: 500,
-};
+    constraints: {
+        facingMode: 'user',
+    },
+    videoId: 'video',
+    scanDelay: 500,
+}

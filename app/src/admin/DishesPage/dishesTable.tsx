@@ -1,7 +1,4 @@
-/*eslint-disable*/
-import { useEffect, useState } from 'react'
-import { Simulate } from 'react-dom/test-utils'
-import load = Simulate.load
+import { useState } from 'react'
 import { Dish, StyledContainedButton, StyledOutlinedButton, generateColumns } from './constants'
 import { useAuth } from '../../contexts/AuthContext'
 import adminApi from '../adminApi'
@@ -10,9 +7,8 @@ import { StyledDataGrid } from '../DataGrid/constants'
 import NoResultsOverlay from '../DataGrid/noResultsOverlay'
 import { Box, Button, Dialog, DialogContent, Typography } from '@mui/material'
 import { GridOverlay, GridRowId, GridRowModel } from '@mui/x-data-grid'
-import React from 'react'
 import { useSnackbar } from 'notistack'
-import CustomDialogTitle from '../CustomDialogTitle'
+import CustomDialogTitle from './customDialogTitle'
 import { BallTriangle } from 'react-loader-spinner'
 
 interface Props {

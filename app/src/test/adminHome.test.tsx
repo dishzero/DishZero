@@ -4,7 +4,7 @@ import axios from 'axios'
 import '@testing-library/jest-dom'
 
 import Admin from '../routes/admin'
-import { DishStatus } from '../admin/Dishes/constants'
+import { DishStatus } from '../admin/DishesPage/constants'
 
 jest.mock('axios')
 const mockedAxios = axios as jest.Mocked<typeof axios>

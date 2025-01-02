@@ -496,6 +496,7 @@ export const returnDish = async (req: Request, res: Response) => {
                     returned: {
                         condition,
                         timestamp: new Date().toISOString(),
+                        email: userClaims.email,
                     },
                 })
 

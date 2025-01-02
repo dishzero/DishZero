@@ -32,10 +32,10 @@ export const getAllTransactions = async () => {
         let data = doc.data()
         transactions.push({
             id: doc.id,
-            dish: data.dish ? data.dish.id : null,
+            dish: data.dish ?? {},
             user: data.user,
-            returned: data.returned ? data.returned : {},
-            timestamp: data.timestamp ? data.timestamp : null,
+            returned: data.returned ?? {},
+            timestamp: data.timestamp,
         })
     })
     return transactions

@@ -12,14 +12,15 @@ import {
     Typography,
 } from '@mui/material'
 import { useEffect, useState } from 'react'
-import { StyledContainedButton, StyledOutlinedButton, capitalizeFirstLetter } from './constants'
+import { StyledContainedButton, StyledOutlinedButton } from './constants'
 import { AddCircleOutline, Close, HelpOutline } from '@mui/icons-material'
 import adminApi from '../adminApi'
 import { useAuth } from '../../contexts/AuthContext'
-import CustomDialogTitle from '../CustomDialogTitle'
+import CustomDialogTitle from './customDialogTitle'
 import AddNewDishTypeDialog from './addNewDishType'
 import { closeSnackbar, useSnackbar } from 'notistack'
 import UploadCSVDialog from './uploadCSVDialog'
+import { capitalizeFirstLetter } from '../AdminHome/constants'
 
 interface Props {
     open: boolean

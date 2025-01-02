@@ -2,14 +2,7 @@ module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'node',
     moduleNameMapper: {
-        "axios": "axios/dist/node/axios.cjs"
-      },
-    transformIgnorePatterns: [
-        "/node_modules/(?!(axios)/)"
-      ],
-      
-
-    
-  };
-
-  
+        axios: 'axios/dist/node/axios.cjs',
+    },
+    transformIgnorePatterns: ['/node_modules/(?!(axios)/)'],
+}

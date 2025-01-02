@@ -1,9 +1,9 @@
 import { Box, DialogContent, LinearProgress, TextField } from '@mui/material'
 import { useState } from 'react'
-import { DISHZERO_COLOR, DISHZERO_COLOR_LIGHT, StyledContainedButton } from './constants'
+import { StyledContainedButton } from './constants'
 import adminApi from '../adminApi'
 import { useAuth } from '../../contexts/AuthContext'
-import CustomDialogTitle from '../CustomDialogTitle'
+import CustomDialogTitle from './customDialogTitle'
 import { usePreventReload } from './addNewDish'
 import { useSnackbar } from 'notistack'
 
@@ -88,9 +88,9 @@ export default function AddNewDishTypeDialog({ open, setOpen, fetchDishTypes }: 
                     <LinearProgress
                         sx={{
                             mt: '15px',
-                            backgroundColor: DISHZERO_COLOR_LIGHT,
+                            backgroundColor: 'primary.light',
                             '& .MuiLinearProgress-bar': {
-                                backgroundColor: DISHZERO_COLOR,
+                                backgroundColor: 'primary.main',
                             },
                         }}
                     />
