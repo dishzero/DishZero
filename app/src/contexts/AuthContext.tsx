@@ -1,8 +1,8 @@
 /*eslint-disable*/
 
 import { createContext, useContext, useEffect, useState } from 'react'
-import { auth, provider } from '../firebase'
-import { GoogleAuthProvider, getAuth, getIdToken, onAuthStateChanged, signInWithPopup } from 'firebase/auth'
+import { auth, googleAuthProvider, provider } from '../firebase'
+import { getIdToken, onAuthStateChanged, signInWithPopup } from 'firebase/auth'
 import axios from 'axios'
 import Cookies from 'js-cookie'
 import { useNavigate } from 'react-router-dom'
@@ -14,10 +14,15 @@ type User = {
     email: string
 }
 
+export const enum LoginLocation {
+    UniversityOfAlberta = 'University of Alberta',
+    Other = 'Other',
+}
+
 type AuthContextValue = {
     currentUser: User | null
     sessionToken: string
-    login: () => Promise<void>
+    login: (loginLocation: LoginLocation) => Promise<void>
     logout: () => Promise<void>
 }
 
@@ -25,7 +30,7 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue>({
     currentUser: null,
     sessionToken: '',
-    login: async () => {
+    login: async (loginLocation = LoginLocation.Other) => {
         console.log('placeholder')
     },
     logout: async () => {
@@ -117,17 +122,23 @@ export function AuthProvider({ children }) {
         }
     }
 
-    async function login() {
+    async function login(loginLocation: LoginLocation) {
         try {
-            const credentials = await signInWithPopup(auth, provider)
-            const idToken = await getIdToken(credentials.user)
-            if (!credentials.user.email?.match('@ualberta.ca')) {
-                credentials.user?.delete()
-                alert('Please login with your University of Alberta CCID')
-                logout()
-                return
+            let credentials
+            let idToken
+            if (loginLocation === LoginLocation.UniversityOfAlberta) {
+                credentials = await signInWithPopup(auth, provider)
+                idToken = await getIdToken(credentials.user)
+                if (!credentials.user.email?.match('@ualberta.ca')) {
+                    credentials.user?.delete()
+                    alert('Please login with your University of Alberta CCID')
+                    logout()
+                    return
+                }
+            } else {
+                credentials = await signInWithPopup(auth, googleAuthProvider)
+                idToken = await getIdToken(credentials.user)
             }
-
             const res = await axios.post(
                 `/api/auth/login/`,
                 { idToken: idToken },
