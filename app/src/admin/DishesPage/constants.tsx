@@ -200,7 +200,6 @@ export const generateColumns = (dishTypes: string[], dishVendors: Record<string,
         type: 'singleSelect',
         valueOptions: ['', ...((Object.keys(dishVendors) as string[]) ?? [])], // "" as empty selection
         valueFormatter: ({ value }: { value: string | null }) => (value ? capitalizeFirstLetter(value) : ''),
-        valueGetter: ({ value }: { value: string }) => (value === '' ? null : value), // Converts "" -> null before storing in state
     },
     {
         field: 'vendor',
@@ -212,7 +211,6 @@ export const generateColumns = (dishTypes: string[], dishVendors: Record<string,
         type: 'singleSelect',
         valueOptions: (params) => ['', ...(dishVendors[params.row.location] ?? [])], // "" as empty selection
         valueFormatter: ({ value }: { value: string | null }) => (value ? capitalizeFirstLetter(value) : ''),
-        valueGetter: ({ value }: { value: string }) => (value === '' ? null : value), // Converts "" -> null before storing in state
     },
 ]
 

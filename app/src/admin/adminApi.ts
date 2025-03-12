@@ -346,6 +346,34 @@ const adminApi = {
                 console.log(`ERROR: Failed to modify user's role. ${err}.`)
             })
     },
+
+    modifyDishAttribute: async function (
+        token: string,
+        id: string,
+        field: string,
+        oldValue: string | null,
+        newValue: string | null,
+    ) {
+        try {
+            const response = await axios.post(
+                `${this.serverAddress}/api/dish/modifyDish`,
+                {
+                    id,
+                    field,
+                    oldValue,
+                    newValue,
+                },
+                {
+                    headers: headers(token),
+                },
+            )
+            console.log(`Successfully changed the dish ${field}`, response)
+            return response
+        } catch (err) {
+            console.error(`ERROR: Failed to change the dish ${field}. ${err}.`)
+            return err
+        }
+    },
 }
 
 export default adminApi

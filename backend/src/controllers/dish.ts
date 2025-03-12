@@ -17,9 +17,9 @@ import {
     deleteDish,
     getAllDishTypes,
     batchCreateDishes,
-    updateDishStatus,
-    validateModifyDishStatus,
     getAllDishVendors,
+    validateModifyDish,
+    updateDish,
 } from '../services/dish'
 import { CustomRequest } from '../middlewares/auth'
 import Logger from '../utils/logger'
@@ -663,7 +663,8 @@ export const updateDishCondition = async (req: Request, res: Response) => {
         return res.status(200).json({ message: 'dish condition updated' })
     }
 }
-export const modifyDishStatus = async (req: Request, res: Response) => {
+
+export const modifyDish = async (req: Request, res: Response) => {
     let userClaims = (req as CustomRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
         Logger.error({
@@ -674,22 +675,22 @@ export const modifyDishStatus = async (req: Request, res: Response) => {
         return res.status(403).json({ error: 'forbidden' })
     }
 
-    let validation = validateModifyDishStatus(req.body)
+    let validation = validateModifyDish(req.body)
     if (validation.error) {
         Logger.error({
             module: 'dish.controller',
             error: validation.error,
-            message: 'Validation for modify dish status failed',
+            message: 'Validation for modify dish failed',
             statusCode: 400,
         })
 
         return res.status(400).json({ error: 'bad_request', message: 'validation for modify dish status failed' })
     }
 
-    const { id, oldStatus, newStatus } = req.body
+    const { id, field, oldValue, newValue } = req.body
 
     try {
-        let response = await updateDishStatus(id, oldStatus, newStatus)
+        let response = await updateDish(id, field, oldValue, newValue)
         return res.status(200).json({ response })
     } catch (error: any) {
         Logger.error({

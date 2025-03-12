@@ -395,12 +395,14 @@ export const validateReturnDishRequestBody = (dish: Dish) => {
 
     return schema.validate(dish)
 }
-
-export const validateModifyDishStatus = (body: Object) => {
+export const validateModifyDish = (body: Object) => {
     const schema = Joi.object({
         id: Joi.string().required(),
-        oldStatus: Joi.string().required(),
-        newStatus: Joi.string().required(),
+        field: Joi.string()
+            .valid(...Object.keys({} as Dish))
+            .required(),
+        oldValue: Joi.string().allow(null),
+        newValue: Joi.string().allow(null),
     }).required()
     return schema.validate(body)
 }
@@ -451,16 +453,19 @@ export const updateCondition = async (id: string, condition: string) => {
     await db.collection('dishes').doc(id).update({ condition })
 }
 
-export const updateDishStatus = async (id: string, oldStatus: string, newStatus: string) => {
+export const updateDish = async (id: string, field: keyof Dish, oldValue: string | null, newValue: string | null) => {
     // check that old status is correct
     const dish = await getDishById(id)
     if (!dish) {
         throw new Error('Dish does not exist in database')
     }
-    if (dish?.status !== oldStatus) {
-        throw new Error('Old status does not match value in database. Please reload the page')
+    if (dish[field] && dish[field] !== oldValue) {
+        throw new Error('Old value does not match the value in database. Please reload the page')
     }
 
     // update status
-    await db.collection('dishes').doc(id).update({ status: newStatus })
+    await db
+        .collection('dishes')
+        .doc(id)
+        .update({ [field]: newValue })
 }
