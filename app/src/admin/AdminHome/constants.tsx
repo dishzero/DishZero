@@ -3,7 +3,11 @@ import { GridColDef } from '@mui/x-data-grid'
 import { tagColor } from '../DishesPage/constants'
 
 export const capitalizeFirstLetter = (value: string) => {
-    return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()
+    return value
+        .toLowerCase()
+        .split(' ')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ')
 }
 
 export type Transaction = {

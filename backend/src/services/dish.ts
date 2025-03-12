@@ -259,8 +259,8 @@ export async function getUserDishesSimple(userClaims: DecodedIdToken): Promise<A
             status: data.status,
             userId: data.userId,
             borrowedAt: data.borrowedAt ?? null,
-            location: data.location ?? null,
-            vendor: data.vendor ?? null,
+            location: data.location ?? '',
+            vendor: data.vendor ?? '',
         })
     })
     Logger.info({
@@ -302,8 +302,8 @@ export async function getAllDishes(withEmail?: boolean): Promise<Array<Dish>> {
             condition: data.condition ?? DishCondition.good,
             userId: withEmail ? userEmail ?? null : data.userId ?? null,
             borrowedAt: data.borrowedAt ?? null,
-            location: data.location ?? null,
-            vendor: data.vendor ?? null,
+            location: data.location ?? '',
+            vendor: data.vendor ?? '',
         })
     }
     //)
@@ -337,8 +337,8 @@ export async function getUserDishes(userClaims: DecodedIdToken): Promise<Array<D
             condition: data.condition ?? DishCondition.good,
             userId: data.user ?? null,
             borrowedAt: data.borrowedAt ?? null,
-            location: data.location ?? null,
-            vendor: data.vendor ?? null,
+            location: data.location ?? '',
+            vendor: data.vendor ?? '',
         })
     })
     Logger.info({
@@ -401,8 +401,8 @@ export const validateModifyDish = (body: Object) => {
         field: Joi.string()
             .valid(...Object.keys({} as Dish))
             .required(),
-        oldValue: Joi.string().allow(null),
-        newValue: Joi.string().allow(null),
+        oldValue: Joi.string().allow(''),
+        newValue: Joi.string().allow(''),
     }).required()
     return schema.validate(body)
 }
@@ -453,7 +453,7 @@ export const updateCondition = async (id: string, condition: string) => {
     await db.collection('dishes').doc(id).update({ condition })
 }
 
-export const updateDish = async (id: string, field: keyof Dish, oldValue: string | null, newValue: string | null) => {
+export const updateDish = async (id: string, field: keyof Dish, oldValue: string, newValue: string) => {
     // check that old status is correct
     const dish = await getDishById(id)
     if (!dish) {

@@ -46,13 +46,7 @@ export default function AdminDishesTable({ filteredRows, dishTypes, dishVendors,
 
     const modifyDish = async (id: string, field: string, oldValue: string, newValue: string) => {
         if (sessionToken) {
-            return await adminApi.modifyDishAttribute(
-                sessionToken,
-                id,
-                field,
-                oldValue === '' ? null : oldValue,
-                newValue === '' ? null : newValue,
-            )
+            return await adminApi.modifyDishAttribute(sessionToken, id, field, oldValue, newValue)
         }
     }
 

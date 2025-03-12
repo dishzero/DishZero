@@ -347,13 +347,7 @@ const adminApi = {
             })
     },
 
-    modifyDishAttribute: async function (
-        token: string,
-        id: string,
-        field: string,
-        oldValue: string | null,
-        newValue: string | null,
-    ) {
+    modifyDishAttribute: async function (token: string, id: string, field: string, oldValue: string, newValue: string) {
         try {
             const response = await axios.post(
                 `${this.serverAddress}/api/dish/modifyDish`,
