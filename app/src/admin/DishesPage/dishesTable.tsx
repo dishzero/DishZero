@@ -64,7 +64,7 @@ export default function AdminDishesTable({ filteredRows, dishTypes, dishVendors,
         } else if (newRow.location !== oldRow.location) {
             response = (await modifyDish(newRow.id, 'location', oldRow.location, newRow.location)) as any
             if (response && response.status === 200) {
-                newRow.vendor = null
+                newRow.vendor = ''
                 response = (await modifyDish(newRow.id, 'vendor', oldRow.vendor, newRow.vendor)) as any
             }
         } else if (newRow.vendor !== oldRow.vendor) {
