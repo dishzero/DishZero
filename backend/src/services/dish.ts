@@ -24,6 +24,28 @@ export const getAllDishTypes = async (): Promise<string[] | null> => {
     return dishTypes
 }
 
+export const getAllDishVendors = async (): Promise<Record<string, string[]> | null> => {
+    const snapshot = await db.collection('vendors').get()
+    if (snapshot.empty) {
+        return null
+    }
+
+    let dishVendors: Record<string, string[]> = {}
+
+    snapshot.docs.forEach((doc) => {
+        const location = doc.id // The document ID represents the location
+        const vendorData = doc.data().vendors ?? []
+
+        if (!dishVendors[location]) {
+            dishVendors[location] = []
+        }
+
+        dishVendors[location] = vendorData
+    })
+
+    return dishVendors
+}
+
 export const deleteDish = async (qid: number): Promise<void> => {
     const snapshot = await db.collection('dishes').where('qid', '==', qid).get()
     if (snapshot.empty) {
@@ -237,6 +259,8 @@ export async function getUserDishesSimple(userClaims: DecodedIdToken): Promise<A
             status: data.status,
             userId: data.userId,
             borrowedAt: data.borrowedAt ?? null,
+            location: data.location ?? null,
+            vendor: data.vendor ?? null,
         })
     })
     Logger.info({
@@ -278,6 +302,8 @@ export async function getAllDishes(withEmail?: boolean): Promise<Array<Dish>> {
             condition: data.condition ?? DishCondition.good,
             userId: withEmail ? userEmail ?? null : data.userId ?? null,
             borrowedAt: data.borrowedAt ?? null,
+            location: data.location ?? null,
+            vendor: data.vendor ?? null,
         })
     }
     //)
@@ -311,6 +337,8 @@ export async function getUserDishes(userClaims: DecodedIdToken): Promise<Array<D
             condition: data.condition ?? DishCondition.good,
             userId: data.user ?? null,
             borrowedAt: data.borrowedAt ?? null,
+            location: data.location ?? null,
+            vendor: data.vendor ?? null,
         })
     })
     Logger.info({

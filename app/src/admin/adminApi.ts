@@ -76,6 +76,21 @@ const adminApi = {
         return dishTypes
     },
 
+    getDishVendors: async function (token: string) {
+        const response = await axios
+            .get(`${this.serverAddress}/api/dish/getDishVendors`, {
+                headers: headers(token),
+            })
+            .then((res) => {
+                return res
+            })
+            .catch((err) => {
+                console.log(`Failed to get dish vendors from the database. ${err}.`)
+            })
+        const dishVendors = response?.data.dishVendors
+        return dishVendors
+    },
+
     addDishType: async function (token: string, dishType: string) {
         const response = await axios
             .post(
@@ -330,33 +345,6 @@ const adminApi = {
             .catch((err) => {
                 console.log(`ERROR: Failed to modify user's role. ${err}.`)
             })
-    },
-
-    modifyDishStatus: async function (token: string, id: string, oldStatus: string, newStatus: string) {
-        const response = await axios
-            .post(
-                `${this.serverAddress}/api/dish/modifyDishStatus`,
-                {
-                    id,
-                    oldStatus,
-                    newStatus,
-                },
-                {
-                    headers: headers(token),
-                },
-            )
-            .then((res) => {
-                // eslint-disable-next-line no-console
-                console.log('Successfully changed the dish status', res)
-                return res
-            })
-            .catch((err) => {
-                // eslint-disable-next-line no-console
-                console.error(`ERROR: Failed to change the dish status. ${err}.`)
-                return err
-            })
-
-        return response
     },
 }
 

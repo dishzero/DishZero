@@ -10,6 +10,7 @@ import {
     updateDishCondition,
     getDishTypes,
     modifyDishStatus,
+    getDishVendors,
 } from '../controllers/dish'
 import { verifyApiKey, verifyFirebaseToken } from '../middlewares/auth'
 
@@ -17,6 +18,7 @@ const router = express.Router()
 
 router.get('/', verifyApiKey, verifyFirebaseToken, getDishes)
 router.get('/getDishTypes', verifyApiKey, verifyFirebaseToken, getDishTypes)
+router.get('/getDishVendors', verifyApiKey, verifyFirebaseToken, getDishVendors)
 router.post('/createMultipleDishes', verifyApiKey, verifyFirebaseToken, createMultipleDishes)
 router.post('/addDishType', verifyApiKey, verifyFirebaseToken, addDishType)
 router.post('/modifyDishStatus', verifyApiKey, verifyFirebaseToken, modifyDishStatus)

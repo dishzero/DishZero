@@ -14,11 +14,12 @@ import { BallTriangle } from 'react-loader-spinner'
 interface Props {
     filteredRows: Dish[]
     dishTypes: string[]
+    dishVendors: Record<string, string[]>
     loadingDishes: boolean
     fetchDishes: () => void
 }
 
-export default function AdminDishesTable({ filteredRows, dishTypes, loadingDishes, fetchDishes }: Props) {
+export default function AdminDishesTable({ filteredRows, dishTypes, dishVendors, loadingDishes, fetchDishes }: Props) {
     const { sessionToken } = useAuth()
     const [selectedRows, setSelectedRows] = useState<GridRowId[]>([])
     const [open, setOpen] = useState(false)
@@ -78,13 +79,13 @@ export default function AdminDishesTable({ filteredRows, dishTypes, loadingDishe
             <StyledDataGrid
                 loading={loadingDishes}
                 rows={filteredRows}
-                columns={generateColumns(dishTypes)}
+                columns={generateColumns(dishTypes, dishVendors)}
                 initialState={{
                     pagination: {
                         paginationModel: { page: 0, pageSize: 10 },
                     },
                 }}
-                sx={{ flex: 1, minWidth: 1000, maxWidth: 1300 }}
+                sx={{ flex: 1, minWidth: 1300, maxWidth: 1600 }}
                 slots={{
                     loadingOverlay: () => (
                         <GridOverlay style={{ flexDirection: 'column', paddingTop: 10, paddingBottom: 10 }}>

@@ -8,6 +8,8 @@ export type Dish = {
     registered: string
     userId: string | null
     borrowedAt: string | null
+    location: string | null
+    vendor: string | null
     // notes: string | null // use to add notes to dish -> future work?
 }
 
