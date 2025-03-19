@@ -24,6 +24,28 @@ export const getAllDishTypes = async (): Promise<string[] | null> => {
     return dishTypes
 }
 
+export const getAllDishVendors = async (): Promise<Record<string, string[]> | null> => {
+    const snapshot = await db.collection('vendors').get()
+    if (snapshot.empty) {
+        return null
+    }
+
+    let dishVendors: Record<string, string[]> = {}
+
+    snapshot.docs.forEach((doc) => {
+        const location = doc.id // The document ID represents the location
+        const vendorData = doc.data().vendors ?? []
+
+        if (!dishVendors[location]) {
+            dishVendors[location] = []
+        }
+
+        dishVendors[location] = vendorData
+    })
+
+    return dishVendors
+}
+
 export const deleteDish = async (qid: number): Promise<void> => {
     const snapshot = await db.collection('dishes').where('qid', '==', qid).get()
     if (snapshot.empty) {
@@ -237,6 +259,8 @@ export async function getUserDishesSimple(userClaims: DecodedIdToken): Promise<A
             status: data.status,
             userId: data.userId,
             borrowedAt: data.borrowedAt ?? null,
+            location: data.location ?? '',
+            vendor: data.vendor ?? '',
         })
     })
     Logger.info({
@@ -278,6 +302,8 @@ export async function getAllDishes(withEmail?: boolean): Promise<Array<Dish>> {
             condition: data.condition ?? DishCondition.good,
             userId: withEmail ? userEmail ?? null : data.userId ?? null,
             borrowedAt: data.borrowedAt ?? null,
+            location: data.location ?? '',
+            vendor: data.vendor ?? '',
         })
     }
     //)
@@ -311,6 +337,8 @@ export async function getUserDishes(userClaims: DecodedIdToken): Promise<Array<D
             condition: data.condition ?? DishCondition.good,
             userId: data.user ?? null,
             borrowedAt: data.borrowedAt ?? null,
+            location: data.location ?? '',
+            vendor: data.vendor ?? '',
         })
     })
     Logger.info({
@@ -367,12 +395,14 @@ export const validateReturnDishRequestBody = (dish: Dish) => {
 
     return schema.validate(dish)
 }
-
-export const validateModifyDishStatus = (body: Object) => {
+export const validateModifyDish = (body: Object) => {
     const schema = Joi.object({
         id: Joi.string().required(),
-        oldStatus: Joi.string().required(),
-        newStatus: Joi.string().required(),
+        field: Joi.string()
+            .valid(...Object.keys({} as Dish))
+            .required(),
+        oldValue: Joi.string().allow(''),
+        newValue: Joi.string().allow(''),
     }).required()
     return schema.validate(body)
 }
@@ -423,16 +453,19 @@ export const updateCondition = async (id: string, condition: string) => {
     await db.collection('dishes').doc(id).update({ condition })
 }
 
-export const updateDishStatus = async (id: string, oldStatus: string, newStatus: string) => {
+export const updateDish = async (id: string, field: keyof Dish, oldValue: string, newValue: string) => {
     // check that old status is correct
     const dish = await getDishById(id)
     if (!dish) {
         throw new Error('Dish does not exist in database')
     }
-    if (dish?.status !== oldStatus) {
-        throw new Error('Old status does not match value in database. Please reload the page')
+    if (dish[field] && dish[field] !== oldValue) {
+        throw new Error('Old value does not match the value in database. Please reload the page')
     }
 
     // update status
-    await db.collection('dishes').doc(id).update({ status: newStatus })
+    await db
+        .collection('dishes')
+        .doc(id)
+        .update({ [field]: newValue })
 }

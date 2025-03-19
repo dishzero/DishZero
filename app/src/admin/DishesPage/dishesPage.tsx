@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useAuth } from '../../contexts/AuthContext'
 import adminApi from '../adminApi'
-import { Dish, mockDishes } from './constants'
+import { Dish } from './constants'
 import AdminDishesHeader from './dishesHeader'
 import AdminDishesTable from './dishesTable'
 import { Box } from '@mui/material'
@@ -13,6 +12,7 @@ export default function AdminDishesPage() {
     const [filteredRows, setFilteredRows] = useState<Dish[]>([]) // rows visible in table
     const [allRows, setAllRows] = useState<Dish[]>([]) // all rows fetched from backend
     const [dishTypes, setDishTypes] = useState<string[]>([])
+    const [dishVendors, setDishVendors] = useState<Record<string, string[]>>({})
     const [loadingDishes, setLoadingDishes] = useState(true)
 
     const fetchDishes = async () => {
@@ -20,7 +20,6 @@ export default function AdminDishesPage() {
         if (sessionToken) {
             setLoadingDishes(true)
             dishData = await adminApi.getAllDishes(sessionToken, true)
-            // dishData = mockDishes
             setLoadingDishes(false)
         }
         setAllRows(dishData)
@@ -30,14 +29,22 @@ export default function AdminDishesPage() {
         let dishTypes: string[] = []
         if (sessionToken) {
             dishTypes = await adminApi.getDishTypes(sessionToken)
-            // dishTypes = ['mug', 'container']
         }
         setDishTypes(dishTypes)
+    }
+
+    const fetchDishVendors = async () => {
+        let dishVendors: Record<string, string[]> = {}
+        if (sessionToken) {
+            dishVendors = await adminApi.getDishVendors(sessionToken)
+        }
+        setDishVendors(dishVendors)
     }
 
     useEffect(() => {
         fetchDishes()
         fetchDishTypes()
+        fetchDishVendors()
     }, [])
 
     // update visible rows if all rows changes
@@ -52,7 +59,6 @@ export default function AdminDishesPage() {
                 setFilteredRows={setFilteredRows}
                 dishTypes={dishTypes}
                 fetchDishTypes={fetchDishTypes}
-                // setDishTypes={setDishTypes}
                 fetchDishes={fetchDishes}
             />
             <AdminDishesTable
@@ -60,6 +66,7 @@ export default function AdminDishesPage() {
                 fetchDishes={fetchDishes}
                 loadingDishes={loadingDishes}
                 dishTypes={dishTypes}
+                dishVendors={dishVendors}
             />
         </Box>
     )

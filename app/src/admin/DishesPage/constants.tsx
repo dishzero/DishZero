@@ -12,10 +12,12 @@ export type Dish = {
     registered: string
     userId: string | null
     borrowedAt: string | null // rename to dateBorrowed?
+    location: string | null
+    vendor: string | null
     // notes: string | null // use to add notes to dish -> future work?
 }
 
-export function tagColor(text) {
+export function tagColor(text: string): string {
     switch (text) {
         case 'mug':
             return '#496EA5'
@@ -78,7 +80,7 @@ export const DishConditionColors = {
     shattered: '#BF4949',
 }
 
-export const generateColumns = (dishTypes: string[]): GridColDef[] => [
+export const generateColumns = (dishTypes: string[], dishVendors: Record<string, string[]>): GridColDef[] => [
     { field: 'qid', headerName: 'Dish Id', minWidth: 100, maxWidth: 100, flex: 1 },
     {
         field: 'type',
@@ -188,6 +190,28 @@ export const generateColumns = (dishTypes: string[]): GridColDef[] => [
             return new Date(value).toLocaleDateString()
         },
     },
+    {
+        field: 'location',
+        headerName: 'Location',
+        minWidth: 150,
+        maxWidth: 150,
+        flex: 1,
+        editable: true,
+        type: 'singleSelect',
+        valueOptions: ['', ...((Object.keys(dishVendors) as string[]) ?? [])], // "" as empty selection
+        valueFormatter: ({ value }: { value: string | null }) => (value ? capitalizeFirstLetter(value) : ''),
+    },
+    {
+        field: 'vendor',
+        headerName: 'Vendor',
+        minWidth: 150,
+        maxWidth: 150,
+        flex: 1,
+        editable: true,
+        type: 'singleSelect',
+        valueOptions: (params) => ['', ...(dishVendors[params.row.location] ?? [])], // "" as empty selection
+        valueFormatter: ({ value }: { value: string | null }) => (value ? capitalizeFirstLetter(value) : ''),
+    },
 ]
 
 export const mockDishes: Array<Dish> = [
@@ -201,6 +225,8 @@ export const mockDishes: Array<Dish> = [
         registered: '2024-02-29T12:57:05.733Z',
         userId: null,
         borrowedAt: null,
+        location: 'ETLC',
+        vendor: 'Starbucks',
     },
     {
         id: '1',
@@ -212,5 +238,7 @@ export const mockDishes: Array<Dish> = [
         registered: '2024-02-29T12:57:05.733Z',
         userId: 'wiskel@ualberta.ca',
         borrowedAt: '2024-02-29T22:57:05.733Z',
+        location: 'ETLC',
+        vendor: 'Starbucks',
     },
 ]

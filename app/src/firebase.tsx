@@ -15,8 +15,10 @@ const app = initializeApp({
 
 const provider = new GoogleAuthProvider()
 provider.setCustomParameters({ hd: 'ualberta.ca' })
+
+const googleAuthProvider = new GoogleAuthProvider()
 const auth = getAuth(app)
 
-export { auth, provider }
+export { auth, provider, googleAuthProvider }
 
 export default app

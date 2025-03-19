@@ -76,6 +76,21 @@ const adminApi = {
         return dishTypes
     },
 
+    getDishVendors: async function (token: string) {
+        const response = await axios
+            .get(`${this.serverAddress}/api/dish/getDishVendors`, {
+                headers: headers(token),
+            })
+            .then((res) => {
+                return res
+            })
+            .catch((err) => {
+                console.log(`Failed to get dish vendors from the database. ${err}.`)
+            })
+        const dishVendors = response?.data.dishVendors
+        return dishVendors
+    },
+
     addDishType: async function (token: string, dishType: string) {
         const response = await axios
             .post(
@@ -332,31 +347,26 @@ const adminApi = {
             })
     },
 
-    modifyDishStatus: async function (token: string, id: string, oldStatus: string, newStatus: string) {
-        const response = await axios
-            .post(
-                `${this.serverAddress}/api/dish/modifyDishStatus`,
+    modifyDishAttribute: async function (token: string, id: string, field: string, oldValue: string, newValue: string) {
+        try {
+            const response = await axios.post(
+                `${this.serverAddress}/api/dish/modifyDish`,
                 {
                     id,
-                    oldStatus,
-                    newStatus,
+                    field,
+                    oldValue,
+                    newValue,
                 },
                 {
                     headers: headers(token),
                 },
             )
-            .then((res) => {
-                // eslint-disable-next-line no-console
-                console.log('Successfully changed the dish status', res)
-                return res
-            })
-            .catch((err) => {
-                // eslint-disable-next-line no-console
-                console.error(`ERROR: Failed to change the dish status. ${err}.`)
-                return err
-            })
-
-        return response
+            console.log(`Successfully changed the dish ${field}`, response)
+            return response
+        } catch (err) {
+            console.error(`ERROR: Failed to change the dish ${field}. ${err}.`)
+            return err
+        }
     },
 }
 

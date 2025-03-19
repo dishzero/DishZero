@@ -14,11 +14,12 @@ import { BallTriangle } from 'react-loader-spinner'
 interface Props {
     filteredRows: Dish[]
     dishTypes: string[]
+    dishVendors: Record<string, string[]>
     loadingDishes: boolean
     fetchDishes: () => void
 }
 
-export default function AdminDishesTable({ filteredRows, dishTypes, loadingDishes, fetchDishes }: Props) {
+export default function AdminDishesTable({ filteredRows, dishTypes, dishVendors, loadingDishes, fetchDishes }: Props) {
     const { sessionToken } = useAuth()
     const [selectedRows, setSelectedRows] = useState<GridRowId[]>([])
     const [open, setOpen] = useState(false)
@@ -43,34 +44,38 @@ export default function AdminDishesTable({ filteredRows, dishTypes, loadingDishe
         }
     }
 
-    const modifyDishStatus = async (id: string, oldStatus: string, newStatus: string) => {
+    const modifyDish = async (id: string, field: string, oldValue: string, newValue: string) => {
         if (sessionToken) {
-            const response = await adminApi.modifyDishStatus(sessionToken, id, oldStatus, newStatus)
-            return response
+            return await adminApi.modifyDishAttribute(sessionToken, id, field, oldValue, newValue)
         }
     }
 
     // must return the GridRowModel to update the internal state of the grid
     const processRowUpdate = async (newRow: GridRowModel, oldRow: GridRowModel) => {
+        let response
         if (newRow.status !== oldRow.status) {
-            const oldStatus = oldRow.status
-            const { status: newStatus, id } = newRow
-            const response = (await modifyDishStatus(id, oldStatus, newStatus)) as any
-
-            if (response && response?.status !== 200) {
-                enqueueSnackbar(
-                    `Failed to modify dish status: ${response.message}; ${response.response.data.message}`,
-                    { variant: 'error' },
-                )
-                return oldRow
-            } else {
-                enqueueSnackbar(`Successfully modified dish status`, { variant: 'success' })
-                return newRow
+            response = (await modifyDish(newRow.id, 'status', oldRow.status, newRow.status)) as any
+        } else if (newRow.location !== oldRow.location) {
+            response = (await modifyDish(newRow.id, 'location', oldRow.location, newRow.location)) as any
+            if (response && response.status === 200) {
+                newRow.vendor = ''
+                response = (await modifyDish(newRow.id, 'vendor', oldRow.vendor, newRow.vendor)) as any
             }
+        } else if (newRow.vendor !== oldRow.vendor) {
+            response = (await modifyDish(newRow.id, 'vendor', oldRow.vendor, newRow.vendor)) as any
         }
 
-        // if no status change, just return the old row
-        return oldRow
+        if (!response) {
+            return oldRow
+        } else if (response && response?.status !== 200) {
+            enqueueSnackbar(`Failed to modify dish: ${response.message}; ${response.response.data.message}`, {
+                variant: 'error',
+            })
+            return oldRow
+        } else {
+            enqueueSnackbar(`Successfully modified dish`, { variant: 'success' })
+            return newRow
+        }
     }
 
     return (
@@ -78,13 +83,13 @@ export default function AdminDishesTable({ filteredRows, dishTypes, loadingDishe
             <StyledDataGrid
                 loading={loadingDishes}
                 rows={filteredRows}
-                columns={generateColumns(dishTypes)}
+                columns={generateColumns(dishTypes, dishVendors)}
                 initialState={{
                     pagination: {
                         paginationModel: { page: 0, pageSize: 10 },
                     },
                 }}
-                sx={{ flex: 1, minWidth: 1000, maxWidth: 1300 }}
+                sx={{ flex: 1, minWidth: 1300, maxWidth: 1600 }}
                 slots={{
                     loadingOverlay: () => (
                         <GridOverlay style={{ flexDirection: 'column', paddingTop: 10, paddingBottom: 10 }}>
