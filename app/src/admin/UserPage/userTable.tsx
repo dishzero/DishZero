@@ -30,7 +30,7 @@ export default function AdminUserTable({ filteredRows, loadingUsers }: Props) {
     const processRowUpdate = async (newRow: GridRowModel, oldRow: GridRowModel) => {
         if (newRow.role !== oldRow.role) {
             // const oldRole = oldRow.role
-            const { role: newRole, id: userId, email } = newRow
+            const { role: newRole, userId, email } = newRow
             const response = (await modifyUserRole(userId, newRole, email)) as any
 
             if (response && response?.status !== 200) {
