@@ -59,10 +59,11 @@ export default function Login() {
                 </Typography>
                 <Button
                     variant="contained"
-                    sx={styles.signInButtonGmail}
-                    onClick={() => handleSignIn(LoginLocation.Other)}
+                    sx={styles.signInButton}
+                    onClick={() => handleSignIn(LoginLocation.UniversityOfAlberta)}
                     disabled={isLoading}>
-                    <Typography sx={styles.signInButtonTextGmail}>Gmail Sign In</Typography>
+                    <Avatar src={signInButtonLogo} sx={styles.signInButtonLogo} alt="Sign In Button Logo" />
+                    <Typography sx={styles.signInButtonText}>Sign in with CCID</Typography>
                 </Button>
                 <Box
                     sx={{
@@ -73,14 +74,13 @@ export default function Login() {
                     }}>
                     <Button
                         variant="outlined"
-                        sx={styles.signInButtonUofA}
-                        onClick={() => handleSignIn(LoginLocation.UniversityOfAlberta)}
+                        sx={styles.signInButtonOther}
+                        onClick={() => handleSignIn(LoginLocation.Other)}
                         disabled={isLoading}>
-                        <Avatar src={signInButtonLogo} sx={styles.signInButtonLogo} alt="Sign In Button Logo" />
-                        <Typography sx={styles.signInButtonTextUofA}>Sign in with CCID</Typography>
+                        <Typography sx={styles.signInButtonTextOther}>Other Sign In</Typography>
                     </Button>
                     <Tooltip
-                        title="Use this if you're borrowing a dish on the University of Alberta campus"
+                        title="Use this if you're borrowing a dish not on the University of Alberta campus"
                         placement="top"
                         arrow
                         enterTouchDelay={0}>
@@ -167,32 +167,33 @@ export const styles = {
         fontFamily: 'Poppins, sans-serif',
         color: '#4c4242',
         marginTop: '7px',
-        paddingLeft: 0.5,
+        paddingLeft: 2.5,
         paddingRight: 2.5,
-        textAlign: 'right',
-    },
-    signInButtonGmail: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: '300px',
-        height: '50px',
-        borderRadius: '20px',
-        backgroundColor: '#68B49A',
-        borderWidth: '0',
-        marginTop: '50px',
-        '&:hover': {
-            backgroundColor: '#68B49A',
-        },
+        textAlign: 'center',
     },
 
-    signInButtonUofA: {
+    signInButton: {
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
         width: '250px',
+        height: '50px',
+        borderRadius: '20px',
+        backgroundColor: '#68B49A',
+        borderWidth: '0',
+        marginTop: '70px',
+        '&:hover': {
+            backgroundColor: '#68B49A',
+        },
+    },
+
+    signInButtonOther: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '200px',
         height: '40px',
         borderRadius: '20px',
         borderWidth: '3px',
@@ -212,17 +213,17 @@ export const styles = {
         marginRight: '7px',
     },
 
-    signInButtonTextGmail: {
+    signInButtonText: {
         fontSize: '1.025rem',
         fontFamily: 'Poppins, sans-serif',
         color: 'white',
         marginLeft: '7px',
     },
-    
-    signInButtonTextUofA: {
+
+    signInButtonTextOther: {
         fontSize: '1.025rem',
         fontFamily: 'Poppins, sans-serif',
         color: '#68B49A',
         marginLeft: '7px',
-    }
+    },
 }
