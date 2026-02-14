@@ -127,7 +127,7 @@ const Borrow = () => {
                 `${process.env.REACT_APP_BACKEND_ADDRESS}/api/dish/borrow`,
                 {},
                 {
-                    headers: { 'x-api-key': `${process.env.REACT_APP_API_KEY}`, 'session-token': sessionToken },
+                    headers: { 'session-token': sessionToken },
                     params: { qid: scanId },
                 },
             )

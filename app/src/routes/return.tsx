@@ -290,7 +290,6 @@ const Return = ({ noTimer }) => {
                     },
                     {
                         headers: {
-                            'x-api-key': `${process.env.REACT_APP_API_KEY}`,
                             'session-token': sessionToken,
                             'Content-Type': 'application/json',
                         },
@@ -333,7 +332,7 @@ const Return = ({ noTimer }) => {
                 `${process.env.REACT_APP_BACKEND_ADDRESS}/api/dish/borrow`,
                 {},
                 {
-                    headers: { 'x-api-key': `${process.env.REACT_APP_API_KEY}`, 'session-token': sessionToken },
+                    headers: { 'session-token': sessionToken },
                     params: { qid: qid, email: 'dishzero@ualberta.ca' },
                 },
             )
@@ -365,7 +364,6 @@ const Return = ({ noTimer }) => {
                     },
                     {
                         headers: {
-                            'x-api-key': `${process.env.REACT_APP_API_KEY}`,
                             'session-token': sessionToken,
                             'Content-Type': 'application/json',
                         },
@@ -405,7 +403,6 @@ const Return = ({ noTimer }) => {
                     },
                     {
                         headers: {
-                            'x-api-key': `${process.env.REACT_APP_API_KEY}`,
                             'session-token': sessionToken,
                             'Content-Type': 'application/json',
                         },
