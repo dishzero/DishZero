@@ -34,13 +34,13 @@ jobs:
             du -sh ~/.yarn 2>/dev/null || true
 
             echo ""
-            echo "=== Cleanup: freeing ~400M+ (node_modules + npm cache) ==="
-            export NVM_DIR=~/.nvm
-            source ~/.nvm/nvm.sh
-            npm cache clean --force
+            echo "=== Cleanup: free space first (no extra writes), then clear caches ==="
             cd /home/ubuntu/DishZero/backend
             rm -rf node_modules
             git gc --aggressive --prune=now
+            export NVM_DIR=~/.nvm
+            source ~/.nvm/nvm.sh
+            npm cache clean --force
             echo ""
             echo "=== Disk usage after cleanup ==="
             df -h
