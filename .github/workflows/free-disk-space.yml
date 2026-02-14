@@ -1,0 +1,34 @@
+name: Free disk space on EC2
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  free-disk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH in and report disk usage
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_URL }}
+          username: 'ubuntu'
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "=== Disk usage (df -h) ==="
+            df -h
+            echo ""
+            echo "=== Largest dirs in /home/ubuntu ==="
+            du -sh /home/ubuntu/* 2>/dev/null | sort -hr | head -20
+            echo ""
+            echo "=== Backend repo size breakdown ==="
+            du -sh /home/ubuntu/DishZero/backend/* 2>/dev/null | sort -hr
+            echo ""
+            echo "=== /tmp size ==="
+            du -sh /tmp 2>/dev/null || true
+            echo ""
+            echo "=== npm cache size ==="
+            du -sh ~/.npm 2>/dev/null || true
+            echo ""
+            echo "=== yarn cache size ==="
+            du -sh ~/.yarn 2>/dev/null || true
