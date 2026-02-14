@@ -2,13 +2,20 @@
 
 ## Local Development
 
-Clone the repository, cd into the `backend` directory, and run:
+For the server to connect to firebase where the users are stored, you need to save the
+[contents of a private key file](https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments)
+to `credentials.json`.
+
+Set your local environment variables by copying `.env.example` to an `.env` file. The `SECRET_KEY` will need to come
+from AWS.
+
+Then to install dependencies, run
 
 ```
 yarn
 ```
 
-this will install all the dependencies. then run:
+Then, to start the local development server, run:
 
 ```
 yarn dev
@@ -71,8 +78,7 @@ are:
     ```
 
 -   #### POST `/api/auth/logout`
-    This will logout the user and clear the session cookie.
-    headers:
+    This will logout the user and clear the session cookie. headers:
     ```
     x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
@@ -223,8 +229,7 @@ The transaction routes are defined in the `src/routes/transaction.ts` file. The 
 
 -   #### GET `/api/transactions?all=`
     This route returns all the transactions in the database is user is admin and all is set to `true`. Otherwise returns
-    all the transactions based on the user_id retrieved from the session cookie.
-    headers:
+    all the transactions based on the user_id retrieved from the session cookie. headers:
     ```
     x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
@@ -355,8 +360,7 @@ routes are:
     ```
 
 -   #### DELETE `/api/qrcode?qid=`
-    This route deletes the qr code with the given qid only if the user is admin.
-    headers:
+    This route deletes the qr code with the given qid only if the user is admin. headers:
     ```
     x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
@@ -456,8 +460,7 @@ are:
     ```
 
 -   #### POST `/api/cron/email/start`
-    Starts the cron job with the current expression in the database (stopping any previous running cron job)
-    headers:
+    Starts the cron job with the current expression in the database (stopping any previous running cron job) headers:
     ```
     x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
