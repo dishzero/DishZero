@@ -1,8 +1,9 @@
-name: Deploy code to EC2 instance
+name: Deploy backend to EC2 instance
 
 on:
   push:
     branches: [ main ]
+    paths: [ 'backend/**' ]
 
 jobs:
   deploy:
