@@ -1,27 +1,14 @@
 import { Request, Response, NextFunction } from 'express'
 import * as dotenv from 'dotenv'
-import jwt, { JwtPayload, Secret } from 'jsonwebtoken'
 import { auth } from '../internal/firebase'
 import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
 import Logger from '../utils/logger'
 import { getUserById } from '../services/users'
 dotenv.config()
 
-const API_KEY = process.env.REACT_APP_API_KEY || 'test'
-export const SECRET_KEY: Secret = process.env.SECRET_KEY!
-
 // Define the custom request object
 export interface CustomRequest extends Request {
-    dishzero: string | JwtPayload
     firebase: DecodedIdToken
-}
-
-// Define the payload of the JWT token
-export interface TokenPayload {
-    email: string
-    role: string
-    iat: number
-    exp: number
 }
 
 /**

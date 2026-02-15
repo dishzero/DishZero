@@ -6,8 +6,7 @@ For the server to connect to firebase where the users are stored, you need to sa
 [contents of a private key file](https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments)
 to `credentials.json`.
 
-Set your local environment variables by copying `.env.example` to an `.env` file. The `SECRET_KEY` will need to come
-from AWS.
+Set your local environment variables by copying `.env.example` to an `.env` file.
 
 Then to install dependencies, run
 
