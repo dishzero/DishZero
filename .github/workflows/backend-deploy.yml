@@ -1,15 +1,17 @@
-name: Deploy code to EC2 instance
+name: Deploy backend to EC2 instance
 
 on:
   push:
     branches: [ main ]
+    paths: [ 'backend/**' ]
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Rebuild backend and deploy
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2  # v1.2.5, pinned for supply chain safety; get the new full SHA if we need to updgrade
         with:
           host: ${{ secrets.EC2_URL }}
           username: 'ubuntu'
