@@ -10,6 +10,5 @@ if [ "#$1" == "#" ] ; then
 fi
 
 curl -i -X DELETE \
-    -H "x-api-key: test" \
     -H "session-token: $SESSION_TOKEN" \
     "http://localhost:8080/api/qrcode?qid=$1"
