@@ -142,7 +142,6 @@ test('triggers search on Enter key', async () => {
             {
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-api-key': `${process.env.REACT_APP_API_KEY}`,
                     'session-token': 'mocked-session-token',
                 },
                 params: { qid: '6' },
@@ -159,7 +158,6 @@ test('triggers search on Enter key', async () => {
                 headers: {
                     'Content-Type': 'application/json',
                     'session-token': 'mocked-session-token',
-                    'x-api-key': 'test',
                 },
                 params: {
                     id: 'Mejp6iZt2HzzrJZDBBAy',
@@ -171,7 +169,6 @@ test('triggers search on Enter key', async () => {
     // Optionally, check if axios.post was called with the correct arguments
     expect(axios.get).toHaveBeenCalledWith(`/api/dish`, {
         headers: {
-            'x-api-key': `${process.env.REACT_APP_API_KEY}`,
             'session-token': 'mocked-session-token',
         },
         params: { qid: '6' },
@@ -234,7 +231,6 @@ test('Dish Not Found', async () => {
             {
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-api-key': `${process.env.REACT_APP_API_KEY}`,
                     'session-token': 'mocked-session-token',
                 },
                 params: { qid: '6' },
@@ -246,7 +242,6 @@ test('Dish Not Found', async () => {
     // Optionally, check if axios.post was called with the correct arguments
     expect(axios.get).toHaveBeenCalledWith(`/api/dish`, {
         headers: {
-            'x-api-key': `${process.env.REACT_APP_API_KEY}`,
             'session-token': 'mocked-session-token',
         },
         params: { qid: '6' },
@@ -309,7 +304,6 @@ test('Dish Not Borrowed', async () => {
             {
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-api-key': `${process.env.REACT_APP_API_KEY}`,
                     'session-token': 'mocked-session-token',
                 },
                 params: { qid: '6' },
@@ -321,7 +315,6 @@ test('Dish Not Borrowed', async () => {
     // Optionally, check if axios.post was called with the correct arguments
     expect(axios.get).toHaveBeenCalledWith(`/api/dish`, {
         headers: {
-            'x-api-key': `${process.env.REACT_APP_API_KEY}`,
             'session-token': 'mocked-session-token',
         },
         params: { qid: '6' },

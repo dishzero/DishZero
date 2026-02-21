@@ -6,8 +6,7 @@ For the server to connect to firebase where the users are stored, you need to sa
 [contents of a private key file](https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments)
 to `credentials.json`.
 
-Set your local environment variables by copying `.env.example` to an `.env` file. The `SECRET_KEY` will need to come
-from AWS.
+Set your local environment variables by copying `.env.example` to an `.env` file.
 
 Then to install dependencies, run
 
@@ -65,12 +64,6 @@ are:
     This will login the user and return a session cookie. if the user is not registered, then it will register the user
     with customClaims and then return the session cookie.
 
-    headers:
-
-    ```
-    x-api-key: preset constant api key
-    ```
-
     body:
 
     ```
@@ -80,7 +73,6 @@ are:
 -   #### POST `/api/auth/logout`
     This will logout the user and clear the session cookie. headers:
     ```
-    x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
     ```
 
@@ -96,7 +88,6 @@ are:
     headers:
 
     ```
-    x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
     ```
 
@@ -116,7 +107,6 @@ are:
     headers:
 
     ```
-    x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
     ```
 
@@ -138,7 +128,6 @@ are:
     headers:
 
     ```
-    x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
     ```
 
@@ -156,7 +145,6 @@ are:
     headers:
 
     ```
-    x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
     ```
 
@@ -193,7 +181,6 @@ are:
     headers:
 
     ```
-    x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
     ```
 
@@ -231,7 +218,6 @@ The transaction routes are defined in the `src/routes/transaction.ts` file. The 
     This route returns all the transactions in the database is user is admin and all is set to `true`. Otherwise returns
     all the transactions based on the user_id retrieved from the session cookie. headers:
     ```
-    x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
     ```
     query:
@@ -251,7 +237,6 @@ are:
     headers:
 
     ```
-    x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
     ```
 
@@ -269,7 +254,6 @@ are:
     headers:
 
     ```
-    x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
     ```
 
@@ -281,7 +265,6 @@ are:
     headers:
 
     ```
-    x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
     ```
 
@@ -309,7 +292,6 @@ routes are:
     headers:
 
     ```
-    x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
     ```
 
@@ -326,7 +308,6 @@ routes are:
     headers:
 
     ```
-    x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
     ```
 
@@ -346,7 +327,6 @@ routes are:
     headers:
 
     ```
-    x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
     ```
 
@@ -362,7 +342,6 @@ routes are:
 -   #### DELETE `/api/qrcode?qid=`
     This route deletes the qr code with the given qid only if the user is admin. headers:
     ```
-    x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
     ```
     query:
@@ -382,7 +361,6 @@ are:
     headers:
 
     ```
-    x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
     ```
 
@@ -393,7 +371,6 @@ are:
     headers:
 
     ```
-    x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
     ```
 
@@ -410,7 +387,6 @@ are:
     headers:
 
     ```
-    x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
     ```
 
@@ -430,7 +406,6 @@ are:
     headers:
 
     ```
-    x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
     ```
 
@@ -455,13 +430,11 @@ are:
     headers:
 
     ```
-    x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
     ```
 
 -   #### POST `/api/cron/email/start`
     Starts the cron job with the current expression in the database (stopping any previous running cron job) headers:
     ```
-    x-api-key: preset constant api key
     session-token: generated sessionCookie from firebase after login
     ```

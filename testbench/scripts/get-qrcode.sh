@@ -12,6 +12,5 @@ fi
 qid=$1
 
 curl -i -X GET \
-    -H "x-api-key: test" \
     -H "session-token: $SESSION_TOKEN" \
     "http://localhost:8080/api/qrcode/?qid=$qid"
