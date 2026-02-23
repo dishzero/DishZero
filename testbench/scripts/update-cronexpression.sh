@@ -10,7 +10,6 @@ if [ "#$ID_TOKEN" == "#" ] || [ "#$SESSION_TOKEN" == "#" ] ; then
 fi
 
 curl -i -X POST \
-    -H "x-api-key: test" \
     -H "session-token: $SESSION_TOKEN" \
     -H "Content-Type: application/json" \
     -d "{\"days\" : {\"monday\" : \"true\", \"tuesday\" : \"true\", \"wednesday\" : \"true\", \"thursday\" : \"false\",\"friday\" : \"false\",\"saturday\" : \"false\",\"sunday\" : \"false\"}}" \

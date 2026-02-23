@@ -10,7 +10,7 @@ export default ({ dish, token }) => {
     useEffect(() => {
         axios
             .get(`/api/dish`, {
-                headers: { 'x-api-key': `${process.env.REACT_APP_API_KEY}`, 'session-token': token },
+                headers: { 'session-token': token },
                 baseURL: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
                 params: { id: dish.dish },
             })

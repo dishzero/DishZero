@@ -10,7 +10,6 @@ if [ "#$1" == "#" ] || [ "#$2" == "#" ] ; then
 fi
 
 curl -i -X POST \
-    -H "x-api-key: test" \
     -H "session-token: $SESSION_TOKEN" \
     -H "Content-Type: application/json" \
     -d "{ \"qrCode\" : {\"qid\" : $1, \"dishId\" : \"$2\"} }" \

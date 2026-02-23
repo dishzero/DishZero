@@ -19,16 +19,14 @@ dotenv.config()
 const corsOptions = {
     origin: '*', // This is your front-end origin
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS', // Include OPTIONS for preflight requests
-    allowedHeaders: 'Content-Type,Authorization,x-api-key,session-token', // Include custom headers
+    allowedHeaders: 'Content-Type,Authorization,session-token', // Include custom headers
     credentials: true, // This is important because you are sending a session token in your request
-    optionsSuccessStatus: 200 // Some legacy browsers (IE11, various SmartTVs) choke on 204
-  };
+    optionsSuccessStatus: 200, // Some legacy browsers (IE11, various SmartTVs) choke on 204
+}
 app.use(cors(corsOptions))
-app.options('*', cors(corsOptions));
+app.options('*', cors(corsOptions))
 app.use(express.json())
 app.use(cookieParser())
-
-
 
 let environment = process.env.NODE_ENV
 
@@ -47,14 +45,13 @@ if (environment === 'prod') {
     )
 }
 
-
 // Initialize cron jobs if enabled in firebase
 const handleCron = async () => {
     // initializeEmailCron({ cronExpression: "0 0 12 * * MON,THU"}, EmailClient.AWS)
     const cron = await fetchEmailCron()
     if (cron && cron?.enabled) {
         Logger.info('Initializing cron jobs')
-        initializeEmailCron({ cronExpression: cron.expression}, EmailClient.AWS)
+        initializeEmailCron({ cronExpression: cron.expression }, EmailClient.AWS)
     }
 }
 
@@ -70,7 +67,5 @@ app.use('/api/qrcode', qrCodeRouter)
 app.use('/api/cron', cronRouter)
 
 handleCron()
-
-
 
 export { app }

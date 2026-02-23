@@ -91,7 +91,6 @@ export function AuthProvider({ children }) {
                 const response = await axios.get(`/api/users/session`, {
                     baseURL: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
                     headers: {
-                        'x-api-key': `${process.env.REACT_APP_API_KEY}`,
                         'session-token': sessionToken!,
                     },
                 })
@@ -143,9 +142,7 @@ export function AuthProvider({ children }) {
                 `/api/auth/login/`,
                 { idToken: idToken },
                 {
-                    headers: {
-                        'x-api-key': `${process.env.REACT_APP_API_KEY}`,
-                    },
+                    headers: {},
                     baseURL: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
                 },
             )
@@ -175,7 +172,6 @@ export function AuthProvider({ children }) {
                 {
                     baseURL: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
                     headers: {
-                        'x-api-key': `${process.env.REACT_APP_API_KEY}`,
                         'session-token': sessionToken!,
                     },
                 },

@@ -1,10 +1,9 @@
 import express from 'express'
-import { verifyApiKey } from '../middlewares/auth'
 import { login, logout } from '../controllers/auth'
 
 const router = express.Router()
 
-router.post('/login', verifyApiKey, login)
-router.post('/logout', verifyApiKey, logout)
+router.post('/login', login)
+router.post('/logout', logout)
 
 export { router as authRouter }
