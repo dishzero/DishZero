@@ -4,6 +4,12 @@ import { verifyIfUserAdmin } from '../services/users'
 import logger from '../utils/logger'
 import { CustomRequest } from '../middlewares/auth'
 import { createQrCodeInDatabase, deleteQrCodeFromDatabase, getAllQrCodes, getQrCode } from '../services/qrCode'
+import {
+    BAD_REQUEST_ERROR_RESPONSE,
+    FORBIDDEN_ERROR_RESPONSE,
+    INTERNAL_SERVER_ERROR_RESPONSE,
+    QR_CODE_NOT_FOUND_ERROR_RESPONSE,
+} from '../constants'
 
 async function getQrCodes(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
@@ -11,7 +17,7 @@ async function getQrCodes(req: Request, res: Response) {
 
     if (!qid) {
         if (!verifyIfUserAdmin(userClaims)) {
-            return res.status(403).json({ error: 'forbidden' })
+            return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
         }
 
         const codes = await getAllQrCodes()
@@ -21,7 +27,7 @@ async function getQrCodes(req: Request, res: Response) {
     try {
         const qrCode = await getQrCode(qid.toString())
         if (!qrCode) {
-            return res.status(400).json({ error: 'qr_code_not_found' })
+            return res.status(404).json(QR_CODE_NOT_FOUND_ERROR_RESPONSE)
         }
         return res.status(200).json({ qrCode: qrCode })
     } catch (error: any) {
@@ -30,14 +36,14 @@ async function getQrCodes(req: Request, res: Response) {
             message: 'Error when retrieving qr code',
             error,
         })
-        return res.status(500).json({ error: 'internal_server_error', message: error.message })
+        return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
     }
 }
 
 async function createQrCode(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json({ error: 'forbidden' })
+        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
 
     try {
@@ -49,19 +55,19 @@ async function createQrCode(req: Request, res: Response) {
             error,
             message: 'Error when creating qr code in database',
         })
-        return res.status(500).json({ error: 'internal_server_error', message: error.message })
+        return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
     }
 }
 
 async function updateQrCode(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json({ error: 'forbidden' })
+        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
 
     const existingQrCode = await getQrCode(req.body.qrCode.qid.toString())
     if (!existingQrCode) {
-        return res.status(500).json({ error: 'internal_server_error', message: 'qr code does not exist' })
+        return res.status(404).json(QR_CODE_NOT_FOUND_ERROR_RESPONSE)
     }
 
     try {
@@ -73,19 +79,19 @@ async function updateQrCode(req: Request, res: Response) {
             error,
             message: 'Error when creating qr code in database',
         })
-        return res.status(500).json({ error: 'internal_server_error', message: error.message })
+        return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
     }
 }
 
 async function deleteQrCode(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json({ error: 'forbidden' })
+        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
 
     const qid = req.query['qid']?.toString()
     if (!qid) {
-        return res.status(400).json({ error: 'bad_request' })
+        return res.status(400).json(BAD_REQUEST_ERROR_RESPONSE)
     }
 
     try {
@@ -97,7 +103,7 @@ async function deleteQrCode(req: Request, res: Response) {
             error,
             message: 'Error when deleting qr code in database',
         })
-        return res.status(500).json({ error: 'internal_server_error', message: error.message })
+        return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
     }
 }
 

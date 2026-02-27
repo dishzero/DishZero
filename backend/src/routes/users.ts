@@ -8,17 +8,18 @@ import {
     verifyRole,
     verifyType,
 } from '../services/users'
-import { auth } from '../internal/firebase'
+import { getAuthUser } from '../services/auth'
 import { User } from '../models/user'
 import logger from '../utils/logger'
 import { CustomRequest, verifyFirebaseToken } from '../middlewares/auth'
+import { FORBIDDEN_ERROR_RESPONSE, INTERNAL_SERVER_ERROR_RESPONSE, SUCCESS_STATUS_RESPONSE } from '../constants'
 
 async function getUsers(req: Request, res: Response) {
     const role = req.query['role']?.toString()
     const id = req.query['id']?.toString()
     const userClaims = (req as CustomRequest).firebase
     if (userClaims.role !== 'admin') {
-        return res.status(403).json({ error: 'forbidden' })
+        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
 
     if (role && verifyRole(role)) {
@@ -31,7 +32,7 @@ async function getUsers(req: Request, res: Response) {
                 error: error,
                 message: 'Error when fetching users from firebase',
             })
-            return res.status(500).json({ error: 'internal_server_error' })
+            return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
         }
     } else if (id) {
         try {
@@ -43,7 +44,7 @@ async function getUsers(req: Request, res: Response) {
                 error: error,
                 message: 'Error when fetching user from firebase',
             })
-            return res.status(500).json({ error: 'internal_server_error' })
+            return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
         }
     } else {
         try {
@@ -55,14 +56,14 @@ async function getUsers(req: Request, res: Response) {
                 error: error,
                 message: 'Error when fetching users from firebase',
             })
-            return res.status(500).json({ error: 'internal_server_error' })
+            return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
         }
     }
 }
 
 async function verifyUserSession(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
-    const user = await auth.getUser(userClaims.uid)
+    const user = await getAuthUser(userClaims.uid)
     if (!user) {
         return res.status(404).json({ error: 'user_not_found' })
     }
@@ -77,7 +78,7 @@ async function updateUser(req: Request, res: Response) {
     if (type && verifyType(type)) {
         if (type === 'role') {
             if (userClaims.role !== 'admin') {
-                return res.status(403).json({ error: 'forbidden' })
+                return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
             }
 
             try {
@@ -88,14 +89,14 @@ async function updateUser(req: Request, res: Response) {
 
                 await modifyUserRole(user, userClaims)
 
-                return res.status(200).json({ status: 'success' })
+                return res.status(200).json(SUCCESS_STATUS_RESPONSE)
             } catch (error) {
                 logger.error({
                     reqId: req.id,
                     error,
                     message: 'Error updating user role',
                 })
-                return res.status(500).json({ error: 'internal_server_error' })
+                return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
             }
         } else if (type === 'user') {
             try {
@@ -106,14 +107,14 @@ async function updateUser(req: Request, res: Response) {
 
                 await modifyUserData(user, userClaims)
 
-                return res.status(200).json({ status: 'success' })
+                return res.status(200).json(SUCCESS_STATUS_RESPONSE)
             } catch (error: any) {
                 logger.error({
                     reqId: req.id,
                     error: error.message,
                     message: 'Error updating user information',
                 })
-                return res.status(500).json({ error: 'internal_server_error', message: error.message })
+                return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
             }
         }
     } else {

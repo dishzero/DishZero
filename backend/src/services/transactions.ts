@@ -1,6 +1,6 @@
 import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
 import { Transaction } from '../models/transaction'
-import { db } from '../internal/firebase'
+import { db } from '../firebase'
 import nodeConfig from 'config'
 
 export const getUserTransactions = async (userClaims: DecodedIdToken) => {
@@ -122,4 +122,22 @@ export const getLatestTransactionBydishId = async (userClaims: DecodedIdToken, d
         ...snapshot.docs[0].data(),
         id: snapshot.docs[0].id,
     }
+}
+
+export const updateTransactionReturn = async (
+    transactionId: string,
+    options: { condition: string; timestamp: string; email?: string }
+) => {
+    const returned: { condition: string; timestamp: string; email?: string } = {
+        condition: options.condition,
+        timestamp: options.timestamp,
+    }
+
+    if (options.email) {
+        returned.email = options.email
+    }
+
+    await db.collection(nodeConfig.get('collections.transactions')).doc(transactionId).update({
+        returned,
+    })
 }

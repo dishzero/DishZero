@@ -11,7 +11,7 @@ import { qrCodeRouter } from './routes/qrCode'
 import { cronRouter } from './routes/cron'
 import { EmailClient, initializeEmailCron } from './cron/email'
 import logger from './utils/logger'
-import { fetchEmailCron } from './routes/cron'
+import { fetchEmailCron } from './services/email'
 import { randomUUID } from 'crypto'
 
 const app = express()

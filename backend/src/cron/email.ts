@@ -1,7 +1,7 @@
 import { Cron, CronOptions } from './factory'
 import cron from 'node-cron'
 import { sendEmail } from '../internal/sesClient'
-import { db } from '../internal/firebase'
+import { db } from '../firebase'
 import nodeConfig from 'config'
 import { getTemplate } from '../services/email'
 import logger from '../utils/logger'

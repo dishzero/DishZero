@@ -28,11 +28,19 @@ import {
     registerTransaction,
     getLatestTransactionByTstamp,
     getLatestTransactionByTstampAndDishId,
+    updateTransactionReturn,
 } from '../services/transactions'
 import { getQrCode } from '../services/qrCode'
-import { db } from '../internal/firebase'
-import nodeConfig from 'config'
 import { User } from '../models/user'
+import {
+    BAD_REQUEST_ERROR_RESPONSE,
+    FORBIDDEN_ERROR_RESPONSE,
+    INTERNAL_SERVER_ERROR_RESPONSE,
+    QR_CODE_NOT_FOUND_ERROR_RESPONSE,
+} from '../constants'
+
+const DISH_NOT_FOUND_ERROR_RESPONSE = { error: 'dish_not_found' }
+const DISH_RETURNED_RESPONSE = { message: 'dish returned' }
 
 async function getDishes(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
@@ -43,7 +51,7 @@ async function getDishes(req: Request, res: Response) {
         try {
             const dish = await getDishById(id)
             if (!dish) {
-                return res.status(400).json({ error: 'dish_not_found' })
+                return res.status(404).json(DISH_NOT_FOUND_ERROR_RESPONSE)
             }
             return res.status(200).json({ dish: dish })
         } catch (error: any) {
@@ -52,13 +60,13 @@ async function getDishes(req: Request, res: Response) {
                 message: 'Error when retrieving dish',
                 error,
             })
-            return res.status(500).json({ error: 'internal_server_error', message: error.message })
+            return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
         }
     } else if (qid) {
         try {
             const dish = await getDish(parseInt(qid, 10))
             if (!dish) {
-                return res.status(400).json({ error: 'dish_not_found' })
+                return res.status(404).json(DISH_NOT_FOUND_ERROR_RESPONSE)
             }
             return res.status(200).json({ dish })
         } catch (error: any) {
@@ -67,7 +75,7 @@ async function getDishes(req: Request, res: Response) {
                 message: 'Error when retrieving dish',
                 error,
             })
-            return res.status(500).json({ error: 'internal_server_error', message: error.message })
+            return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
         }
     }
 
@@ -78,7 +86,7 @@ async function getDishes(req: Request, res: Response) {
 
     if (all === 'true') {
         if (!verifyIfUserAdmin(userClaims)) {
-            return res.status(403).json({ error: 'forbidden' })
+            return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
         }
 
         try {
@@ -93,7 +101,7 @@ async function getDishes(req: Request, res: Response) {
                 error,
                 message: 'error when getting dishes from firebase',
             })
-            return res.status(500).json({ error: 'internal_server_error' })
+            return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
         }
 
         return res.status(200).json({ dishes })
@@ -113,7 +121,7 @@ async function getDishes(req: Request, res: Response) {
             error,
             message: 'error when getting user dishes from firebase',
         })
-        return res.status(500).json({ error: 'internal_server_error' })
+        return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
     }
 }
 
@@ -121,7 +129,7 @@ async function getDishTypes(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
 
     if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json({ error: 'forbidden' })
+        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
 
     let dishTypes
@@ -133,7 +141,7 @@ async function getDishTypes(req: Request, res: Response) {
             error,
             message: 'error when getting dish types from firebase',
         })
-        return res.status(500).json({ error: 'internal_server_error' })
+        return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
     }
     return res.status(200).json({ dishTypes })
 }
@@ -142,7 +150,7 @@ async function getDishVendors(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
 
     if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json({ error: 'forbidden' })
+        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
 
     let dishVendors
@@ -154,7 +162,7 @@ async function getDishVendors(req: Request, res: Response) {
             error,
             message: 'error when getting dish vendors from firebase',
         })
-        return res.status(500).json({ error: 'internal_server_error' })
+        return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
     }
     return res.status(200).json({ dishVendors })
 }
@@ -162,22 +170,22 @@ async function getDishVendors(req: Request, res: Response) {
 async function deleteDishes(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json({ error: 'forbidden' })
+        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
 
     const dishIds = req.body.dishIds
     if (!dishIds) {
-        return res.status(400).json({ error: 'bad_request' })
+        return res.status(400).json(BAD_REQUEST_ERROR_RESPONSE)
     }
 
     try {
         for (const qid of dishIds) {
             const dish = await getDish(parseInt(qid, 10))
             if (!dish) {
-                return res.status(400).json({ error: 'bad_request' })
+                return res.status(400).json(BAD_REQUEST_ERROR_RESPONSE)
             }
             if (dish.status === DishStatus.borrowed) {
-                return res.status(400).json({ error: 'bad_request' })
+                return res.status(400).json(BAD_REQUEST_ERROR_RESPONSE)
             }
 
             deleteDish(parseInt(qid, 10))
@@ -190,14 +198,14 @@ async function deleteDishes(req: Request, res: Response) {
             error,
             message: 'Error when deleting dishes',
         })
-        return res.status(500).json({ error: 'internal_server_error', message: error.message })
+        return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
     }
 }
 
 async function createMultipleDishes(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json({ error: 'forbidden' })
+        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
 
     const dishType = req.body.type
@@ -213,14 +221,14 @@ async function createMultipleDishes(req: Request, res: Response) {
             error,
             message: 'Error when adding dishes to database',
         })
-        return res.status(500).json({ error: 'internal_server_error', message: error.message })
+        return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
     }
 }
 
 async function createDish(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json({ error: 'forbidden' })
+        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
 
     try {
@@ -232,14 +240,14 @@ async function createDish(req: Request, res: Response) {
             error,
             message: 'Error when creating dish in database',
         })
-        return res.status(500).json({ error: 'internal_server_error', message: error.message })
+        return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
     }
 }
 
 async function addDishType(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json({ error: 'forbidden' })
+        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
 
     try {
@@ -251,7 +259,7 @@ async function addDishType(req: Request, res: Response) {
             error,
             message: 'Error when adding a new dish type to the database',
         })
-        return res.status(500).json({ error: 'internal_server_error', message: error.message })
+        return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
     }
 }
 
@@ -260,7 +268,7 @@ async function borrowDish(req: Request, res: Response) {
     const email = req.query['email']?.toString()
 
     if (!qid) {
-        return res.status(400).json({ error: 'bad_request' })
+        return res.status(400).json(BAD_REQUEST_ERROR_RESPONSE)
     }
 
     const userClaims = (req as CustomRequest).firebase
@@ -268,12 +276,12 @@ async function borrowDish(req: Request, res: Response) {
     try {
         const qrCodeExits = await getQrCode(qid)
         if (!qrCodeExits) {
-            return res.status(400).json({ error: 'operation_not_allowed', message: 'qr code not found' })
+            return res.status(404).json(QR_CODE_NOT_FOUND_ERROR_RESPONSE)
         }
 
         const associatedDish = await getDish(parseInt(qid, 10))
         if (!associatedDish) {
-            return res.status(400).json({ error: 'operation_not_allowed', message: 'Dish not found' })
+            return res.status(404).json(DISH_NOT_FOUND_ERROR_RESPONSE)
         }
 
         if (associatedDish.status === DishStatus.borrowed) {
@@ -304,7 +312,7 @@ async function borrowDish(req: Request, res: Response) {
             error,
             message: 'Error when borrowing dish',
         })
-        return res.status(500).json({ error: 'internal_server_error', message: error.message })
+        return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
     }
 }
 
@@ -323,7 +331,7 @@ async function returnDish(req: Request, res: Response) {
 
     const userClaims = (req as CustomRequest).firebase
     if (!verifyIfUserAdmin(userClaims) && !verifyIfUserVolunteer(userClaims)) {
-        return res.status(403).json({ error: 'forbidden' })
+        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
     try {
         let qrCodeExits
@@ -333,11 +341,11 @@ async function returnDish(req: Request, res: Response) {
         if (qid) {
             qrCodeExits = await getQrCode(qid)
             if (!qrCodeExits) {
-                return res.status(400).json({ error: 'operation_not_allowed', message: 'qr code not found' })
+                return res.status(404).json(QR_CODE_NOT_FOUND_ERROR_RESPONSE)
             }
             associatedDish = await getDish(parseInt(qid, 10))
             if (!associatedDish) {
-                return res.status(400).json({ error: 'operation_not_allowed', message: 'Dish not found' })
+                return res.status(404).json(DISH_NOT_FOUND_ERROR_RESPONSE)
             }
 
             if (associatedDish.status !== DishStatus.borrowed) {
@@ -351,23 +359,18 @@ async function returnDish(req: Request, res: Response) {
 
             await updateBorrowedStatus(associatedDish, userClaims, false, condition)
 
-            await db
-                .collection(nodeConfig.get('collections.transactions'))
-                .doc(ongoingTransaction.id)
-                .update({
-                    returned: {
-                        condition,
-                        timestamp: new Date().toISOString(),
-                        email: userClaims.email,
-                    },
-                })
+            await updateTransactionReturn(ongoingTransaction.id, {
+                condition,
+                timestamp: new Date().toISOString(),
+                email: userClaims.email,
+            })
 
-            return res.status(200).json({ message: 'dish returned' })
+            return res.status(200).json(DISH_RETURNED_RESPONSE)
         }
 
         associatedDish = await getDishById(id!)
         if (!associatedDish) {
-            return res.status(400).json({ error: 'operation_not_allowed', message: 'Dish not found' })
+            return res.status(404).json(DISH_NOT_FOUND_ERROR_RESPONSE)
         }
 
         if (associatedDish.status !== DishStatus.borrowed) {
@@ -380,24 +383,19 @@ async function returnDish(req: Request, res: Response) {
 
         await updateBorrowedStatus(associatedDish, userClaims, false)
 
-        await db
-            .collection(nodeConfig.get('collections.transactions'))
-            .doc(ongoingTransaction.id)
-            .update({
-                returned: {
-                    condition,
-                    timestamp: new Date().toISOString(),
-                },
-            })
+        await updateTransactionReturn(ongoingTransaction.id, {
+            condition,
+            timestamp: new Date().toISOString(),
+        })
 
-        return res.status(200).json({ message: 'dish returned' })
+        return res.status(200).json(DISH_RETURNED_RESPONSE)
     } catch (error: any) {
         logger.error({
             reqId: req.id,
             error,
             message: 'Error when returning dish',
         })
-        return res.status(500).json({ error: 'internal_server_error', message: error.message })
+        return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
     }
 }
 
@@ -420,7 +418,7 @@ async function updateDishCondition(req: Request, res: Response) {
     try {
         const associatedDish = await getDishById(id)
         if (!associatedDish) {
-            return res.status(400).json({ error: 'operation_not_allowed', message: 'Dish not found' })
+            return res.status(404).json(DISH_NOT_FOUND_ERROR_RESPONSE)
         }
 
         await updateCondition(associatedDish.id, condition)
@@ -432,14 +430,14 @@ async function updateDishCondition(req: Request, res: Response) {
             error,
             message: 'Error when updating dish condition',
         })
-        return res.status(200).json({ message: 'dish condition updated' })
+        return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
     }
 }
 
 async function modifyDish(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json({ error: 'forbidden' })
+        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
 
     const validation = validateModifyDish(req.body)
@@ -458,9 +456,7 @@ async function modifyDish(req: Request, res: Response) {
             error,
             message: 'Error when modifying dish',
         })
-        return res
-            .status(500)
-            .json({ error: 'internal_server_error', message: error.message ?? 'Unexpected error occurred' })
+        return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
     }
 }
 

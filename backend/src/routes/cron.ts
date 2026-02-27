@@ -3,24 +3,16 @@ import { verifyFirebaseToken } from '../middlewares/auth'
 import { CustomRequest } from '../middlewares/auth'
 import { verifyIfUserAdmin } from '../services/users'
 import logger from '../utils/logger'
-import { db } from '../internal/firebase'
-import nodeConfig from 'config'
 import { convertToMT, convertToUTC, validateEmailFields, validateUpdateEmailBody } from '../services/cron/email'
 import { EmailClient, getEmailCron, initializeEmailCron, isEmailCronEnabled, setEmailCron } from '../cron/email'
-
-export async function fetchEmailCron() {
-    const snapshot = await db.collection(nodeConfig.get('collections.cron')).doc('email').get()
-    if (!snapshot.exists) {
-        throw new Error('Cron does not exist')
-    }
-    return snapshot.data()
-}
-
-async function enableEmailCron(enabled: boolean) {
-    await db.collection(nodeConfig.get('collections.cron')).doc('email').update({
-        enabled: enabled,
-    })
-}
+import {
+    fetchEmailCron,
+    setEmailCronEnabled,
+    setEmailCronExpression,
+    setEmailTemplate,
+    updateEmailConfig,
+} from '../services/email'
+import { BAD_REQUEST_ERROR_RESPONSE, FORBIDDEN_ERROR_RESPONSE, INTERNAL_SERVER_ERROR_RESPONSE } from '../constants'
 
 function stopCron() {
     const cron = getEmailCron()
@@ -33,7 +25,7 @@ function stopCron() {
 async function getEmail(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json({ error: 'forbidden' })
+        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
 
     try {
@@ -73,14 +65,14 @@ async function getEmail(req: Request, res: Response) {
             error: error,
             message: 'Error when fetching cron from firebase',
         })
-        return res.status(500).json({ error: 'internal_server_error' })
+        return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
     }
 }
 
 async function updateEmail(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json({ error: 'forbidden' })
+        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
 
     const query = req.query['fields']?.toString()
@@ -97,7 +89,7 @@ async function updateEmail(req: Request, res: Response) {
     }
 
     try {
-        await db.collection(nodeConfig.get('collections.cron')).doc('email').update(body)
+        await updateEmailConfig(body)
         return res.status(200).json({ message: 'email_updated' })
     } catch (error: any) {
         logger.error({
@@ -105,7 +97,7 @@ async function updateEmail(req: Request, res: Response) {
             error: error,
             message: 'Error when fetching cron from firebase',
         })
-        return res.status(500).json({ error: 'internal_server_error' })
+        return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
     }
 }
 
@@ -120,11 +112,11 @@ async function enableEmail(req: Request, res: Response) {
 
     const userClaims = (req as CustomRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json({ error: 'forbidden' })
+        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
 
     try {
-        await enableEmailCron(enabled)
+        await setEmailCronEnabled(enabled)
         return res.status(200).json({ enabled })
     } catch (error: any) {
         logger.error({
@@ -132,14 +124,14 @@ async function enableEmail(req: Request, res: Response) {
             error: error,
             message: 'Error when fetching cron from firebase',
         })
-        return res.status(500).json({ error: 'internal_server_error' })
+        return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
     }
 }
 
 async function updateEmailTemplate(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json({ error: 'forbidden' })
+        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
 
     const template = req.body.template
@@ -147,10 +139,10 @@ async function updateEmailTemplate(req: Request, res: Response) {
     const body = template?.body
     const senderEmail = template?.senderEmail
     if (!template || !subject || !body) {
-        return res.status(400).json({ error: 'bad_request' })
+        return res.status(400).json(BAD_REQUEST_ERROR_RESPONSE)
     }
 
-    await db.collection(nodeConfig.get('collections.cron')).doc('email').update({
+    await setEmailTemplate({
         senderEmail,
         subject,
         body,
@@ -162,7 +154,7 @@ async function updateEmailTemplate(req: Request, res: Response) {
 async function updateEmailCronExpression(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json({ error: 'forbidden' })
+        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
 
     const exprTime = req.body.exprTime.split(':')
@@ -171,7 +163,7 @@ async function updateEmailCronExpression(req: Request, res: Response) {
     const days = req.body.days
     const daysArr = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
     if (!validateUpdateEmailBody(days, daysArr)) {
-        return res.status(400).json({ error: 'bad_request' })
+        return res.status(400).json(BAD_REQUEST_ERROR_RESPONSE)
     }
 
     const setDays: Array<string> = []
@@ -185,9 +177,7 @@ async function updateEmailCronExpression(req: Request, res: Response) {
     let cronExpression = `0 ${tuple[0]} ${tuple[1]} * * `
     cronExpression += setDays.join(',')
 
-    await db.collection(nodeConfig.get('collections.cron')).doc('email').update({
-        expression: cronExpression,
-    })
+    await setEmailCronExpression(cronExpression)
 
     const enabled = await isEmailCronEnabled()
     if (enabled) {
@@ -201,14 +191,12 @@ async function updateEmailCronExpression(req: Request, res: Response) {
 async function stopEmailCron(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json({ error: 'forbidden' })
+        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
 
     stopCron()
 
-    await db.collection(nodeConfig.get('collections.cron')).doc('email').update({
-        enabled: false,
-    })
+    await setEmailCronEnabled(false)
 
     return res.status(200).json({ message: 'stopped email cron' })
 }
@@ -216,7 +204,7 @@ async function stopEmailCron(req: Request, res: Response) {
 async function startEmailCron(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json({ error: 'forbidden' })
+        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
 
     stopCron()
@@ -224,14 +212,12 @@ async function startEmailCron(req: Request, res: Response) {
     const data = await fetchEmailCron()
 
     if (!data) {
-        return res.status(500).json({ message: 'no cron data found' })
+        return res.status(500).json({ error: 'internal_server_error' })
     }
 
     initializeEmailCron({ cronExpression: data.expression }, EmailClient.AWS)
 
-    await db.collection(nodeConfig.get('collections.cron')).doc('email').update({
-        enabled: true,
-    })
+    await setEmailCronEnabled(true)
 
     return res.status(200).json({ message: 'started email cron' })
 }

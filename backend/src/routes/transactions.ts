@@ -3,6 +3,7 @@ import { CustomRequest, verifyFirebaseToken } from '../middlewares/auth'
 import { verifyIfUserAdmin } from '../services/users'
 import { getAllTransactions, getUserTransactions } from '../services/transactions'
 import logger from '../utils/logger'
+import { FORBIDDEN_ERROR_RESPONSE, INTERNAL_SERVER_ERROR_RESPONSE } from '../constants'
 
 async function getTransactions(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
@@ -18,10 +19,10 @@ async function getTransactions(req: Request, res: Response) {
                     reqId: req.id,
                     error: err.message,
                 })
-                res.status(500).json({ error: 'internal_server_error', message: err.message })
+                return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
             }
         } else {
-            return res.status(403).json({ error: 'forbidden' })
+            return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
         }
     }
 
@@ -33,7 +34,7 @@ async function getTransactions(req: Request, res: Response) {
             error: e,
             message: 'Error when fetching transactions from firebase',
         })
-        res.status(500).json({ error: 'internal_server_error' })
+        res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
         return
     }
 

@@ -1,15 +1,18 @@
 import express, { Request, Response } from 'express'
-import type { ReqId } from 'pino-http'
-import { auth, db } from '../internal/firebase'
-import { getUserByEmail } from '../services/users'
-import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
+import { ensureUserExistsForDecodedToken } from '../services/users'
+import { auth } from '../firebase'
 import logger from '../utils/logger'
+import {
+    INTERNAL_SERVER_ERROR_RESPONSE,
+    SUCCESS_STATUS_RESPONSE,
+    UNAUTHORIZED_REQUEST_ERROR_RESPONSE,
+} from '../constants'
 
 async function login(req: Request, res: Response) {
     let decodedToken
     const idToken = req.body.idToken?.toString()
     if (!idToken) {
-        return res.status(401).send({ error: 'unauthorized_request' })
+        return res.status(401).send(UNAUTHORIZED_REQUEST_ERROR_RESPONSE)
     }
 
     try {
@@ -20,13 +23,13 @@ async function login(req: Request, res: Response) {
             error,
             message: 'Error when verifying firebase id token',
         })
-        return res.status(401).send({ error: 'unauthorized_request' })
+        return res.status(401).send(UNAUTHORIZED_REQUEST_ERROR_RESPONSE)
     }
 
     const expiresIn = 60 * 60 * 24 * 5 * 1000 // 5 days
     try {
         const sessionCookie = await auth.createSessionCookie(idToken, { expiresIn })
-        const user = await getUser(decodedToken, req.id)
+        const user = await ensureUserExistsForDecodedToken(decodedToken)
         res.cookie('session', sessionCookie, { maxAge: expiresIn, httpOnly: true, secure: true })
         return res.status(200).json({
             session: sessionCookie,
@@ -38,58 +41,29 @@ async function login(req: Request, res: Response) {
             error,
             message: 'Error when creating firebase session cookie',
         })
-        return res.status(401).send({ error: 'unauthorized_request' })
+        return res.status(401).send(UNAUTHORIZED_REQUEST_ERROR_RESPONSE)
     }
 }
 
 async function logout(req: Request, res: Response) {
     const sessionCookie = req.header('session-token') || req.cookies.session || ''
     res.clearCookie('session')
-    auth.verifySessionCookie(sessionCookie)
-        .then((decodedClaims) => {
-            return auth.revokeRefreshTokens(decodedClaims.sub)
-        })
-        .then(() => {
-            res.status(200).send({ status: 'success' })
-        })
-        .catch((error) => {
-            logger.error({
-                reqId: req.id,
-                error,
-                message: 'Error when revoking firebase session cookie',
-            })
-            res.status(401).send({ error: 'unauthorized_request' })
-        })
-}
-
-async function getUser(decodedIdToken: DecodedIdToken, reqId?: ReqId) {
-    const email = decodedIdToken.email
-    if (!email) {
-        throw new Error('Email is not provided')
-    }
-    const userExists = await getUserByEmail(email)
-
-    if (!userExists) {
-        const User = {
-            email,
-            role: 'customer',
-        }
-        await auth.setCustomUserClaims(decodedIdToken.sub, { role: 'customer' })
-        try {
-            db.collection('users').doc(decodedIdToken.uid).set(User)
-            const retrieveUser = await getUserByEmail(email)
-            return retrieveUser
-        } catch (error) {
-            logger.error({
-                reqId: reqId,
-                error,
-                message: 'Error when creating user in firebase collection',
-            })
-            throw new Error('Error when creating user in firebase collection')
-        }
+    if (!sessionCookie) {
+        return res.status(401).send(UNAUTHORIZED_REQUEST_ERROR_RESPONSE)
     }
 
-    return userExists
+    try {
+        const decodedClaims = await auth.verifySessionCookie(sessionCookie)
+        await auth.revokeRefreshTokens(decodedClaims.sub)
+        return res.status(200).send(SUCCESS_STATUS_RESPONSE)
+    } catch (error) {
+        logger.error({
+            reqId: req.id,
+            error,
+            message: 'Error when revoking firebase session cookie',
+        })
+        return res.status(500).send(INTERNAL_SERVER_ERROR_RESPONSE)
+    }
 }
 
 const router = express.Router()
