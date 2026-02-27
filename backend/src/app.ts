@@ -54,6 +54,7 @@ app.get('/health', (_: Request, res: Response) => {
 })
 
 // TODO: audit all route names for REST best practices; they're a mixed bag right now
+// TODO: audit all routes for consistent try-catch (look into error handling in the middleware?)
 app.use('/api/auth', authRouter)
 app.use('/api/dish', dishRouter)
 app.use('/api/transactions', transactionsRouter)

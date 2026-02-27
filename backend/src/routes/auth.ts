@@ -23,6 +23,7 @@ async function login(req: Request, res: Response) {
             error,
             message: 'Error when verifying firebase id token',
         })
+        // TODO: How can we differentiate an invalid token from something that should return a 500?
         return res.status(401).send(UNAUTHORIZED_REQUEST_ERROR_RESPONSE)
     }
 
@@ -41,7 +42,7 @@ async function login(req: Request, res: Response) {
             error,
             message: 'Error when creating firebase session cookie',
         })
-        return res.status(401).send(UNAUTHORIZED_REQUEST_ERROR_RESPONSE)
+        return res.status(500).send(INTERNAL_SERVER_ERROR_RESPONSE)
     }
 }
 
@@ -62,7 +63,8 @@ async function logout(req: Request, res: Response) {
             error,
             message: 'Error when revoking firebase session cookie',
         })
-        return res.status(500).send(INTERNAL_SERVER_ERROR_RESPONSE)
+        // TODO: How can we differentiate an invalid token from something that should return a 500?
+        return res.status(401).send(UNAUTHORIZED_REQUEST_ERROR_RESPONSE)
     }
 }
 

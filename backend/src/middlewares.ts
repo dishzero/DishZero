@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv'
 import logger from '@/logger'
 import { getUserById } from '@/services/users'
 import { auth, FirebaseRequest } from '@/firebase'
-import { FORBIDDEN_ERROR_RESPONSE, INTERNAL_SERVER_ERROR_RESPONSE } from '@/constants'
+import { FORBIDDEN_ERROR_RESPONSE, UNAUTHORIZED_REQUEST_ERROR_RESPONSE } from '@/constants'
 dotenv.config()
 
 // Define the custom request object
@@ -16,9 +16,10 @@ dotenv.config()
  * @returns decoded firebase token in the request object
  */
 export const verifyFirebaseToken = async (req: Request, res: Response, next: NextFunction) => {
+    // TODO: decide on a single approach
     const sessionCookies = req.header('session-token') || req.cookies?.session
     if (!sessionCookies) {
-        return res.status(401).json({ error: 'no_session_token_provided' })
+        return res.status(401).json(UNAUTHORIZED_REQUEST_ERROR_RESPONSE)
     }
     try {
         const decodedClaims = await auth.verifySessionCookie(sessionCookies, true)
@@ -35,7 +36,8 @@ export const verifyFirebaseToken = async (req: Request, res: Response, next: Nex
             error,
             message: 'Error when verifying firebase session token',
         })
-        return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
+        // TODO: How can we differentiate an invalid token from something that should return a 500?
+        return res.status(401).json(UNAUTHORIZED_REQUEST_ERROR_RESPONSE)
     }
 }
 

@@ -10,18 +10,13 @@ import {
     User,
 } from '@/services/users'
 import logger from '@/logger'
-import { verifyFirebaseToken } from '@/middlewares'
+import { verifyAuthorizedRoles, verifyFirebaseToken } from '@/middlewares'
 import { auth, FirebaseRequest } from '@/firebase'
 import { FORBIDDEN_ERROR_RESPONSE, INTERNAL_SERVER_ERROR_RESPONSE, SUCCESS_STATUS_RESPONSE } from '@/constants'
 
 async function getUsers(req: Request, res: Response) {
     const role = req.query['role']?.toString()
     const id = req.query['id']?.toString()
-    const userClaims = (req as FirebaseRequest).firebase
-    if (userClaims.role !== 'admin') {
-        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
-    }
-
     if (role && verifyRole(role)) {
         try {
             const users = await getUsersWithRole(role)
@@ -61,6 +56,7 @@ async function getUsers(req: Request, res: Response) {
     }
 }
 
+// TODO: this should be at /api/auth/me or /api/auth/session
 async function verifyUserSession(req: Request, res: Response) {
     const userClaims = (req as FirebaseRequest).firebase
     const user = await auth.getUser(userClaims.uid)
@@ -77,6 +73,7 @@ async function updateUser(req: Request, res: Response) {
     const type = req.params['type']?.toString()
     if (type && verifyType(type)) {
         if (type === 'role') {
+            // TODO: we should split out the "admin" case to a different route for seperation of concerns and so we can use the verifyAuthorizedRoles(['admin']) middleware here
             if (userClaims.role !== 'admin') {
                 return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
             }
@@ -84,7 +81,7 @@ async function updateUser(req: Request, res: Response) {
             try {
                 const user: User = req.body.user
                 if (!user) {
-                    throw new Error('No user provided')
+                   return res.status(400).json({ error: 'no_user_provided' })
                 }
 
                 await modifyUserRole(user, userClaims)
@@ -124,7 +121,7 @@ async function updateUser(req: Request, res: Response) {
 
 const router = express.Router()
 
-router.get('/', verifyFirebaseToken, getUsers)
+router.get('/', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), getUsers)
 router.get('/session', verifyFirebaseToken, verifyUserSession)
 router.post('/modify/:type', verifyFirebaseToken, updateUser)
 

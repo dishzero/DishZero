@@ -174,7 +174,7 @@ async function deleteDishes(req: Request, res: Response) {
                 return res.status(400).json(BAD_REQUEST_ERROR_RESPONSE)
             }
 
-            deleteDish(parseInt(qid, 10))
+            await deleteDish(parseInt(qid, 10))
         }
 
         return res.status(200).json({ message: 'dishes deleted' })
