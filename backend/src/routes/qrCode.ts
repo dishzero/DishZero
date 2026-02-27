@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express'
 import { verifyFirebaseToken } from '../middlewares'
 import { verifyIfUserAdmin } from '../services/users'
-import logger from '../utils/logger'
+import logger from '../logger'
 import { FirebaseRequest } from '../firebase'
 import { createQrCodeInDatabase, deleteQrCodeFromDatabase, getAllQrCodes, getQrCode } from '../services/qrCode'
 import {

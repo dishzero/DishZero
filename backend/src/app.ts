@@ -10,7 +10,7 @@ import cookieParser from 'cookie-parser'
 import { qrCodeRouter } from './routes/qrCode'
 import { cronRouter } from './routes/cron'
 import { EmailClient, initializeEmailCron } from './services/cron/emailCron'
-import logger from './utils/logger'
+import logger from './logger'
 import { fetchEmailCron } from './services/cron'
 import { randomUUID } from 'crypto'
 

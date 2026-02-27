@@ -2,7 +2,7 @@ import Joi from 'joi'
 import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
 import { DishCondition, Dish, DishStatus } from '../models/dish'
 import { db } from '../firebase'
-import logger from '../utils/logger'
+import logger from '../logger'
 
 export const getDish = async (qid: number): Promise<Dish | undefined | null> => {
     const snapshot = await db.collection('dishes').where('qid', '==', qid).get()

@@ -3,7 +3,7 @@ import { verifyFirebaseToken } from '../middlewares'
 import { FirebaseRequest } from '../firebase'
 import { verifyIfUserAdmin } from '../services/users'
 import { getAllTransactions, getUserTransactions } from '../services/transactions'
-import logger from '../utils/logger'
+import logger from '../logger'
 import { FORBIDDEN_ERROR_RESPONSE, INTERNAL_SERVER_ERROR_RESPONSE } from '../constants'
 
 async function getTransactions(req: Request, res: Response) {

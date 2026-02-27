@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express'
 import { verifyFirebaseToken } from '../middlewares'
 import { FirebaseRequest } from '../firebase'
 import { verifyIfUserAdmin } from '../services/users'
-import logger from '../utils/logger'
+import logger from '../logger'
 import { convertToMT, convertToUTC, validateEmailFields, validateUpdateEmailBody } from '../services/cron/cronUtils'
 import {
     EmailClient,

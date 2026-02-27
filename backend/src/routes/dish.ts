@@ -23,7 +23,7 @@ import {
     validateModifyDish,
     updateDish,
 } from '../services/dish'
-import logger from '../utils/logger'
+import logger from '../logger'
 import { getUserByEmail, getUserById, verifyIfUserAdmin, verifyIfUserVolunteer } from '../services/users'
 import {
     registerTransaction,

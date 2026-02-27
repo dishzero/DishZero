@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express'
 import { ensureUserExistsForDecodedToken } from '../services/users'
 import { auth } from '../firebase'
-import logger from '../utils/logger'
+import logger from '../logger'
 import {
     INTERNAL_SERVER_ERROR_RESPONSE,
     SUCCESS_STATUS_RESPONSE,

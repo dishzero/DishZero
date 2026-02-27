@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import * as dotenv from 'dotenv'
-import logger from './utils/logger'
+import logger from './logger'
 import { getUserById } from './services/users'
 import { auth, FirebaseRequest } from './firebase'
 import { INTERNAL_SERVER_ERROR_RESPONSE } from './constants'
