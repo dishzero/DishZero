@@ -12,7 +12,7 @@ import { qrCodeRouter } from '@/routes/qrCode'
 import { cronRouter } from '@/routes/cron'
 import { EmailClient, initializeEmailCron } from '@/services/cron/emailCron'
 import logger from '@/logger'
-import { fetchEmailCron } from '@/services/cron'
+import { fetchEmailCron } from '@/services/email'
 
 const app = express()
 dotenv.config()

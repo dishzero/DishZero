@@ -15,7 +15,7 @@ import {
     setEmailCronExpression,
     setEmailTemplate,
     updateEmailConfig,
-} from '@/services/cron'
+} from '@/services/email'
 import { BAD_REQUEST_ERROR_RESPONSE, INTERNAL_SERVER_ERROR_RESPONSE } from '@/constants'
 
 function stopCron() {

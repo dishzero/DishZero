@@ -1,7 +1,7 @@
 import cron from 'node-cron'
 import { db } from '@/firebase'
 import nodeConfig from 'config'
-import { getTemplate } from '@/services/cron'
+import { getTemplate } from '@/services/email'
 import logger from '@/logger'
 import { getAllDishes, DishStatus } from '@/services/dish'
 import { getUserById } from '@/services/users'
