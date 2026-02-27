@@ -10,9 +10,9 @@ import cookieParser from 'cookie-parser'
 import { qrCodeRouter } from './routes/qrCode'
 import nodeConfig from 'config'
 import { cronRouter } from './routes/cron'
-import { EmailClient, getEmailCron, initializeEmailCron, isEmailCronEnabled } from './cron/email'
+import { EmailClient, initializeEmailCron } from './cron/email'
 import Logger from './utils/logger'
-import { fetchEmailCron } from './controllers/cron/email'
+import { fetchEmailCron } from './routes/cron'
 
 const app = express()
 dotenv.config()

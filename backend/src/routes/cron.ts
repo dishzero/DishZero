@@ -1,14 +1,364 @@
-import express from 'express'
+import express, { Request, Response } from 'express'
 import { verifyFirebaseToken } from '../middlewares/auth'
-import {
-    enableEmail,
-    getEmail,
-    startEmailCron,
-    stopEmailCron,
-    updateEmail,
-    updateEmailCronExpression,
-    updateEmailTemplate,
-} from '../controllers/cron/email'
+import { CustomRequest } from '../middlewares/auth'
+import { verifyIfUserAdmin } from '../services/users'
+import Logger from '../utils/logger'
+import { db } from '../internal/firebase'
+import nodeConfig from 'config'
+import { convertToMT, convertToUTC, validateEmailFields, validateUpdateEmailBody } from '../services/cron/email'
+import { EmailClient, getEmailCron, initializeEmailCron, isEmailCronEnabled, setEmailCron } from '../cron/email'
+
+const moduleName = 'controllers.email'
+
+export async function fetchEmailCron() {
+    const snapshot = await db.collection(nodeConfig.get('collections.cron')).doc('email').get()
+    if (!snapshot.exists) {
+        throw new Error('Cron does not exist')
+    }
+    return snapshot.data()
+}
+
+async function enableEmailCron(enabled: boolean) {
+    await db.collection(nodeConfig.get('collections.cron')).doc('email').update({
+        enabled: enabled,
+    })
+}
+
+function stopCron() {
+    const cron = getEmailCron()
+    if (cron) {
+        cron.stop()
+        setEmailCron(null)
+    }
+}
+
+async function getEmail(req: Request, res: Response) {
+    const userClaims = (req as CustomRequest).firebase
+    if (!verifyIfUserAdmin(userClaims)) {
+        Logger.error({
+            message: 'User is not admin',
+            moduleName,
+            function: 'getEmail',
+            statusCode: 403,
+        })
+        return res.status(403).json({ error: 'forbidden' })
+    }
+
+    try {
+        const cron = await fetchEmailCron()
+        Logger.info({
+            message: 'Retrieved cron',
+            moduleName,
+            function: 'getEmail',
+        })
+
+        const utcExpr = cron?.expression.split(' ')
+        let days = utcExpr[utcExpr.length - 1]
+        if (days.length > 3) {
+            days = days.split(',')
+        } else {
+            days = [days]
+        }
+        const minutes = parseInt(utcExpr[1])
+        const hours = parseInt(utcExpr[2])
+
+        const setDays: Array<string> = []
+        for (const day of days) {
+            const tuple = convertToMT(minutes, hours, day)
+            setDays.push(tuple[2])
+        }
+        const tuple = convertToMT(minutes, hours, 'MON')
+        let cronExpression = `0 ${tuple[0]} ${tuple[1]} * * `
+        if (setDays.length > 1) {
+            cronExpression += setDays.join(',')
+        } else {
+            cronExpression += setDays[0]
+        }
+        return res.status(200).json({
+            cron: {
+                ...cron,
+                expression: cronExpression,
+            },
+        })
+    } catch (error: any) {
+        Logger.error({
+            error: error,
+            moduleName,
+            function: 'getEmail',
+            message: 'Error when fetching cron from firebase',
+            statusCode: 500,
+        })
+        return res.status(500).json({ error: 'internal_server_error' })
+    }
+}
+
+async function updateEmail(req: Request, res: Response) {
+    const userClaims = (req as CustomRequest).firebase
+    if (!verifyIfUserAdmin(userClaims)) {
+        Logger.error({
+            message: 'User is not admin',
+            moduleName,
+            function: 'updateEmail',
+            statusCode: 403,
+        })
+        return res.status(403).json({ error: 'forbidden' })
+    }
+
+    const query = req.query['fields']?.toString()
+    if (query === undefined) {
+        Logger.error({
+            message: 'Missing fields parameter',
+            moduleName,
+            function: 'updateEmail',
+            statusCode: 400,
+        })
+        return res.status(400).json({ error: 'missing_type_parameter' })
+    }
+    const fields = query.split(',').map((field) => field.trim())
+    if (!validateEmailFields(fields)) {
+        Logger.error({
+            message: 'Invalid fields parameter',
+            moduleName,
+            function: 'updateEmail',
+            statusCode: 400,
+        })
+        return res.status(400).json({ error: 'invalid_fields_parameter' })
+    }
+    const body = req.body
+    if (!validateUpdateEmailBody(body, fields)) {
+        Logger.error({
+            message: 'Invalid body',
+            moduleName,
+            function: 'updateEmail',
+            statusCode: 400,
+        })
+        return res.status(400).json({ error: 'invalid_body' })
+    }
+
+    try {
+        await db.collection(nodeConfig.get('collections.cron')).doc('email').update(body)
+        Logger.info({
+            message: 'Updated cron',
+            moduleName,
+            function: 'updateEmail',
+        })
+        return res.status(200).json({ message: 'email_updated' })
+    } catch (error: any) {
+        Logger.error({
+            error: error,
+            moduleName,
+            function: 'updateEmail',
+            message: 'Error when fetching cron from firebase',
+            statusCode: 500,
+        })
+        return res.status(500).json({ error: 'internal_server_error' })
+    }
+}
+
+async function enableEmail(req: Request, res: Response) {
+    const enabled = req.body.enabled
+    if (enabled === undefined) {
+        Logger.error({
+            message: 'Missing enabled parameter',
+            moduleName,
+            function: 'enableEmail',
+            statusCode: 400,
+        })
+        return res.status(400).json({ error: 'missing_enabled_parameter' })
+    }
+    if (typeof enabled !== 'boolean') {
+        Logger.error({
+            message: 'Invalid enabled parameter',
+            moduleName,
+            function: 'enableEmail',
+            statusCode: 400,
+        })
+        return res.status(400).json({ error: 'invalid_enabled_parameter' })
+    }
+
+    const userClaims = (req as CustomRequest).firebase
+    if (!verifyIfUserAdmin(userClaims)) {
+        Logger.error({
+            message: 'User is not admin',
+            moduleName,
+            function: 'enableEmail',
+            statusCode: 403,
+        })
+        return res.status(403).json({ error: 'forbidden' })
+    }
+
+    try {
+        await enableEmailCron(enabled)
+        Logger.info({
+            message: 'Updated cron',
+            moduleName,
+            function: 'enableEmail',
+        })
+        return res.status(200).json({ enabled })
+    } catch (error: any) {
+        Logger.error({
+            error: error,
+            moduleName,
+            function: 'enableEmail',
+            message: 'Error when fetching cron from firebase',
+            statusCode: 500,
+        })
+        return res.status(500).json({ error: 'internal_server_error' })
+    }
+}
+
+async function updateEmailTemplate(req: Request, res: Response) {
+    const userClaims = (req as CustomRequest).firebase
+    if (!verifyIfUserAdmin(userClaims)) {
+        Logger.error({
+            message: 'User is not admin',
+            moduleName,
+            function: 'enableEmail',
+            statusCode: 403,
+        })
+        return res.status(403).json({ error: 'forbidden' })
+    }
+
+    const template = req.body.template
+    const subject = template?.subject
+    const body = template?.body
+    const senderEmail = template?.senderEmail
+    if (!template || !subject || !body) {
+        Logger.error({
+            moduleName,
+            message: 'No template provided',
+            statusCode: 400,
+        })
+        return res.status(400).json({ error: 'bad_request' })
+    }
+
+    await db.collection(nodeConfig.get('collections.cron')).doc('email').update({
+        senderEmail,
+        subject,
+        body,
+    })
+
+    Logger.info({
+        message: 'Updated email template',
+        moduleName,
+        function: 'updateEmailTemplate',
+    })
+    return res.status(200).json({ subject, body })
+}
+
+async function updateEmailCronExpression(req: Request, res: Response) {
+    const userClaims = (req as CustomRequest).firebase
+    if (!verifyIfUserAdmin(userClaims)) {
+        Logger.error({
+            message: 'User is not admin',
+            moduleName,
+            function: 'updateEmail',
+            statusCode: 403,
+        })
+        return res.status(403).json({ error: 'forbidden' })
+    }
+
+    const exprTime = req.body.exprTime.split(':')
+    const hours = parseInt(exprTime[0])
+    const minutes = parseInt(exprTime[1])
+    const days = req.body.days
+    const daysArr = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+    if (!validateUpdateEmailBody(days, daysArr)) {
+        Logger.error({
+            moduleName,
+            message: 'days request bad',
+            statusCode: 400,
+        })
+        return res.status(400).json({ error: 'bad_request' })
+    }
+
+    const setDays: Array<string> = []
+    for (const day of daysArr) {
+        if (days[day]) {
+            const tuple = convertToUTC(minutes, hours, day.substring(0, 3).toUpperCase())
+            setDays.push(tuple[2])
+        }
+    }
+    const tuple = convertToUTC(minutes, hours, 'MON')
+    let cronExpression = `0 ${tuple[0]} ${tuple[1]} * * `
+    cronExpression += setDays.join(',')
+
+    await db.collection(nodeConfig.get('collections.cron')).doc('email').update({
+        expression: cronExpression,
+    })
+
+    Logger.info({
+        message: 'Updated cron expression',
+        moduleName,
+        function: 'updateCronExpression',
+    })
+
+    const enabled = await isEmailCronEnabled()
+    if (enabled) {
+        stopCron()
+        initializeEmailCron({ cronExpression: cronExpression }, EmailClient.AWS)
+    }
+
+    return res.status(200).json({ days })
+}
+
+async function stopEmailCron(req: Request, res: Response) {
+    const userClaims = (req as CustomRequest).firebase
+    if (!verifyIfUserAdmin(userClaims)) {
+        Logger.error({
+            message: 'User is not admin',
+            moduleName,
+            function: 'updateEmail',
+            statusCode: 403,
+        })
+        return res.status(403).json({ error: 'forbidden' })
+    }
+
+    stopCron()
+
+    await db.collection(nodeConfig.get('collections.cron')).doc('email').update({
+        enabled: false,
+    })
+
+    Logger.info({
+        message: 'Stopped email cron',
+    })
+
+    return res.status(200).json({ message: 'stopped email cron' })
+}
+
+async function startEmailCron(req: Request, res: Response) {
+    const userClaims = (req as CustomRequest).firebase
+    if (!verifyIfUserAdmin(userClaims)) {
+        Logger.error({
+            message: 'User is not admin',
+            moduleName,
+            function: 'updateEmail',
+            statusCode: 403,
+        })
+        return res.status(403).json({ error: 'forbidden' })
+    }
+
+    stopCron()
+
+    const data = await fetchEmailCron()
+
+    if (!data) {
+        return res.status(500).json({ message: 'no cron data found' })
+    }
+
+    initializeEmailCron({ cronExpression: data.expression }, EmailClient.AWS)
+
+    await db.collection(nodeConfig.get('collections.cron')).doc('email').update({
+        enabled: true,
+    })
+
+    Logger.info({
+        message: 'Started email cron',
+    })
+
+    return res.status(200).json({ message: 'started email cron' })
+}
 
 const router = express.Router()
 
