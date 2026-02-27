@@ -53,6 +53,7 @@ app.get('/health', (_: Request, res: Response) => {
     res.status(200).send('OK')
 })
 
+// TODO: audit all route names for REST best practices; they're a mixed bag right now
 app.use('/api/auth', authRouter)
 app.use('/api/dish', dishRouter)
 app.use('/api/transactions', transactionsRouter)
