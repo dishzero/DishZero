@@ -2,8 +2,6 @@ import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
 import { Transaction } from '../models/transaction'
 import { db } from '../internal/firebase'
 import nodeConfig from 'config'
-import { getUserById } from './users'
-import { User } from '../models/user'
 
 export const getUserTransactions = async (userClaims: DecodedIdToken) => {
     let transactions = <Array<Transaction>>[]
