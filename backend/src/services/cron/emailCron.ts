@@ -1,22 +1,66 @@
-import { Cron, CronOptions } from './factory'
 import cron from 'node-cron'
-import { sendEmail } from '../internal/sesClient'
-import { db } from '../firebase'
+import { db } from '../../firebase'
 import nodeConfig from 'config'
-import { getTemplate } from '../services/email'
-import logger from '../utils/logger'
-import { getAllDishes } from '../services/dish'
-import { getUserById } from '../services/users'
-import { DishStatus } from '../models/dish'
+import { getTemplate } from '../cron'
+import logger from '../../utils/logger'
+import { getAllDishes } from '../dish'
+import { getUserById } from '../users'
+import { DishStatus } from '../../models/dish'
+import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses'
 
+type CronOptions = {
+    cronExpression: string
+    cronName?: string
+}
 export enum EmailClient {
     AWS = 'aws',
     Nodemailer = 'nodemailer',
 }
 
-let emailCron: Cron | null
+const REGION: string = nodeConfig.get('aws.region') || 'us-west-2'
 
-export class EmailCron implements Cron {
+const SES_CONFIG = {
+    apiVersion: '2010-12-01',
+    region: REGION,
+}
+
+const sesClient = new SESClient(SES_CONFIG)
+
+// https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-ses/classes/sendemailcommand.html
+const sendEmail = async (recepientEmails: Array<string>, subject: string, body: string, senderEmail: string) => {
+    const params = {
+        Destination: {
+            BccAddresses: [...recepientEmails],
+        },
+        Message: {
+            Body: {
+                Text: {
+                    Charset: 'UTF-8',
+                    Data: body,
+                },
+            },
+            Subject: {
+                Charset: 'UTF-8',
+                Data: subject,
+            },
+        },
+        Source: senderEmail,
+    }
+
+    const command = new SendEmailCommand(params)
+    try {
+        await sesClient.send(command)
+    } catch (error: any) {
+        logger.error({
+            error,
+            message: 'Failed to send emails',
+        })
+    }
+}
+
+let emailCron: EmailCron | null
+
+export class EmailCron {
     private job: cron.ScheduledTask | undefined
     private readonly client: EmailClient
     private readonly options: CronOptions
@@ -45,7 +89,6 @@ export class EmailCron implements Cron {
 
                     for (const dish of dishes) {
                         if (dish.status === DishStatus.borrowed && dish.userId && dish.borrowedAt) {
-                            // if (dish.borrowed && dish.userId && dish.borrowedAt) {
                             const currentTime = new Date()
                             const borrowedDate = new Date(dish.borrowedAt.toString())
                             const hoursSinceBorrow = Math.abs(currentTime.getTime() - borrowedDate.getTime()) / oneHour

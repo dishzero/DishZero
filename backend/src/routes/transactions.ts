@@ -1,12 +1,13 @@
 import express, { Request, Response } from 'express'
-import { CustomRequest, verifyFirebaseToken } from '../middlewares/auth'
+import { verifyFirebaseToken } from '../middlewares'
+import { FirebaseRequest } from '../firebase'
 import { verifyIfUserAdmin } from '../services/users'
 import { getAllTransactions, getUserTransactions } from '../services/transactions'
 import logger from '../utils/logger'
 import { FORBIDDEN_ERROR_RESPONSE, INTERNAL_SERVER_ERROR_RESPONSE } from '../constants'
 
 async function getTransactions(req: Request, res: Response) {
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
     const all = req.query['all']?.toString()
     let transactions
     if (all === 'true') {

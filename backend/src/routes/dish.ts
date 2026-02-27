@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express'
-import { CustomRequest, verifyFirebaseToken } from '../middlewares/auth'
+import { verifyFirebaseToken } from '../middlewares'
+import { FirebaseRequest } from '../firebase'
 import { DishCondition, DishStatus } from '../models/dish'
 import { Transaction } from '../models/transaction'
 import {
@@ -43,7 +44,7 @@ const DISH_NOT_FOUND_ERROR_RESPONSE = { error: 'dish_not_found' }
 const DISH_RETURNED_RESPONSE = { message: 'dish returned' }
 
 async function getDishes(req: Request, res: Response) {
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
     const id = req.query['id']?.toString()
     const qid = req.query['qid']?.toString()
 
@@ -126,7 +127,7 @@ async function getDishes(req: Request, res: Response) {
 }
 
 async function getDishTypes(req: Request, res: Response) {
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
 
     if (!verifyIfUserAdmin(userClaims)) {
         return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
@@ -147,7 +148,7 @@ async function getDishTypes(req: Request, res: Response) {
 }
 
 async function getDishVendors(req: Request, res: Response) {
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
 
     if (!verifyIfUserAdmin(userClaims)) {
         return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
@@ -168,7 +169,7 @@ async function getDishVendors(req: Request, res: Response) {
 }
 
 async function deleteDishes(req: Request, res: Response) {
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
         return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
@@ -203,7 +204,7 @@ async function deleteDishes(req: Request, res: Response) {
 }
 
 async function createMultipleDishes(req: Request, res: Response) {
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
         return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
@@ -226,7 +227,7 @@ async function createMultipleDishes(req: Request, res: Response) {
 }
 
 async function createDish(req: Request, res: Response) {
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
         return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
@@ -245,7 +246,7 @@ async function createDish(req: Request, res: Response) {
 }
 
 async function addDishType(req: Request, res: Response) {
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
         return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
@@ -271,7 +272,7 @@ async function borrowDish(req: Request, res: Response) {
         return res.status(400).json(BAD_REQUEST_ERROR_RESPONSE)
     }
 
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
 
     try {
         const qrCodeExits = await getQrCode(qid)
@@ -329,7 +330,7 @@ async function returnDish(req: Request, res: Response) {
     }
     const { condition } = req.body.returned
 
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
     if (!verifyIfUserAdmin(userClaims) && !verifyIfUserVolunteer(userClaims)) {
         return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
@@ -435,7 +436,7 @@ async function updateDishCondition(req: Request, res: Response) {
 }
 
 async function modifyDish(req: Request, res: Response) {
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
         return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }

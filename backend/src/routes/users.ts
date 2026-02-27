@@ -8,16 +8,16 @@ import {
     verifyRole,
     verifyType,
 } from '../services/users'
-import { getAuthUser } from '../services/auth'
 import { User } from '../models/user'
 import logger from '../utils/logger'
-import { CustomRequest, verifyFirebaseToken } from '../middlewares/auth'
+import { verifyFirebaseToken } from '../middlewares'
+import { auth, FirebaseRequest } from '../firebase'
 import { FORBIDDEN_ERROR_RESPONSE, INTERNAL_SERVER_ERROR_RESPONSE, SUCCESS_STATUS_RESPONSE } from '../constants'
 
 async function getUsers(req: Request, res: Response) {
     const role = req.query['role']?.toString()
     const id = req.query['id']?.toString()
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
     if (userClaims.role !== 'admin') {
         return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
@@ -62,8 +62,8 @@ async function getUsers(req: Request, res: Response) {
 }
 
 async function verifyUserSession(req: Request, res: Response) {
-    const userClaims = (req as CustomRequest).firebase
-    const user = await getAuthUser(userClaims.uid)
+    const userClaims = (req as FirebaseRequest).firebase
+    const user = await auth.getUser(userClaims.uid)
     if (!user) {
         return res.status(404).json({ error: 'user_not_found' })
     }
@@ -73,7 +73,7 @@ async function verifyUserSession(req: Request, res: Response) {
 }
 
 async function updateUser(req: Request, res: Response) {
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
     const type = req.params['type']?.toString()
     if (type && verifyType(type)) {
         if (type === 'role') {

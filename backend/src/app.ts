@@ -9,9 +9,9 @@ import { authRouter } from './routes/auth'
 import cookieParser from 'cookie-parser'
 import { qrCodeRouter } from './routes/qrCode'
 import { cronRouter } from './routes/cron'
-import { EmailClient, initializeEmailCron } from './cron/email'
+import { EmailClient, initializeEmailCron } from './services/cron/emailCron'
 import logger from './utils/logger'
-import { fetchEmailCron } from './services/email'
+import { fetchEmailCron } from './services/cron'
 import { randomUUID } from 'crypto'
 
 const app = express()

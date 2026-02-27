@@ -44,3 +44,4 @@ export const setEmailCronEnabled = async (enabled: boolean) => {
         enabled,
     })
 }
+

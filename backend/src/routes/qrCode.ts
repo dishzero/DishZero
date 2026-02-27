@@ -1,8 +1,8 @@
 import express, { Request, Response } from 'express'
-import { verifyFirebaseToken } from '../middlewares/auth'
+import { verifyFirebaseToken } from '../middlewares'
 import { verifyIfUserAdmin } from '../services/users'
 import logger from '../utils/logger'
-import { CustomRequest } from '../middlewares/auth'
+import { FirebaseRequest } from '../firebase'
 import { createQrCodeInDatabase, deleteQrCodeFromDatabase, getAllQrCodes, getQrCode } from '../services/qrCode'
 import {
     BAD_REQUEST_ERROR_RESPONSE,
@@ -12,7 +12,7 @@ import {
 } from '../constants'
 
 async function getQrCodes(req: Request, res: Response) {
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
     const qid = req.query['qid']?.toString()
 
     if (!qid) {
@@ -41,7 +41,7 @@ async function getQrCodes(req: Request, res: Response) {
 }
 
 async function createQrCode(req: Request, res: Response) {
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
         return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
@@ -60,7 +60,7 @@ async function createQrCode(req: Request, res: Response) {
 }
 
 async function updateQrCode(req: Request, res: Response) {
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
         return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
@@ -84,7 +84,7 @@ async function updateQrCode(req: Request, res: Response) {
 }
 
 async function deleteQrCode(req: Request, res: Response) {
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
         return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }

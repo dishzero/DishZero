@@ -1,16 +1,12 @@
 import { Request, Response, NextFunction } from 'express'
 import * as dotenv from 'dotenv'
-import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
-import logger from '../utils/logger'
-import { getUserById } from '../services/users'
-import { auth } from '../firebase'
-import { INTERNAL_SERVER_ERROR_RESPONSE } from '../constants'
+import logger from './utils/logger'
+import { getUserById } from './services/users'
+import { auth, FirebaseRequest } from './firebase'
+import { INTERNAL_SERVER_ERROR_RESPONSE } from './constants'
 dotenv.config()
 
 // Define the custom request object
-export interface CustomRequest extends Request {
-    firebase: DecodedIdToken
-}
 
 /**
  * verifies the firebase session token in the request header
@@ -26,12 +22,12 @@ export const verifyFirebaseToken = async (req: Request, res: Response, next: Nex
     }
     try {
         const decodedClaims = await auth.verifySessionCookie(sessionCookies, true)
-        ;(req as CustomRequest).firebase = decodedClaims
-        let user = await getUserById((req as CustomRequest).firebase.uid)
+        ;(req as FirebaseRequest).firebase = decodedClaims
+        let user = await getUserById((req as FirebaseRequest).firebase.uid)
         if (!user) {
             return res.status(404).json({ error: 'user_not_found' })
         }
-        ;(req as CustomRequest).firebase.role = user.role
+        ;(req as FirebaseRequest).firebase.role = user.role
         next()
     } catch (error) {
         logger.error({

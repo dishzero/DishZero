@@ -1,17 +1,23 @@
 import express, { Request, Response } from 'express'
-import { verifyFirebaseToken } from '../middlewares/auth'
-import { CustomRequest } from '../middlewares/auth'
+import { verifyFirebaseToken } from '../middlewares'
+import { FirebaseRequest } from '../firebase'
 import { verifyIfUserAdmin } from '../services/users'
 import logger from '../utils/logger'
-import { convertToMT, convertToUTC, validateEmailFields, validateUpdateEmailBody } from '../services/cron/email'
-import { EmailClient, getEmailCron, initializeEmailCron, isEmailCronEnabled, setEmailCron } from '../cron/email'
+import { convertToMT, convertToUTC, validateEmailFields, validateUpdateEmailBody } from '../services/cron/cronUtils'
+import {
+    EmailClient,
+    getEmailCron,
+    initializeEmailCron,
+    isEmailCronEnabled,
+    setEmailCron,
+} from '../services/cron/emailCron'
 import {
     fetchEmailCron,
     setEmailCronEnabled,
     setEmailCronExpression,
     setEmailTemplate,
     updateEmailConfig,
-} from '../services/email'
+} from '../services/cron'
 import { BAD_REQUEST_ERROR_RESPONSE, FORBIDDEN_ERROR_RESPONSE, INTERNAL_SERVER_ERROR_RESPONSE } from '../constants'
 
 function stopCron() {
@@ -23,7 +29,7 @@ function stopCron() {
 }
 
 async function getEmail(req: Request, res: Response) {
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
         return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
@@ -70,7 +76,7 @@ async function getEmail(req: Request, res: Response) {
 }
 
 async function updateEmail(req: Request, res: Response) {
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
         return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
@@ -110,7 +116,7 @@ async function enableEmail(req: Request, res: Response) {
         return res.status(400).json({ error: 'invalid_enabled_parameter' })
     }
 
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
         return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
@@ -129,7 +135,7 @@ async function enableEmail(req: Request, res: Response) {
 }
 
 async function updateEmailTemplate(req: Request, res: Response) {
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
         return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
@@ -152,7 +158,7 @@ async function updateEmailTemplate(req: Request, res: Response) {
 }
 
 async function updateEmailCronExpression(req: Request, res: Response) {
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
         return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
@@ -189,7 +195,7 @@ async function updateEmailCronExpression(req: Request, res: Response) {
 }
 
 async function stopEmailCron(req: Request, res: Response) {
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
         return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
@@ -202,7 +208,7 @@ async function stopEmailCron(req: Request, res: Response) {
 }
 
 async function startEmailCron(req: Request, res: Response) {
-    const userClaims = (req as CustomRequest).firebase
+    const userClaims = (req as FirebaseRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
         return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
     }
