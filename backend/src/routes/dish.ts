@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express'
-import { verifyFirebaseToken } from '@/middlewares'
+import { verifyFirebaseToken, verifyAuthorizedRoles } from '@/middlewares'
 import { FirebaseRequest } from '@/firebase'
 import {
     DishCondition,
@@ -24,7 +24,7 @@ import {
     updateDish,
 } from '@/services/dish'
 import logger from '@/logger'
-import { getUserByEmail, getUserById, verifyIfUserAdmin, verifyIfUserVolunteer } from '@/services/users'
+import { getUserByEmail, getUserById } from '@/services/users'
 import {
     Transaction,
     registerTransaction,
@@ -87,7 +87,8 @@ async function getDishes(req: Request, res: Response) {
     let dishes: any
 
     if (all === 'true') {
-        if (!verifyIfUserAdmin(userClaims)) {
+        // TODO: we should split out the "all" case to a different route for seperation of concerns and so we can use the verifyAuthorizedRoles(['admin']) middleware here
+        if (userClaims.role !== 'admin') {
             return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
         }
 
@@ -128,12 +129,6 @@ async function getDishes(req: Request, res: Response) {
 }
 
 async function getDishTypes(req: Request, res: Response) {
-    const userClaims = (req as FirebaseRequest).firebase
-
-    if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
-    }
-
     let dishTypes
     try {
         dishTypes = await getAllDishTypes()
@@ -149,12 +144,6 @@ async function getDishTypes(req: Request, res: Response) {
 }
 
 async function getDishVendors(req: Request, res: Response) {
-    const userClaims = (req as FirebaseRequest).firebase
-
-    if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
-    }
-
     let dishVendors
     try {
         dishVendors = await getAllDishVendors()
@@ -170,11 +159,6 @@ async function getDishVendors(req: Request, res: Response) {
 }
 
 async function deleteDishes(req: Request, res: Response) {
-    const userClaims = (req as FirebaseRequest).firebase
-    if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
-    }
-
     const dishIds = req.body.dishIds
     if (!dishIds) {
         return res.status(400).json(BAD_REQUEST_ERROR_RESPONSE)
@@ -205,11 +189,6 @@ async function deleteDishes(req: Request, res: Response) {
 }
 
 async function createMultipleDishes(req: Request, res: Response) {
-    const userClaims = (req as FirebaseRequest).firebase
-    if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
-    }
-
     const dishType = req.body.type
     const dishIdLower = req.body.dishIdLower as number
     const dishIdUpper = req.body.dishIdUpper as number
@@ -228,11 +207,6 @@ async function createMultipleDishes(req: Request, res: Response) {
 }
 
 async function createDish(req: Request, res: Response) {
-    const userClaims = (req as FirebaseRequest).firebase
-    if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
-    }
-
     try {
         const dish = await createDishInDatabase(req.body.dish)
         return res.status(200).json({ dish })
@@ -247,11 +221,6 @@ async function createDish(req: Request, res: Response) {
 }
 
 async function addDishType(req: Request, res: Response) {
-    const userClaims = (req as FirebaseRequest).firebase
-    if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
-    }
-
     try {
         const response = await addDishTypeToDatabase(req.body.type)
         return res.status(200).json({ response })
@@ -330,11 +299,8 @@ async function returnDish(req: Request, res: Response) {
         return res.status(400).json({ error: 'bad_request', message: 'no values for condition provided' })
     }
     const { condition } = req.body.returned
-
     const userClaims = (req as FirebaseRequest).firebase
-    if (!verifyIfUserAdmin(userClaims) && !verifyIfUserVolunteer(userClaims)) {
-        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
-    }
+
     try {
         let qrCodeExits
         let associatedDish
@@ -437,11 +403,6 @@ async function updateDishCondition(req: Request, res: Response) {
 }
 
 async function modifyDish(req: Request, res: Response) {
-    const userClaims = (req as FirebaseRequest).firebase
-    if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
-    }
-
     const validation = validateModifyDish(req.body)
     if (validation.error) {
         return res.status(400).json({ error: 'bad_request', message: 'validation for modify dish status failed' })
@@ -465,15 +426,15 @@ async function modifyDish(req: Request, res: Response) {
 const router = express.Router()
 
 router.get('/', verifyFirebaseToken, getDishes)
-router.get('/getDishTypes', verifyFirebaseToken, getDishTypes)
-router.get('/getDishVendors', verifyFirebaseToken, getDishVendors)
-router.post('/createMultipleDishes', verifyFirebaseToken, createMultipleDishes)
-router.post('/addDishType', verifyFirebaseToken, addDishType)
-router.post('/modifyDish', verifyFirebaseToken, modifyDish)
-router.post('/create', verifyFirebaseToken, createDish)
+router.get('/getDishTypes', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), getDishTypes)
+router.get('/getDishVendors', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), getDishVendors)
+router.post('/createMultipleDishes', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), createMultipleDishes)
+router.post('/addDishType', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), addDishType)
+router.post('/modifyDish', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), modifyDish)
+router.post('/create', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), createDish)
 router.post('/borrow', verifyFirebaseToken, borrowDish)
-router.post('/return', verifyFirebaseToken, returnDish)
-router.post('/delete', verifyFirebaseToken, deleteDishes)
+router.post('/return', verifyFirebaseToken, verifyAuthorizedRoles(['admin', 'volunteer']), returnDish)
+router.post('/delete', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), deleteDishes)
 router.post('/condition', verifyFirebaseToken, updateDishCondition)
 
 export { router as dishRouter }

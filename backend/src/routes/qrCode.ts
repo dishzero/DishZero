@@ -1,6 +1,5 @@
 import express, { Request, Response } from 'express'
-import { verifyFirebaseToken } from '@/middlewares'
-import { verifyIfUserAdmin } from '@/services/users'
+import { verifyFirebaseToken, verifyAuthorizedRoles } from '@/middlewares'
 import logger from '@/logger'
 import { FirebaseRequest } from '@/firebase'
 import { createQrCodeInDatabase, deleteQrCodeFromDatabase, getAllQrCodes, getQrCode } from '@/services/qrCode'
@@ -16,7 +15,8 @@ async function getQrCodes(req: Request, res: Response) {
     const qid = req.query['qid']?.toString()
 
     if (!qid) {
-        if (!verifyIfUserAdmin(userClaims)) {
+        // TODO: we should split out the "all" case to a different route for seperation of concerns and so we can use the verifyAuthorizedRoles(['admin']) middleware here
+        if (userClaims.role !== 'admin') {
             return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
         }
 
@@ -41,11 +41,6 @@ async function getQrCodes(req: Request, res: Response) {
 }
 
 async function createQrCode(req: Request, res: Response) {
-    const userClaims = (req as FirebaseRequest).firebase
-    if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
-    }
-
     try {
         const qrCode = await createQrCodeInDatabase(req.body.qrCode, false)
         return res.status(201).json({ qrCode })
@@ -60,11 +55,6 @@ async function createQrCode(req: Request, res: Response) {
 }
 
 async function updateQrCode(req: Request, res: Response) {
-    const userClaims = (req as FirebaseRequest).firebase
-    if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
-    }
-
     const existingQrCode = await getQrCode(req.body.qrCode.qid.toString())
     if (!existingQrCode) {
         return res.status(404).json(QR_CODE_NOT_FOUND_ERROR_RESPONSE)
@@ -84,11 +74,6 @@ async function updateQrCode(req: Request, res: Response) {
 }
 
 async function deleteQrCode(req: Request, res: Response) {
-    const userClaims = (req as FirebaseRequest).firebase
-    if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
-    }
-
     const qid = req.query['qid']?.toString()
     if (!qid) {
         return res.status(400).json(BAD_REQUEST_ERROR_RESPONSE)
@@ -110,8 +95,8 @@ async function deleteQrCode(req: Request, res: Response) {
 const router = express.Router()
 
 router.get('/', verifyFirebaseToken, getQrCodes)
-router.post('/create', verifyFirebaseToken, createQrCode)
-router.post('/update', verifyFirebaseToken, updateQrCode)
-router.post('/delete', verifyFirebaseToken, deleteQrCode)
+router.post('/create', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), createQrCode)
+router.post('/update', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), updateQrCode)
+router.post('/delete', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), deleteQrCode)
 
 export { router as qrCodeRouter }

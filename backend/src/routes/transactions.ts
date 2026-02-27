@@ -1,7 +1,6 @@
 import express, { Request, Response } from 'express'
 import { verifyFirebaseToken } from '@/middlewares'
 import { FirebaseRequest } from '@/firebase'
-import { verifyIfUserAdmin } from '@/services/users'
 import { getAllTransactions, getUserTransactions } from '@/services/transactions'
 import logger from '@/logger'
 import { FORBIDDEN_ERROR_RESPONSE, INTERNAL_SERVER_ERROR_RESPONSE } from '@/constants'
@@ -11,19 +10,19 @@ async function getTransactions(req: Request, res: Response) {
     const all = req.query['all']?.toString()
     let transactions
     if (all === 'true') {
-        if (verifyIfUserAdmin(userClaims)) {
-            try {
-                transactions = await getAllTransactions()
-                return res.status(200).json({ transactions })
-            } catch (err: any) {
-                logger.error({
-                    reqId: req.id,
-                    error: err.message,
-                })
-                return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
-            }
-        } else {
+        // TODO: we should split out the "all" case to a different route for seperation of concerns and so we can use the verifyAuthorizedRoles(['admin']) middleware here
+        if (userClaims.role !== 'admin') {
             return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
+        }
+        try {
+            transactions = await getAllTransactions()
+            return res.status(200).json({ transactions })
+        } catch (err: any) {
+            logger.error({
+                reqId: req.id,
+                error: err.message,
+            })
+            return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
         }
     }
 

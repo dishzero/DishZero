@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv'
 import logger from '@/logger'
 import { getUserById } from '@/services/users'
 import { auth, FirebaseRequest } from '@/firebase'
-import { INTERNAL_SERVER_ERROR_RESPONSE } from '@/constants'
+import { FORBIDDEN_ERROR_RESPONSE, INTERNAL_SERVER_ERROR_RESPONSE } from '@/constants'
 dotenv.config()
 
 // Define the custom request object
@@ -37,4 +37,16 @@ export const verifyFirebaseToken = async (req: Request, res: Response, next: Nex
         })
         return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE)
     }
+}
+
+/**
+ * Returns a middleware that allows only the given roles. Must be used after verifyFirebaseToken.
+ * Returns 403 if the user's role is not in allowedRoles.
+ */
+export const verifyAuthorizedRoles = (allowedRoles: string[]) => (req: Request, res: Response, next: NextFunction) => {
+    const role = (req as FirebaseRequest).firebase.role
+    if (!allowedRoles.includes(role)) {
+        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
+    }
+    next()
 }

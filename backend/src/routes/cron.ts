@@ -1,7 +1,5 @@
 import express, { Request, Response } from 'express'
-import { verifyFirebaseToken } from '@/middlewares'
-import { FirebaseRequest } from '@/firebase'
-import { verifyIfUserAdmin } from '@/services/users'
+import { verifyFirebaseToken, verifyAuthorizedRoles } from '@/middlewares'
 import logger from '@/logger'
 import { convertToMT, convertToUTC, validateEmailFields, validateUpdateEmailBody } from '@/services/cron/cronUtils'
 import {
@@ -18,7 +16,7 @@ import {
     setEmailTemplate,
     updateEmailConfig,
 } from '@/services/cron'
-import { BAD_REQUEST_ERROR_RESPONSE, FORBIDDEN_ERROR_RESPONSE, INTERNAL_SERVER_ERROR_RESPONSE } from '@/constants'
+import { BAD_REQUEST_ERROR_RESPONSE, INTERNAL_SERVER_ERROR_RESPONSE } from '@/constants'
 
 function stopCron() {
     const cron = getEmailCron()
@@ -29,11 +27,6 @@ function stopCron() {
 }
 
 async function getEmail(req: Request, res: Response) {
-    const userClaims = (req as FirebaseRequest).firebase
-    if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
-    }
-
     try {
         const cron = await fetchEmailCron()
 
@@ -76,11 +69,6 @@ async function getEmail(req: Request, res: Response) {
 }
 
 async function updateEmail(req: Request, res: Response) {
-    const userClaims = (req as FirebaseRequest).firebase
-    if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
-    }
-
     const query = req.query['fields']?.toString()
     if (query === undefined) {
         return res.status(400).json({ error: 'missing_type_parameter' })
@@ -116,11 +104,6 @@ async function enableEmail(req: Request, res: Response) {
         return res.status(400).json({ error: 'invalid_enabled_parameter' })
     }
 
-    const userClaims = (req as FirebaseRequest).firebase
-    if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
-    }
-
     try {
         await setEmailCronEnabled(enabled)
         return res.status(200).json({ enabled })
@@ -135,11 +118,6 @@ async function enableEmail(req: Request, res: Response) {
 }
 
 async function updateEmailTemplate(req: Request, res: Response) {
-    const userClaims = (req as FirebaseRequest).firebase
-    if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
-    }
-
     const template = req.body.template
     const subject = template?.subject
     const body = template?.body
@@ -158,11 +136,6 @@ async function updateEmailTemplate(req: Request, res: Response) {
 }
 
 async function updateEmailCronExpression(req: Request, res: Response) {
-    const userClaims = (req as FirebaseRequest).firebase
-    if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
-    }
-
     const exprTime = req.body.exprTime.split(':')
     const hours = parseInt(exprTime[0])
     const minutes = parseInt(exprTime[1])
@@ -195,11 +168,6 @@ async function updateEmailCronExpression(req: Request, res: Response) {
 }
 
 async function stopEmailCron(req: Request, res: Response) {
-    const userClaims = (req as FirebaseRequest).firebase
-    if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
-    }
-
     stopCron()
 
     await setEmailCronEnabled(false)
@@ -208,11 +176,6 @@ async function stopEmailCron(req: Request, res: Response) {
 }
 
 async function startEmailCron(req: Request, res: Response) {
-    const userClaims = (req as FirebaseRequest).firebase
-    if (!verifyIfUserAdmin(userClaims)) {
-        return res.status(403).json(FORBIDDEN_ERROR_RESPONSE)
-    }
-
     stopCron()
 
     const data = await fetchEmailCron()
@@ -230,12 +193,12 @@ async function startEmailCron(req: Request, res: Response) {
 
 const router = express.Router()
 
-router.get('/email', verifyFirebaseToken, getEmail)
-router.post('/email/update', verifyFirebaseToken, updateEmail)
-router.post('/email/enable', verifyFirebaseToken, enableEmail)
-router.post('/email/template', verifyFirebaseToken, updateEmailTemplate)
-router.post('/email/expression', verifyFirebaseToken, updateEmailCronExpression)
-router.post('/email/stop', verifyFirebaseToken, stopEmailCron)
-router.post('/email/start', verifyFirebaseToken, startEmailCron)
+router.get('/email', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), getEmail)
+router.post('/email/update', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), updateEmail)
+router.post('/email/enable', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), enableEmail)
+router.post('/email/template', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), updateEmailTemplate)
+router.post('/email/expression', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), updateEmailCronExpression)
+router.post('/email/stop', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), stopEmailCron)
+router.post('/email/start', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), startEmailCron)
 
 export { router as cronRouter }
