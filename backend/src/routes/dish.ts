@@ -22,7 +22,7 @@ import {
     validateModifyDish,
     updateDish,
 } from '../services/dish'
-import Logger from '../utils/logger'
+import logger from '../utils/logger'
 import { getUserByEmail, getUserById, verifyIfUserAdmin, verifyIfUserVolunteer } from '../services/users'
 import {
     registerTransaction,
@@ -43,22 +43,11 @@ async function getDishes(req: Request, res: Response) {
         try {
             const dish = await getDishById(id)
             if (!dish) {
-                Logger.error({
-                    message: 'Dish does not exist',
-                    statusCode: 404,
-                    module: 'dish.controller',
-                    function: 'getDishes',
-                })
                 return res.status(400).json({ error: 'dish_not_found' })
             }
-            Logger.info({
-                message: 'retrieved dish',
-                module: 'dish.controller',
-                function: 'getDishes',
-            })
             return res.status(200).json({ dish: dish })
         } catch (error: any) {
-            Logger.error({
+            logger.error({
                 message: 'Error when retrieving dish',
                 error,
                 statusCode: 500,
@@ -71,22 +60,11 @@ async function getDishes(req: Request, res: Response) {
         try {
             const dish = await getDish(parseInt(qid, 10))
             if (!dish) {
-                Logger.error({
-                    message: 'Dish does not exist',
-                    statusCode: 404,
-                    module: 'dish.controller',
-                    function: 'getDishes',
-                })
                 return res.status(400).json({ error: 'dish_not_found' })
             }
-            Logger.info({
-                message: 'retrieved dish',
-                module: 'dish.controller',
-                function: 'getDishes',
-            })
             return res.status(200).json({ dish })
         } catch (error: any) {
-            Logger.error({
+            logger.error({
                 message: 'Error when retrieving dish',
                 error,
                 statusCode: 500,
@@ -104,11 +82,6 @@ async function getDishes(req: Request, res: Response) {
 
     if (all === 'true') {
         if (!verifyIfUserAdmin(userClaims)) {
-            Logger.error({
-                module: 'dish.controller',
-                message: 'User is not admin',
-                statusCode: 403,
-            })
             return res.status(403).json({ error: 'forbidden' })
         }
 
@@ -119,21 +92,14 @@ async function getDishes(req: Request, res: Response) {
                 dishes = await getAllDishesSimple()
             }
         } catch (error: any) {
-            Logger.error({
-                module: 'dish.controller',
+            logger.error({
                 function: 'getDishes',
                 error,
                 message: 'error when getting dishes from firebase',
             })
-
             return res.status(500).json({ error: 'internal_server_error' })
         }
 
-        Logger.info({
-            module: 'dish.controller',
-            function: 'getDishes',
-            message: 'sending all dishes to admin',
-        })
         return res.status(200).json({ dishes })
     }
 
@@ -146,13 +112,11 @@ async function getDishes(req: Request, res: Response) {
 
         return res.status(200).json({ dishes })
     } catch (error: any) {
-        Logger.error({
-            module: 'dish.controller',
+        logger.error({
             function: 'getDishes',
             error,
             message: 'error when getting user dishes from firebase',
         })
-
         return res.status(500).json({ error: 'internal_server_error' })
     }
 }
@@ -161,11 +125,6 @@ async function getDishTypes(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
 
     if (!verifyIfUserAdmin(userClaims)) {
-        Logger.error({
-            module: 'dish.controller',
-            message: 'User is not admin',
-            statusCode: 403,
-        })
         return res.status(403).json({ error: 'forbidden' })
     }
 
@@ -173,13 +132,11 @@ async function getDishTypes(req: Request, res: Response) {
     try {
         dishTypes = await getAllDishTypes()
     } catch (error: any) {
-        Logger.error({
-            module: 'dish.controller',
+        logger.error({
             function: 'getDishTypes',
             error,
             message: 'error when getting dish types from firebase',
         })
-
         return res.status(500).json({ error: 'internal_server_error' })
     }
     return res.status(200).json({ dishTypes })
@@ -189,11 +146,6 @@ async function getDishVendors(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
 
     if (!verifyIfUserAdmin(userClaims)) {
-        Logger.error({
-            module: 'dish.controller',
-            message: 'User is not admin',
-            statusCode: 403,
-        })
         return res.status(403).json({ error: 'forbidden' })
     }
 
@@ -201,13 +153,11 @@ async function getDishVendors(req: Request, res: Response) {
     try {
         dishVendors = await getAllDishVendors()
     } catch (error: any) {
-        Logger.error({
-            module: 'dish.controller',
+        logger.error({
             function: 'getDishVendors',
             error,
             message: 'error when getting dish vendors from firebase',
         })
-
         return res.status(500).json({ error: 'internal_server_error' })
     }
     return res.status(200).json({ dishVendors })
@@ -216,21 +166,11 @@ async function getDishVendors(req: Request, res: Response) {
 async function deleteDishes(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
-        Logger.error({
-            module: 'dish.controller',
-            message: 'User is not admin',
-            statusCode: 403,
-        })
         return res.status(403).json({ error: 'forbidden' })
     }
 
     const dishIds = req.body.dishIds
     if (!dishIds) {
-        Logger.error({
-            module: 'dish.controller',
-            message: 'No dishIds provided',
-            statusCode: 400,
-        })
         return res.status(400).json({ error: 'bad_request' })
     }
 
@@ -238,33 +178,18 @@ async function deleteDishes(req: Request, res: Response) {
         for (const qid of dishIds) {
             const dish = await getDish(parseInt(qid, 10))
             if (!dish) {
-                Logger.error({
-                    module: 'dish.controller',
-                    message: 'Dish not found',
-                    statusCode: 400,
-                })
                 return res.status(400).json({ error: 'bad_request' })
             }
             if (dish.status === DishStatus.borrowed) {
-                Logger.error({
-                    module: 'dish.controller',
-                    message: 'Dish is borrowed',
-                    statusCode: 400,
-                })
                 return res.status(400).json({ error: 'bad_request' })
             }
 
             deleteDish(parseInt(qid, 10))
         }
 
-        Logger.info({
-            module: 'dish.controller',
-            message: 'Successfully deleted dishes',
-        })
         return res.status(200).json({ message: 'dishes deleted' })
     } catch (error: any) {
-        Logger.error({
-            module: 'dish.controller',
+        logger.error({
             error,
             message: 'Error when deleting dishes',
             statusCode: 500,
@@ -276,11 +201,6 @@ async function deleteDishes(req: Request, res: Response) {
 async function createMultipleDishes(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
-        Logger.error({
-            module: 'dish.controller',
-            message: 'User is not admin',
-            statusCode: 403,
-        })
         return res.status(403).json({ error: 'forbidden' })
     }
 
@@ -292,8 +212,7 @@ async function createMultipleDishes(req: Request, res: Response) {
         const response = await batchCreateDishes(dishIdLower, dishIdUpper, dishType)
         return res.status(200).json({ response })
     } catch (error: any) {
-        Logger.error({
-            module: 'dish.controller',
+        logger.error({
             error,
             message: 'Error when adding dishes to database',
             statusCode: 500,
@@ -305,11 +224,6 @@ async function createMultipleDishes(req: Request, res: Response) {
 async function createDish(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
-        Logger.error({
-            module: 'dish.controller',
-            message: 'User is not admin',
-            statusCode: 403,
-        })
         return res.status(403).json({ error: 'forbidden' })
     }
 
@@ -317,8 +231,7 @@ async function createDish(req: Request, res: Response) {
         const dish = await createDishInDatabase(req.body.dish)
         return res.status(200).json({ dish })
     } catch (error: any) {
-        Logger.error({
-            module: 'dish.controller',
+        logger.error({
             error,
             message: 'Error when creating dish in database',
             statusCode: 500,
@@ -330,11 +243,6 @@ async function createDish(req: Request, res: Response) {
 async function addDishType(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
-        Logger.error({
-            module: 'dish.controller',
-            message: 'User is not admin',
-            statusCode: 403,
-        })
         return res.status(403).json({ error: 'forbidden' })
     }
 
@@ -342,8 +250,7 @@ async function addDishType(req: Request, res: Response) {
         const response = await addDishTypeToDatabase(req.body.type)
         return res.status(200).json({ response })
     } catch (error: any) {
-        Logger.error({
-            module: 'dish.controller',
+        logger.error({
             error,
             message: 'Error when adding a new dish type to the database',
             statusCode: 500,
@@ -357,11 +264,6 @@ async function borrowDish(req: Request, res: Response) {
     const email = req.query['email']?.toString()
 
     if (!qid) {
-        Logger.error({
-            module: 'dish.controller',
-            message: 'No qid provided',
-            statusCode: 400,
-        })
         return res.status(400).json({ error: 'bad_request' })
     }
 
@@ -370,27 +272,15 @@ async function borrowDish(req: Request, res: Response) {
     try {
         const qrCodeExits = await getQrCode(qid)
         if (!qrCodeExits) {
-            Logger.error({
-                module: 'dish.controller',
-                message: 'qr code not found',
-            })
             return res.status(400).json({ error: 'operation_not_allowed', message: 'qr code not found' })
         }
 
         const associatedDish = await getDish(parseInt(qid, 10))
         if (!associatedDish) {
-            Logger.error({
-                module: 'dish.controller',
-                message: 'Dish not found',
-            })
             return res.status(400).json({ error: 'operation_not_allowed', message: 'Dish not found' })
         }
 
         if (associatedDish.status === DishStatus.borrowed) {
-            Logger.error({
-                module: 'dish.controller',
-                message: 'Dish already borrowed',
-            })
             return res.status(400).json({ error: 'operation_not_allowed', message: 'Dish already borrowed' })
         }
         const user = email ? ((await getUserByEmail(email!)) as User) : ((await getUserById(userClaims.uid)) as User)
@@ -411,14 +301,9 @@ async function borrowDish(req: Request, res: Response) {
         const newTransaction = await registerTransaction(transaction)
         await updateBorrowedStatus(associatedDish, userClaims, true)
 
-        Logger.info({
-            module: 'dish.controller',
-            message: 'Successfully borrowed dish',
-        })
         return res.status(200).json({ transaction: newTransaction })
     } catch (error: any) {
-        Logger.error({
-            module: 'dish.controller',
+        logger.error({
             function: 'borrowDish',
             error,
             message: 'Error when borrowing dish',
@@ -432,33 +317,17 @@ async function returnDish(req: Request, res: Response) {
     const qid = req.query['qid']?.toString()
     const id = req.query['id']?.toString()
     if (!qid && !id) {
-        Logger.error({
-            module: 'dish.controller',
-            message: 'No qid provided',
-            statusCode: 400,
-        })
         return res.status(400).json({ error: 'bad_request', message: 'no dish_id provided' })
     }
 
     const validation = validateReturnDishRequestBody(req.body.returned)
     if (validation.error) {
-        Logger.error({
-            module: 'dish.controller',
-            message: 'No values for condition provided',
-            statusCode: 400,
-        })
-
         return res.status(400).json({ error: 'bad_request', message: 'no values for condition provided' })
     }
     const { condition } = req.body.returned
 
     const userClaims = (req as CustomRequest).firebase
     if (!verifyIfUserAdmin(userClaims) && !verifyIfUserVolunteer(userClaims)) {
-        Logger.error({
-            module: 'dish.controller',
-            message: 'User is not admin',
-            statusCode: 403,
-        })
         return res.status(403).json({ error: 'forbidden' })
     }
     try {
@@ -469,37 +338,19 @@ async function returnDish(req: Request, res: Response) {
         if (qid) {
             qrCodeExits = await getQrCode(qid)
             if (!qrCodeExits) {
-                Logger.error({
-                    module: 'dish.controller',
-                    message: 'qr code not found',
-                })
                 return res.status(400).json({ error: 'operation_not_allowed', message: 'qr code not found' })
             }
             associatedDish = await getDish(parseInt(qid, 10))
             if (!associatedDish) {
-                Logger.error({
-                    module: 'dish.controller',
-                    message: 'Dish not found',
-                })
                 return res.status(400).json({ error: 'operation_not_allowed', message: 'Dish not found' })
             }
 
             if (associatedDish.status !== DishStatus.borrowed) {
-                Logger.error({
-                    module: 'dish.controller',
-                    message: 'Dish not borrowed',
-                    function: 'returnDish',
-                })
                 return res.status(400).json({ error: 'operation_not_allowed', message: 'Dish not borrowed' })
             }
 
             ongoingTransaction = await getLatestTransactionByTstamp(parseInt(qid, 10))
             if (!ongoingTransaction) {
-                Logger.error({
-                    module: 'dish.controller',
-                    message: 'Transaction not found',
-                    function: 'returnDish',
-                })
                 return res.status(400).json({ error: 'operation_not_allowed', message: 'Transaction not found' })
             }
 
@@ -516,39 +367,19 @@ async function returnDish(req: Request, res: Response) {
                     },
                 })
 
-            Logger.info({
-                module: 'dish.controller',
-                message: 'Successfully returned dish',
-                function: 'returnDish',
-            })
-
             return res.status(200).json({ message: 'dish returned' })
         }
 
         associatedDish = await getDishById(id!)
         if (!associatedDish) {
-            Logger.error({
-                module: 'dish.controller',
-                message: 'Dish not found',
-            })
             return res.status(400).json({ error: 'operation_not_allowed', message: 'Dish not found' })
         }
 
         if (associatedDish.status !== DishStatus.borrowed) {
-            Logger.error({
-                module: 'dish.controller',
-                message: 'Dish not borrowed',
-                function: 'returnDish',
-            })
             return res.status(400).json({ error: 'operation_not_allowed', message: 'Dish not borrowed' })
         }
         ongoingTransaction = await getLatestTransactionByTstampAndDishId(id!)
         if (!ongoingTransaction) {
-            Logger.error({
-                module: 'dish.controller',
-                message: 'Transaction not found',
-                function: 'returnDish',
-            })
             return res.status(400).json({ error: 'operation_not_allowed', message: 'Transaction not found' })
         }
 
@@ -564,16 +395,9 @@ async function returnDish(req: Request, res: Response) {
                 },
             })
 
-        Logger.info({
-            module: 'dish.controller',
-            message: 'Successfully returned dish',
-            function: 'returnDish',
-        })
-
         return res.status(200).json({ message: 'dish returned' })
     } catch (error: any) {
-        Logger.error({
-            module: 'dish.controller',
+        logger.error({
             function: 'returnDish',
             error,
             message: 'Error when returning dish',
@@ -585,63 +409,34 @@ async function returnDish(req: Request, res: Response) {
 async function updateDishCondition(req: Request, res: Response) {
     const id = req.query['id']?.toString()
     if (!id) {
-        Logger.error({
-            module: 'dish.controller',
-            message: 'No qid provided',
-            statusCode: 400,
-        })
         return res.status(400).json({ error: 'bad_request', message: 'dish_id not provided' })
     }
 
     const validation = validateUpdateConditonRequestBody(req.body)
     if (validation.error) {
-        Logger.error({
-            module: 'dish.controller',
-            error: validation.error,
-            message: 'No values for condition provided',
-            statusCode: 400,
-        })
-
         return res.status(400).json({ error: 'bad_request', message: 'validation for condition failed' })
     }
 
     const condition = req.body.condition
     if (!condition) {
-        Logger.error({
-            module: 'dish.controller',
-            message: 'No condition provided',
-            statusCode: 400,
-        })
         return res.status(400).json({ error: 'bad_request', message: 'condition not provided' })
     }
 
     try {
         const associatedDish = await getDishById(id)
         if (!associatedDish) {
-            Logger.error({
-                module: 'dish.controller',
-                message: 'Dish not found',
-            })
             return res.status(400).json({ error: 'operation_not_allowed', message: 'Dish not found' })
         }
 
         await updateCondition(associatedDish.id, condition)
 
-        Logger.info({
-            module: 'dish.controller',
-            function: 'updateDishCondition',
-            message: 'successfully updated dish condition',
-        })
-
         return res.status(200).json({ message: 'updated condition' })
     } catch (error: any) {
-        Logger.error({
-            module: 'dish.controller',
+        logger.error({
             function: 'updateDishCondition',
             error,
             message: 'Error when updating dish condition',
         })
-
         return res.status(200).json({ message: 'dish condition updated' })
     }
 }
@@ -649,23 +444,11 @@ async function updateDishCondition(req: Request, res: Response) {
 async function modifyDish(req: Request, res: Response) {
     const userClaims = (req as CustomRequest).firebase
     if (!verifyIfUserAdmin(userClaims)) {
-        Logger.error({
-            module: 'dish.controller',
-            message: 'User is not admin',
-            statusCode: 403,
-        })
         return res.status(403).json({ error: 'forbidden' })
     }
 
     const validation = validateModifyDish(req.body)
     if (validation.error) {
-        Logger.error({
-            module: 'dish.controller',
-            error: validation.error,
-            message: 'Validation for modify dish failed',
-            statusCode: 400,
-        })
-
         return res.status(400).json({ error: 'bad_request', message: 'validation for modify dish status failed' })
     }
 
@@ -675,8 +458,7 @@ async function modifyDish(req: Request, res: Response) {
         const response = await updateDish(id, field, oldValue, newValue)
         return res.status(200).json({ response })
     } catch (error: any) {
-        Logger.error({
-            module: 'dish.controller',
+        logger.error({
             error,
             message: 'Error when modifying dish',
             statusCode: 500,

@@ -1,7 +1,6 @@
 import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
 import { Transaction } from '../models/transaction'
 import { db } from '../internal/firebase'
-import Logger from '../utils/logger'
 import nodeConfig from 'config'
 import { getUserById } from './users'
 import { User } from '../models/user'
@@ -43,11 +42,6 @@ export const getAllTransactions = async () => {
 
 export const registerTransaction = async (transaction: Transaction) => {
     let docRef = await db.collection(nodeConfig.get('collections.transactions')).add(transaction)
-    Logger.info({
-        message: 'Transaction registered',
-        module: 'transaction.services',
-        function: 'registerTransaction',
-    })
     return {
         ...transaction,
         id: docRef.id,
@@ -64,12 +58,6 @@ export const getLatestTransaction = async (userClaims: DecodedIdToken, qid: numb
     if (transactionQuery.empty) {
         return null
     }
-
-    Logger.info({
-        message: 'Transaction found',
-        module: 'transaction.services',
-        function: 'getTransaction',
-    })
 
     return {
         ...transactionQuery.docs[0].data(),
@@ -131,12 +119,6 @@ export const getLatestTransactionBydishId = async (userClaims: DecodedIdToken, d
     if (snapshot.empty) {
         return null
     }
-
-    Logger.info({
-        message: 'Transaction found',
-        module: 'transaction.services',
-        function: 'getTransactionBydishId',
-    })
 
     return {
         ...snapshot.docs[0].data(),

@@ -2,7 +2,7 @@ import Joi from 'joi'
 import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
 import { DishCondition, Dish, DishStatus } from '../models/dish'
 import { db } from '../internal/firebase'
-import Logger from '../utils/logger'
+import logger from '../utils/logger'
 
 export const getDish = async (qid: number): Promise<Dish | undefined | null> => {
     const snapshot = await db.collection('dishes').where('qid', '==', qid).get()
@@ -69,22 +69,13 @@ export const getDishById = async (id: string): Promise<Dish | null | undefined> 
 
 export const createDishInDatabase = async (dish: Partial<Dish>) => {
     let validation = validateDishCreateRequestBody(dish)
-    console.log(validation)
     if (validation.error) {
-        Logger.error({
-            module: 'dish.services',
-            message: 'Invalid dish request body',
-        })
         throw new Error(validation.error.message)
     }
 
     // check if dish with qid already exists
     let existingDish = await getDish(dish.qid!)
     if (existingDish) {
-        Logger.error({
-            module: 'dish.services',
-            message: 'Dish with qid already exists',
-        })
         throw new Error('Dish with qid already exists')
     }
 
@@ -102,24 +93,18 @@ export const createDishInDatabase = async (dish: Partial<Dish>) => {
     let createdDish = await db.collection('dishes').add(dish)
 
     // also add a new qr code to the database
-    console.log('createdDish', createdDish)
     try {
         await db.collection('qr-codes').doc(dish.qid!.toString()).set({
             dishId: createdDish.id,
         })
     } catch (error) {
-        Logger.error({
-            module: 'dish.services',
+        logger.error({
+            error,
             message: 'Failed to create qr code. Please try again.',
         })
         // if adding a qr code fails, delete the dish
         await db.collection('dishes').doc(createdDish.id).delete()
     }
-
-    Logger.info({
-        module: 'dish.services',
-        message: 'Created dish in database',
-    })
 
     return {
         ...dish,
@@ -130,10 +115,6 @@ export const createDishInDatabase = async (dish: Partial<Dish>) => {
 export const batchCreateDishes = async (dishIdLower: number, dishIdUpper: number, dishType: string) => {
     let validation = validateBatchCreate(dishIdLower, dishIdUpper, dishType)
     if (validation.error) {
-        Logger.error({
-            module: 'dish.services',
-            message: 'Invalid dish batch create request body',
-        })
         throw new Error(validation.error.message)
     }
     const batch = db.batch()
@@ -168,24 +149,24 @@ export const batchCreateDishes = async (dishIdLower: number, dishIdUpper: number
                 dishId: dishRef.id,
             })
         } catch (error) {
-            Logger.error({
-                module: 'dish.services',
-                message: `Failed to create qr code. Please try again. ${error}`,
+            logger.error({
+                error,
+                message: 'Failed to create qr code in batch. Please try again.',
             })
             // if adding a qr code fails, remove the dish from the batch
             batch.delete(dishRef)
-            // return error
         }
     }
 
     try {
         const response = await batch.commit()
-        // response['existingDishes'] = existingDishes
-        // return response
         const responseWithExistingDishes = { ...response, existingDishes }
         return responseWithExistingDishes
     } catch (error: any) {
-        console.error('Error adding batch of dishes: ', error)
+        logger.error({
+            error,
+            message: 'Error adding batch of dishes',
+        })
         return error
     }
 }
@@ -193,17 +174,9 @@ export const batchCreateDishes = async (dishIdLower: number, dishIdUpper: number
 export const addDishTypeToDatabase = async (type: string) => {
     let validation = validateDishType(type)
     if (validation.error) {
-        Logger.error({
-            module: 'dish.services',
-            message: 'Invalid dish type request body',
-        })
         throw new Error(validation.error.message)
     }
     const newDishType = await db.collection('dish-types').doc(type).set({})
-    Logger.info({
-        module: 'dish.services',
-        message: 'Created new dish type in database',
-    })
 
     return {
         ...newDishType,
@@ -228,11 +201,6 @@ export async function getAllDishesSimple(): Promise<Array<Partial<Dish>>> {
             registered: time,
             type: data.type,
         })
-    })
-    Logger.info({
-        module: 'dish.services',
-        function: 'getAllDishesSimple',
-        message: 'got all dishes from firebase',
     })
     return dishData
 }
@@ -262,11 +230,6 @@ export async function getUserDishesSimple(userClaims: DecodedIdToken): Promise<A
             location: data.location ?? '',
             vendor: data.vendor ?? '',
         })
-    })
-    Logger.info({
-        module: 'dish.services',
-        function: 'getUserDishesSimple',
-        message: `got all dishes from firebase for user ${userClaims.uid}`,
     })
     return dishData
 }
@@ -306,12 +269,6 @@ export async function getAllDishes(withEmail?: boolean): Promise<Array<Dish>> {
             vendor: data.vendor ?? '',
         })
     }
-    //)
-    Logger.info({
-        module: 'dish.services',
-        function: 'getAllDishes',
-        message: 'got all dishes from firebase',
-    })
     return dishData
 }
 
@@ -340,11 +297,6 @@ export async function getUserDishes(userClaims: DecodedIdToken): Promise<Array<D
             location: data.location ?? '',
             vendor: data.vendor ?? '',
         })
-    })
-    Logger.info({
-        module: 'dish.services',
-        function: 'getUserDishes',
-        message: `got all dishes from firebase for user ${userClaims.uid}`,
     })
     return dishData
 }
@@ -437,15 +389,10 @@ export const updateBorrowedStatus = async (
 
     await db.collection('dishes').doc(dish.id).update({
         condition: dishCondition,
-        // borrowed,
         timesBorrowed,
         userId,
         borrowedAt,
         status,
-    })
-    Logger.info({
-        module: 'dish.services',
-        message: 'Updated borrowed status',
     })
 }
 

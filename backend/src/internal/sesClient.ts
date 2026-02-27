@@ -1,5 +1,6 @@
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses'
 import nodeConfig from 'config'
+import logger from '../utils/logger'
 
 const REGION: string = nodeConfig.get('aws.region') || 'us-west-2'
 
@@ -33,12 +34,12 @@ export const sendEmail = async (recepientEmails: Array<string>, subject: string,
 
     const command = new SendEmailCommand(params)
     try {
-        const response = await sesClient.send(command)
-        console.log('sent emails')
-        console.log(response)
-    } catch (error : any) {
-        console.log('failed to send emails')
-        console.log(error)
+        await sesClient.send(command)
+    } catch (error: any) {
+        logger.error({
+            error,
+            message: 'Failed to send emails',
+        })
     }
 }
 

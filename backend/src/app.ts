@@ -11,7 +11,7 @@ import { qrCodeRouter } from './routes/qrCode'
 import nodeConfig from 'config'
 import { cronRouter } from './routes/cron'
 import { EmailClient, initializeEmailCron } from './cron/email'
-import Logger from './utils/logger'
+import logger from './utils/logger'
 import { fetchEmailCron } from './routes/cron'
 
 const app = express()
@@ -28,29 +28,14 @@ app.options('*', cors(corsOptions))
 app.use(express.json())
 app.use(cookieParser())
 
-let environment = process.env.NODE_ENV
-
-if (environment === 'prod') {
-    app.use(
-        pinoHttp({
-            transport: {
-                target: 'pino-pretty',
-                options: {
-                    levelFirst: true,
-                    colorize: true,
-                    translateTime: true,
-                },
-            },
-        })
-    )
-}
+app.use(pinoHttp({ logger }))
 
 // Initialize cron jobs if enabled in firebase
 const handleCron = async () => {
     // initializeEmailCron({ cronExpression: "0 0 12 * * MON,THU"}, EmailClient.AWS)
     const cron = await fetchEmailCron()
     if (cron && cron?.enabled) {
-        Logger.info('Initializing cron jobs')
+        logger.info('Initializing cron jobs')
         initializeEmailCron({ cronExpression: cron.expression }, EmailClient.AWS)
     }
 }

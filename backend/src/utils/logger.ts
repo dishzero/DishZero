@@ -1,8 +1,17 @@
-import * as winston from 'winston'
+import pino from 'pino'
 
-const Logger = winston.createLogger({
-    transports: [new winston.transports.Console()],
-    format: winston.format.combine(winston.format.json(), winston.format.timestamp()),
+const isProd = process.env.NODE_ENV === 'prod'
+
+const logger = pino({
+    level: process.env.LOG_LEVEL ?? 'info',
+    ...(isProd
+        ? {}
+        : {
+              transport: {
+                  target: 'pino-pretty',
+                  options: { colorize: true, translateTime: true },
+              },
+          }),
 })
 
-export default Logger
+export default logger

@@ -1,7 +1,6 @@
 import { QrCode } from '../models/qrCode'
 import { db } from '../internal/firebase'
 import nodeConfig from 'config'
-import Logger from '../utils/logger'
 import Joi from 'joi'
 
 export const getQrCode = async (qid: string) => {
@@ -26,20 +25,12 @@ export const getAllQrCodes = async () => {
             dishId: data.dishId,
         })
     })
-    Logger.info({
-        module: 'qrcode.services',
-        message: 'retrieved all qr codes',
-    })
     return codes
 }
 
 export const createQrCodeInDatabase = async (qrcode: QrCode, update: boolean): Promise<QrCode> => {
     let validation = validateQrRequestBody(qrcode)
     if (validation.error) {
-        Logger.error({
-            module: 'qrcode.services',
-            message: 'Invalid request body',
-        })
         throw new Error(validation.error.message)
     }
 
@@ -47,10 +38,6 @@ export const createQrCodeInDatabase = async (qrcode: QrCode, update: boolean): P
     if (!update) {
         let existingQrCode = await getQrCode(qrcode.qid.toString())
         if (existingQrCode) {
-            Logger.error({
-                module: 'qrCode.services',
-                message: 'qrCode already exists',
-            })
             throw new Error('qrCode already exists')
         }
     }
@@ -59,10 +46,6 @@ export const createQrCodeInDatabase = async (qrcode: QrCode, update: boolean): P
     let dishId = qrcode.dishId
     // create qr code
     await db.collection(nodeConfig.get('collections.qrcodes')).doc(qid.toString()).set({ dishId })
-    Logger.info({
-        module: 'qrcode.services',
-        message: 'created qr code in database',
-    })
 
     return {
         qid: qid,
@@ -74,19 +57,11 @@ export const deleteQrCodeFromDatabase = async (qid: string) => {
     // if doesn't exist just pretend delete
     let existingQrCode = await getQrCode(qid)
     if (!existingQrCode) {
-        Logger.error({
-            module: 'qrCode.services',
-            message: 'qrCode already exists',
-        })
         return
     }
 
     // delete qr code
     await db.collection(nodeConfig.get('collections.qrcodes')).doc(qid.toString()).delete()
-    Logger.info({
-        module: 'qrcode.services',
-        message: 'qr code in deleted',
-    })
     return
 }
 

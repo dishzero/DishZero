@@ -5,7 +5,7 @@ import { sendEmail, sesClient } from '../internal/sesClient'
 import { db } from '../internal/firebase'
 import nodeConfig from 'config'
 import { getTemplate } from '../services/email'
-import Logger from '../utils/logger'
+import logger from '../utils/logger'
 import { getAllDishes } from '../services/dish'
 import { getUserById } from '../services/users'
 import { DishStatus } from '../models/dish'
@@ -32,9 +32,7 @@ export class EmailCron implements Cron {
         if (enabled) {
             this.job = cron.schedule(this.options.cronExpression, async () => {
                 if (this.client === EmailClient.AWS) {
-                    Logger.info({
-                        message: 'Sending email with AWS',
-                    })
+                    logger.info({ message: 'Sending email with AWS' })
 
                     const template = await getTemplate()
                     const subject = template.subject
@@ -65,19 +63,12 @@ export class EmailCron implements Cron {
                     }
 
                     if (recipients.length > 0) {
-                        // send the emails
-                        console.log('Sent emails using AWS')
-                        Logger.info({
-                            message: 'Sent emails',
-                            recipients,
-                        })
+                        logger.info({ message: 'Sent emails', recipients })
                     } else {
-                        Logger.info({
-                            message: 'no users have overdue dish',
-                        })
+                        logger.info({ message: 'no users have overdue dish' })
                     }
                 } else {
-                    console.log('Sending email with nodemailer')
+                    logger.info({ message: 'Sending email with nodemailer' })
                 }
             })
         }
@@ -103,10 +94,7 @@ export const isEmailCronEnabled = async () => {
 export const initializeEmailCron = async (options: CronOptions, client: EmailClient) => {
     emailCron = new EmailCron(options, client)
     emailCron.start()
-    Logger.info({
-        message: 'starting email cron',
-        cron: emailCron,
-    })
+    logger.info({ message: 'starting email cron' })
 }
 
 export const getEmailCron = () => {
