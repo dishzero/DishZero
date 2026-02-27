@@ -1,9 +1,9 @@
 import express, { Request, Response } from 'express'
 import { verifyFirebaseToken } from '../middlewares'
 import { FirebaseRequest } from '../firebase'
-import { DishCondition, DishStatus } from '../models/dish'
-import { Transaction } from '../models/transaction'
 import {
+    DishCondition,
+    DishStatus,
     getDish,
     updateBorrowedStatus,
     getAllDishesSimple,
@@ -26,13 +26,14 @@ import {
 import logger from '../logger'
 import { getUserByEmail, getUserById, verifyIfUserAdmin, verifyIfUserVolunteer } from '../services/users'
 import {
+    Transaction,
     registerTransaction,
     getLatestTransactionByTstamp,
     getLatestTransactionByTstampAndDishId,
     updateTransactionReturn,
 } from '../services/transactions'
 import { getQrCode } from '../services/qrCode'
-import { User } from '../models/user'
+import { User } from '../services/users'
 import {
     BAD_REQUEST_ERROR_RESPONSE,
     FORBIDDEN_ERROR_RESPONSE,

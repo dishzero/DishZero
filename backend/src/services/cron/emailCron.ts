@@ -3,9 +3,8 @@ import { db } from '../../firebase'
 import nodeConfig from 'config'
 import { getTemplate } from '../cron'
 import logger from '../../logger'
-import { getAllDishes } from '../dish'
+import { getAllDishes, DishStatus } from '../dish'
 import { getUserById } from '../users'
-import { DishStatus } from '../../models/dish'
 import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses'
 
 type CronOptions = {

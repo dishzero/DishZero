@@ -1,7 +1,11 @@
-import { QrCode } from '../models/qrCode'
 import { db } from '../firebase'
 import nodeConfig from 'config'
 import Joi from 'joi'
+
+export type QrCode = {
+    qid: number
+    dishId: string
+}
 
 export const getQrCode = async (qid: string) => {
     let doc = await db.collection(nodeConfig.get('collections.qrcodes')).doc(qid.toString()).get()

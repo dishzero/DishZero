@@ -1,7 +1,22 @@
 import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
-import { Transaction } from '../models/transaction'
 import { db } from '../firebase'
 import nodeConfig from 'config'
+
+export type Transaction = {
+    id?: string
+    dish: {
+        qid: number
+        id: string
+        type: string
+    }
+    returned: {
+        condition: string
+        timestamp?: string
+    }
+    timestamp: string
+    // Keeping this as any since transaction.user shape varies across usage sites
+    user: any
+}
 
 export const getUserTransactions = async (userClaims: DecodedIdToken) => {
     let transactions = <Array<Transaction>>[]

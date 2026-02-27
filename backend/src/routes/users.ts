@@ -7,8 +7,8 @@ import {
     modifyUserRole,
     verifyRole,
     verifyType,
+    User,
 } from '../services/users'
-import { User } from '../models/user'
 import logger from '../logger'
 import { verifyFirebaseToken } from '../middlewares'
 import { auth, FirebaseRequest } from '../firebase'

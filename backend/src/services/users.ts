@@ -1,7 +1,12 @@
 import Joi from 'joi'
-import { User } from '../models/user'
 import { auth, db } from '../firebase'
 import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
+
+export type User = {
+    id: string
+    role: string
+    email: string
+}
 
 export const getUsersWithRole = async (role: string) => {
     const snapshot = await db.collection('users').where('role', '==', role).get()

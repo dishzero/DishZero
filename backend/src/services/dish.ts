@@ -1,8 +1,52 @@
 import Joi from 'joi'
 import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
-import { DishCondition, Dish, DishStatus } from '../models/dish'
 import { db } from '../firebase'
 import logger from '../logger'
+
+export type Dish = {
+    id: string
+    qid: number
+    type: string
+    status: DishStatus
+    condition?: string
+    timesBorrowed: number
+    registered: string
+    userId: string | null
+    borrowedAt: string | null
+    location: string | null
+    vendor: string | null
+}
+
+export type DishSimple = {
+    id: string
+    qid: number
+    registered: string
+    type: string
+}
+
+// minimum fields needed to create a dish
+export type newDishSimple = {
+    id: string
+    dishId: number
+    dateAdded: string
+    type: string
+}
+
+export enum DishStatus {
+    borrowed = 'borrowed',
+    available = 'available',
+    overdue = 'overdue',
+    broken = 'broken',
+    lost = 'lost',
+    unavailable = 'unavailable',
+}
+
+export enum DishCondition {
+    smallChip = 'small_crack_chip',
+    largeCrack = 'large_crack_chunk',
+    shattered = 'shattered',
+    good = 'good',
+}
 
 export const getDish = async (qid: number): Promise<Dish | undefined | null> => {
     const snapshot = await db.collection('dishes').where('qid', '==', qid).get()
