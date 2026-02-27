@@ -26,9 +26,9 @@ async function getQrCodes(req: Request, res: Response) {
         return res.status(200).json({ qrCode: qrCode })
     } catch (error: any) {
         logger.error({
+            reqId: req.id,
             message: 'Error when retrieving qr code',
             error,
-            statusCode: 500,
         })
         return res.status(500).json({ error: 'internal_server_error', message: error.message })
     }
@@ -45,9 +45,9 @@ async function createQrCode(req: Request, res: Response) {
         return res.status(201).json({ qrCode })
     } catch (error: any) {
         logger.error({
+            reqId: req.id,
             error,
             message: 'Error when creating qr code in database',
-            statusCode: 500,
         })
         return res.status(500).json({ error: 'internal_server_error', message: error.message })
     }
@@ -69,9 +69,9 @@ async function updateQrCode(req: Request, res: Response) {
         return res.status(200).json({ qrCode })
     } catch (error: any) {
         logger.error({
+            reqId: req.id,
             error,
             message: 'Error when creating qr code in database',
-            statusCode: 500,
         })
         return res.status(500).json({ error: 'internal_server_error', message: error.message })
     }
@@ -93,9 +93,9 @@ async function deleteQrCode(req: Request, res: Response) {
         return res.status(200).json({ message: 'deleted qr code' })
     } catch (error: any) {
         logger.error({
+            reqId: req.id,
             error,
             message: 'Error when deleting qr code in database',
-            statusCode: 500,
         })
         return res.status(500).json({ error: 'internal_server_error', message: error.message })
     }

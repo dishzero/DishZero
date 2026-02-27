@@ -69,10 +69,9 @@ async function getEmail(req: Request, res: Response) {
         })
     } catch (error: any) {
         logger.error({
+            reqId: req.id,
             error: error,
-            function: 'getEmail',
             message: 'Error when fetching cron from firebase',
-            statusCode: 500,
         })
         return res.status(500).json({ error: 'internal_server_error' })
     }
@@ -102,10 +101,9 @@ async function updateEmail(req: Request, res: Response) {
         return res.status(200).json({ message: 'email_updated' })
     } catch (error: any) {
         logger.error({
+            reqId: req.id,
             error: error,
-            function: 'updateEmail',
             message: 'Error when fetching cron from firebase',
-            statusCode: 500,
         })
         return res.status(500).json({ error: 'internal_server_error' })
     }
@@ -130,10 +128,9 @@ async function enableEmail(req: Request, res: Response) {
         return res.status(200).json({ enabled })
     } catch (error: any) {
         logger.error({
+            reqId: req.id,
             error: error,
-            function: 'enableEmail',
             message: 'Error when fetching cron from firebase',
-            statusCode: 500,
         })
         return res.status(500).json({ error: 'internal_server_error' })
     }

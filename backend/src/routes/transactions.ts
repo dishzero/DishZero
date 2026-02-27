@@ -15,8 +15,8 @@ async function getTransactions(req: Request, res: Response) {
                 return res.status(200).json({ transactions })
             } catch (err: any) {
                 logger.error({
+                    reqId: req.id,
                     error: err.message,
-                    statusCode: 500,
                 })
                 res.status(500).json({ error: 'internal_server_error', message: err.message })
             }
@@ -29,9 +29,9 @@ async function getTransactions(req: Request, res: Response) {
         transactions = await getUserTransactions(userClaims)
     } catch (e) {
         logger.error({
+            reqId: req.id,
             error: e,
             message: 'Error when fetching transactions from firebase',
-            statusCode: 500,
         })
         res.status(500).json({ error: 'internal_server_error' })
         return

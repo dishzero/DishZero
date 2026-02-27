@@ -39,9 +39,9 @@ export const verifyFirebaseToken = (req: Request, res: Response, next: NextFunct
         })
         .catch((error) => {
             logger.error({
+                reqId: req.id,
                 error,
                 message: 'Error when verifying firebase session token',
-                statusCode: 401,
             })
             return res.status(401).json({ error: 'invalid_session_token' })
         })

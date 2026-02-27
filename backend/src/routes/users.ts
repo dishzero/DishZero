@@ -27,9 +27,9 @@ async function getUsers(req: Request, res: Response) {
             return res.status(200).json({ users })
         } catch (error) {
             logger.error({
+                reqId: req.id,
                 error: error,
                 message: 'Error when fetching users from firebase',
-                statusCode: 500,
             })
             return res.status(500).json({ error: 'internal_server_error' })
         }
@@ -39,9 +39,9 @@ async function getUsers(req: Request, res: Response) {
             return res.status(200).json({ user })
         } catch (error) {
             logger.error({
+                reqId: req.id,
                 error: error,
                 message: 'Error when fetching user from firebase',
-                statusCode: 500,
             })
             return res.status(500).json({ error: 'internal_server_error' })
         }
@@ -51,9 +51,9 @@ async function getUsers(req: Request, res: Response) {
             return res.status(200).json({ users })
         } catch (error) {
             logger.error({
+                reqId: req.id,
                 error: error,
                 message: 'Error when fetching users from firebase',
-                statusCode: 500,
             })
             return res.status(500).json({ error: 'internal_server_error' })
         }
@@ -91,9 +91,9 @@ async function updateUser(req: Request, res: Response) {
                 return res.status(200).json({ status: 'success' })
             } catch (error) {
                 logger.error({
+                    reqId: req.id,
                     error,
                     message: 'Error updating user role',
-                    statusCode: 500,
                 })
                 return res.status(500).json({ error: 'internal_server_error' })
             }
@@ -109,9 +109,9 @@ async function updateUser(req: Request, res: Response) {
                 return res.status(200).json({ status: 'success' })
             } catch (error: any) {
                 logger.error({
+                    reqId: req.id,
                     error: error.message,
                     message: 'Error updating user information',
-                    statusCode: 500,
                 })
                 return res.status(500).json({ error: 'internal_server_error', message: error.message })
             }

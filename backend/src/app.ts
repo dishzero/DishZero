@@ -13,6 +13,7 @@ import { cronRouter } from './routes/cron'
 import { EmailClient, initializeEmailCron } from './cron/email'
 import logger from './utils/logger'
 import { fetchEmailCron } from './routes/cron'
+import { randomUUID } from 'crypto'
 
 const app = express()
 dotenv.config()
@@ -28,7 +29,16 @@ app.options('*', cors(corsOptions))
 app.use(express.json())
 app.use(cookieParser())
 
-app.use(pinoHttp({ logger }))
+app.use(
+    pinoHttp({
+        logger,
+        genReqId: (req, res) => {
+            const id = req.headers['x-request-id'] || randomUUID()
+            res.setHeader('x-request-id', id)
+            return id
+        },
+    })
+)
 
 // Initialize cron jobs if enabled in firebase
 const handleCron = async () => {

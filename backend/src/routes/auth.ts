@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express'
+import type { ReqId } from 'pino-http'
 import { auth, db } from '../internal/firebase'
 import { getUserByEmail } from '../services/users'
 import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
@@ -15,9 +16,9 @@ async function login(req: Request, res: Response) {
         decodedToken = await auth.verifyIdToken(idToken)
     } catch (error) {
         logger.error({
+            reqId: req.id,
             error,
             message: 'Error when verifying firebase id token',
-            statusCode: 401,
         })
         return res.status(401).send({ error: 'unauthorized_request' })
     }
@@ -25,7 +26,7 @@ async function login(req: Request, res: Response) {
     const expiresIn = 60 * 60 * 24 * 5 * 1000 // 5 days
     try {
         const sessionCookie = await auth.createSessionCookie(idToken, { expiresIn })
-        const user = await getUser(decodedToken)
+        const user = await getUser(decodedToken, req.id)
         res.cookie('session', sessionCookie, { maxAge: expiresIn, httpOnly: true, secure: true })
         return res.status(200).json({
             session: sessionCookie,
@@ -33,6 +34,7 @@ async function login(req: Request, res: Response) {
         })
     } catch (error) {
         logger.error({
+            reqId: req.id,
             error,
             message: 'Error when creating firebase session cookie',
         })
@@ -52,6 +54,7 @@ async function logout(req: Request, res: Response) {
         })
         .catch((error) => {
             logger.error({
+                reqId: req.id,
                 error,
                 message: 'Error when revoking firebase session cookie',
             })
@@ -59,7 +62,7 @@ async function logout(req: Request, res: Response) {
         })
 }
 
-async function getUser(decodedIdToken: DecodedIdToken) {
+async function getUser(decodedIdToken: DecodedIdToken, reqId?: ReqId) {
     const email = decodedIdToken.email
     if (!email) {
         throw new Error('Email is not provided')
@@ -78,6 +81,7 @@ async function getUser(decodedIdToken: DecodedIdToken) {
             return retrieveUser
         } catch (error) {
             logger.error({
+                reqId: reqId,
                 error,
                 message: 'Error when creating user in firebase collection',
             })

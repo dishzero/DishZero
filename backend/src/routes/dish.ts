@@ -48,11 +48,9 @@ async function getDishes(req: Request, res: Response) {
             return res.status(200).json({ dish: dish })
         } catch (error: any) {
             logger.error({
+                reqId: req.id,
                 message: 'Error when retrieving dish',
                 error,
-                statusCode: 500,
-                module: 'dish.controller',
-                function: 'getDishes',
             })
             return res.status(500).json({ error: 'internal_server_error', message: error.message })
         }
@@ -65,11 +63,9 @@ async function getDishes(req: Request, res: Response) {
             return res.status(200).json({ dish })
         } catch (error: any) {
             logger.error({
+                reqId: req.id,
                 message: 'Error when retrieving dish',
                 error,
-                statusCode: 500,
-                module: 'dish.controller',
-                function: 'getDishes',
             })
             return res.status(500).json({ error: 'internal_server_error', message: error.message })
         }
@@ -93,7 +89,7 @@ async function getDishes(req: Request, res: Response) {
             }
         } catch (error: any) {
             logger.error({
-                function: 'getDishes',
+                reqId: req.id,
                 error,
                 message: 'error when getting dishes from firebase',
             })
@@ -113,7 +109,7 @@ async function getDishes(req: Request, res: Response) {
         return res.status(200).json({ dishes })
     } catch (error: any) {
         logger.error({
-            function: 'getDishes',
+            reqId: req.id,
             error,
             message: 'error when getting user dishes from firebase',
         })
@@ -133,7 +129,7 @@ async function getDishTypes(req: Request, res: Response) {
         dishTypes = await getAllDishTypes()
     } catch (error: any) {
         logger.error({
-            function: 'getDishTypes',
+            reqId: req.id,
             error,
             message: 'error when getting dish types from firebase',
         })
@@ -154,7 +150,7 @@ async function getDishVendors(req: Request, res: Response) {
         dishVendors = await getAllDishVendors()
     } catch (error: any) {
         logger.error({
-            function: 'getDishVendors',
+            reqId: req.id,
             error,
             message: 'error when getting dish vendors from firebase',
         })
@@ -190,9 +186,9 @@ async function deleteDishes(req: Request, res: Response) {
         return res.status(200).json({ message: 'dishes deleted' })
     } catch (error: any) {
         logger.error({
+            reqId: req.id,
             error,
             message: 'Error when deleting dishes',
-            statusCode: 500,
         })
         return res.status(500).json({ error: 'internal_server_error', message: error.message })
     }
@@ -213,9 +209,9 @@ async function createMultipleDishes(req: Request, res: Response) {
         return res.status(200).json({ response })
     } catch (error: any) {
         logger.error({
+            reqId: req.id,
             error,
             message: 'Error when adding dishes to database',
-            statusCode: 500,
         })
         return res.status(500).json({ error: 'internal_server_error', message: error.message })
     }
@@ -232,9 +228,9 @@ async function createDish(req: Request, res: Response) {
         return res.status(200).json({ dish })
     } catch (error: any) {
         logger.error({
+            reqId: req.id,
             error,
             message: 'Error when creating dish in database',
-            statusCode: 500,
         })
         return res.status(500).json({ error: 'internal_server_error', message: error.message })
     }
@@ -251,9 +247,9 @@ async function addDishType(req: Request, res: Response) {
         return res.status(200).json({ response })
     } catch (error: any) {
         logger.error({
+            reqId: req.id,
             error,
             message: 'Error when adding a new dish type to the database',
-            statusCode: 500,
         })
         return res.status(500).json({ error: 'internal_server_error', message: error.message })
     }
@@ -304,10 +300,9 @@ async function borrowDish(req: Request, res: Response) {
         return res.status(200).json({ transaction: newTransaction })
     } catch (error: any) {
         logger.error({
-            function: 'borrowDish',
+            reqId: req.id,
             error,
             message: 'Error when borrowing dish',
-            statusCode: 500,
         })
         return res.status(500).json({ error: 'internal_server_error', message: error.message })
     }
@@ -398,7 +393,7 @@ async function returnDish(req: Request, res: Response) {
         return res.status(200).json({ message: 'dish returned' })
     } catch (error: any) {
         logger.error({
-            function: 'returnDish',
+            reqId: req.id,
             error,
             message: 'Error when returning dish',
         })
@@ -433,7 +428,7 @@ async function updateDishCondition(req: Request, res: Response) {
         return res.status(200).json({ message: 'updated condition' })
     } catch (error: any) {
         logger.error({
-            function: 'updateDishCondition',
+            reqId: req.id,
             error,
             message: 'Error when updating dish condition',
         })
@@ -459,9 +454,9 @@ async function modifyDish(req: Request, res: Response) {
         return res.status(200).json({ response })
     } catch (error: any) {
         logger.error({
+            reqId: req.id,
             error,
             message: 'Error when modifying dish',
-            statusCode: 500,
         })
         return res
             .status(500)
