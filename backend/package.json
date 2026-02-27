@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "type": "commonjs",
   "main": "build/server.js",
-  "repository": "https://github.com/UofA-Blueprint/DishZero",
-  "author": "uofablueprint",
+  "repository": "https://github.com/dishzero/DishZero",
+  "author": "dishzero",
   "license": "MIT",
   "scripts": {
     "build": "tsc && tsc-alias",
-    "start": "NODE_ENV=prod NEW_RELIC_APP_NAME=dishzero_backend NEW_RELIC_LICENSE_KEY=$(grep NEW_RELIC_LICENSE_KEY .env | cut -d '=' -f2)  node -r newrelic ./build/server.js",
+    "start": "NODE_ENV=prod node ./build/server.js",
     "dev": "NODE_ENV=dev ts-node -r tsconfig-paths/register ./src/server.ts",
     "format": "prettier --write 'src/**/*.ts'"
   },
@@ -35,7 +35,6 @@
     "express": "^4.18.2",
     "firebase-admin": "^11.9.0",
     "joi": "^17.9.2",
-    "newrelic": "^10.6.1",
     "node-cron": "^3.0.2",
     "pino": "^8.17.2",
     "pino-http": "^8.3.3",
