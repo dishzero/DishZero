@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express'
 import * as dotenv from 'dotenv'
-import logger from './logger'
-import { getUserById } from './services/users'
-import { auth, FirebaseRequest } from './firebase'
-import { INTERNAL_SERVER_ERROR_RESPONSE } from './constants'
+import logger from '@/logger'
+import { getUserById } from '@/services/users'
+import { auth, FirebaseRequest } from '@/firebase'
+import { INTERNAL_SERVER_ERROR_RESPONSE } from '@/constants'
 dotenv.config()
 
 // Define the custom request object

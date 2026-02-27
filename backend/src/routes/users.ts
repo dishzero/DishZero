@@ -8,11 +8,11 @@ import {
     verifyRole,
     verifyType,
     User,
-} from '../services/users'
-import logger from '../logger'
-import { verifyFirebaseToken } from '../middlewares'
-import { auth, FirebaseRequest } from '../firebase'
-import { FORBIDDEN_ERROR_RESPONSE, INTERNAL_SERVER_ERROR_RESPONSE, SUCCESS_STATUS_RESPONSE } from '../constants'
+} from '@/services/users'
+import logger from '@/logger'
+import { verifyFirebaseToken } from '@/middlewares'
+import { auth, FirebaseRequest } from '@/firebase'
+import { FORBIDDEN_ERROR_RESPONSE, INTERNAL_SERVER_ERROR_RESPONSE, SUCCESS_STATUS_RESPONSE } from '@/constants'
 
 async function getUsers(req: Request, res: Response) {
     const role = req.query['role']?.toString()

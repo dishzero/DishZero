@@ -1,5 +1,5 @@
 import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
-import { db } from '../firebase'
+import { db } from '@/firebase'
 import nodeConfig from 'config'
 
 export type Transaction = {

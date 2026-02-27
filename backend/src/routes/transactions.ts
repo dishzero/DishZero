@@ -1,10 +1,10 @@
 import express, { Request, Response } from 'express'
-import { verifyFirebaseToken } from '../middlewares'
-import { FirebaseRequest } from '../firebase'
-import { verifyIfUserAdmin } from '../services/users'
-import { getAllTransactions, getUserTransactions } from '../services/transactions'
-import logger from '../logger'
-import { FORBIDDEN_ERROR_RESPONSE, INTERNAL_SERVER_ERROR_RESPONSE } from '../constants'
+import { verifyFirebaseToken } from '@/middlewares'
+import { FirebaseRequest } from '@/firebase'
+import { verifyIfUserAdmin } from '@/services/users'
+import { getAllTransactions, getUserTransactions } from '@/services/transactions'
+import logger from '@/logger'
+import { FORBIDDEN_ERROR_RESPONSE, INTERNAL_SERVER_ERROR_RESPONSE } from '@/constants'
 
 async function getTransactions(req: Request, res: Response) {
     const userClaims = (req as FirebaseRequest).firebase

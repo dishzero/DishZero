@@ -1,5 +1,5 @@
 import Joi from 'joi'
-import { auth, db } from '../firebase'
+import { auth, db } from '@/firebase'
 import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
 
 export type User = {

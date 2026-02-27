@@ -1,10 +1,10 @@
 import cron from 'node-cron'
-import { db } from '../../firebase'
+import { db } from '@/firebase'
 import nodeConfig from 'config'
-import { getTemplate } from '../cron'
-import logger from '../../logger'
-import { getAllDishes, DishStatus } from '../dish'
-import { getUserById } from '../users'
+import { getTemplate } from '@/services/cron'
+import logger from '@/logger'
+import { getAllDishes, DishStatus } from '@/services/dish'
+import { getUserById } from '@/services/users'
 import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses'
 
 type CronOptions = {

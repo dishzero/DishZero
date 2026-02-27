@@ -1,24 +1,24 @@
 import express, { Request, Response } from 'express'
-import { verifyFirebaseToken } from '../middlewares'
-import { FirebaseRequest } from '../firebase'
-import { verifyIfUserAdmin } from '../services/users'
-import logger from '../logger'
-import { convertToMT, convertToUTC, validateEmailFields, validateUpdateEmailBody } from '../services/cron/cronUtils'
+import { verifyFirebaseToken } from '@/middlewares'
+import { FirebaseRequest } from '@/firebase'
+import { verifyIfUserAdmin } from '@/services/users'
+import logger from '@/logger'
+import { convertToMT, convertToUTC, validateEmailFields, validateUpdateEmailBody } from '@/services/cron/cronUtils'
 import {
     EmailClient,
     getEmailCron,
     initializeEmailCron,
     isEmailCronEnabled,
     setEmailCron,
-} from '../services/cron/emailCron'
+} from '@/services/cron/emailCron'
 import {
     fetchEmailCron,
     setEmailCronEnabled,
     setEmailCronExpression,
     setEmailTemplate,
     updateEmailConfig,
-} from '../services/cron'
-import { BAD_REQUEST_ERROR_RESPONSE, FORBIDDEN_ERROR_RESPONSE, INTERNAL_SERVER_ERROR_RESPONSE } from '../constants'
+} from '@/services/cron'
+import { BAD_REQUEST_ERROR_RESPONSE, FORBIDDEN_ERROR_RESPONSE, INTERNAL_SERVER_ERROR_RESPONSE } from '@/constants'
 
 function stopCron() {
     const cron = getEmailCron()

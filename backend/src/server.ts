@@ -1,6 +1,6 @@
-import { app } from './app'
+import { app } from '@/app'
 import nodeConfig from 'config'
-import logger from './logger'
+import logger from '@/logger'
 
 const port = process.env.PORT || nodeConfig.get('server.port') || 3000
 

@@ -3,7 +3,7 @@ import { getFirestore, Timestamp, FieldValue, Filter } from 'firebase-admin/fire
 import * as admin from 'firebase-admin'
 import { Request } from 'express'
 import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
-const serviceAccount = require('../../credentials.json')
+const serviceAccount = require('../credentials.json')
 
 initializeApp({
     credential: cert(serviceAccount),

@@ -1,7 +1,7 @@
 import Joi from 'joi'
 import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
-import { db } from '../firebase'
-import logger from '../logger'
+import { db } from '@/firebase'
+import logger from '@/logger'
 
 export type Dish = {
     id: string

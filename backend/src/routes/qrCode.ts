@@ -1,15 +1,15 @@
 import express, { Request, Response } from 'express'
-import { verifyFirebaseToken } from '../middlewares'
-import { verifyIfUserAdmin } from '../services/users'
-import logger from '../logger'
-import { FirebaseRequest } from '../firebase'
-import { createQrCodeInDatabase, deleteQrCodeFromDatabase, getAllQrCodes, getQrCode } from '../services/qrCode'
+import { verifyFirebaseToken } from '@/middlewares'
+import { verifyIfUserAdmin } from '@/services/users'
+import logger from '@/logger'
+import { FirebaseRequest } from '@/firebase'
+import { createQrCodeInDatabase, deleteQrCodeFromDatabase, getAllQrCodes, getQrCode } from '@/services/qrCode'
 import {
     BAD_REQUEST_ERROR_RESPONSE,
     FORBIDDEN_ERROR_RESPONSE,
     INTERNAL_SERVER_ERROR_RESPONSE,
     QR_CODE_NOT_FOUND_ERROR_RESPONSE,
-} from '../constants'
+} from '@/constants'
 
 async function getQrCodes(req: Request, res: Response) {
     const userClaims = (req as FirebaseRequest).firebase

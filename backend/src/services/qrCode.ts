@@ -1,4 +1,4 @@
-import { db } from '../firebase'
+import { db } from '@/firebase'
 import nodeConfig from 'config'
 import Joi from 'joi'
 

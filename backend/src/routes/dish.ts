@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express'
-import { verifyFirebaseToken } from '../middlewares'
-import { FirebaseRequest } from '../firebase'
+import { verifyFirebaseToken } from '@/middlewares'
+import { FirebaseRequest } from '@/firebase'
 import {
     DishCondition,
     DishStatus,
@@ -22,24 +22,24 @@ import {
     getAllDishVendors,
     validateModifyDish,
     updateDish,
-} from '../services/dish'
-import logger from '../logger'
-import { getUserByEmail, getUserById, verifyIfUserAdmin, verifyIfUserVolunteer } from '../services/users'
+} from '@/services/dish'
+import logger from '@/logger'
+import { getUserByEmail, getUserById, verifyIfUserAdmin, verifyIfUserVolunteer } from '@/services/users'
 import {
     Transaction,
     registerTransaction,
     getLatestTransactionByTstamp,
     getLatestTransactionByTstampAndDishId,
     updateTransactionReturn,
-} from '../services/transactions'
-import { getQrCode } from '../services/qrCode'
-import { User } from '../services/users'
+} from '@/services/transactions'
+import { getQrCode } from '@/services/qrCode'
+import { User } from '@/services/users'
 import {
     BAD_REQUEST_ERROR_RESPONSE,
     FORBIDDEN_ERROR_RESPONSE,
     INTERNAL_SERVER_ERROR_RESPONSE,
     QR_CODE_NOT_FOUND_ERROR_RESPONSE,
-} from '../constants'
+} from '@/constants'
 
 const DISH_NOT_FOUND_ERROR_RESPONSE = { error: 'dish_not_found' }
 const DISH_RETURNED_RESPONSE = { message: 'dish returned' }

@@ -1,12 +1,12 @@
 import express, { Request, Response } from 'express'
-import { ensureUserExistsForDecodedToken } from '../services/users'
-import { auth } from '../firebase'
-import logger from '../logger'
+import { ensureUserExistsForDecodedToken } from '@/services/users'
+import { auth } from '@/firebase'
+import logger from '@/logger'
 import {
     INTERNAL_SERVER_ERROR_RESPONSE,
     SUCCESS_STATUS_RESPONSE,
     UNAUTHORIZED_REQUEST_ERROR_RESPONSE,
-} from '../constants'
+} from '@/constants'
 
 async function login(req: Request, res: Response) {
     let decodedToken

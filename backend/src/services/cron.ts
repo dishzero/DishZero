@@ -1,5 +1,5 @@
 import nodeConfig from 'config'
-import { db } from '../firebase'
+import { db } from '@/firebase'
 
 export const getTemplate = async () => {
     let snapshot = await db.collection(nodeConfig.get('collections.cron')).doc('email').get()
