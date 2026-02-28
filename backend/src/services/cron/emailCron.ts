@@ -1,23 +1,65 @@
-import { Cron, CronOptions } from './factory'
 import cron from 'node-cron'
-import { SendEmailCommand } from '@aws-sdk/client-ses'
-import { sendEmail, sesClient } from '../internal/sesClient'
-import { db } from '../internal/firebase'
+import { db } from '@/firebase'
 import nodeConfig from 'config'
-import { getTemplate } from '../services/email'
-import Logger from '../utils/logger'
-import { getAllDishes } from '../services/dish'
-import { getUserById } from '../services/users'
-import { DishStatus } from '../models/dish'
+import { getTemplate } from '@/services/email'
+import logger from '@/logger'
+import { getAllDishes, DishStatus } from '@/services/dish'
+import { getUserById } from '@/services/users'
+import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses'
 
+type CronOptions = {
+    cronExpression: string
+    cronName?: string
+}
 export enum EmailClient {
     AWS = 'aws',
     Nodemailer = 'nodemailer',
 }
 
-let emailCron: Cron | null
+const REGION: string = nodeConfig.get('aws.region') || 'us-west-2'
 
-export class EmailCron implements Cron {
+const SES_CONFIG = {
+    apiVersion: '2010-12-01',
+    region: REGION,
+}
+
+const sesClient = new SESClient(SES_CONFIG)
+
+// https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-ses/classes/sendemailcommand.html
+const sendEmail = async (recepientEmails: Array<string>, subject: string, body: string, senderEmail: string) => {
+    const params = {
+        Destination: {
+            BccAddresses: [...recepientEmails],
+        },
+        Message: {
+            Body: {
+                Text: {
+                    Charset: 'UTF-8',
+                    Data: body,
+                },
+            },
+            Subject: {
+                Charset: 'UTF-8',
+                Data: subject,
+            },
+        },
+        Source: senderEmail,
+    }
+
+    const command = new SendEmailCommand(params)
+    try {
+        await sesClient.send(command)
+    } catch (error: any) {
+        logger.error({
+            error,
+            message: 'Failed to send emails',
+        })
+    }
+}
+
+let emailCron: EmailCron | null
+
+export class EmailCron {
     private job: cron.ScheduledTask | undefined
     private readonly client: EmailClient
     private readonly options: CronOptions
@@ -32,9 +74,7 @@ export class EmailCron implements Cron {
         if (enabled) {
             this.job = cron.schedule(this.options.cronExpression, async () => {
                 if (this.client === EmailClient.AWS) {
-                    Logger.info({
-                        message: 'Sending email with AWS',
-                    })
+                    logger.info({ message: 'Sending email with AWS' })
 
                     const template = await getTemplate()
                     const subject = template.subject
@@ -48,7 +88,6 @@ export class EmailCron implements Cron {
 
                     for (const dish of dishes) {
                         if (dish.status === DishStatus.borrowed && dish.userId && dish.borrowedAt) {
-                            // if (dish.borrowed && dish.userId && dish.borrowedAt) {
                             const currentTime = new Date()
                             const borrowedDate = new Date(dish.borrowedAt.toString())
                             const hoursSinceBorrow = Math.abs(currentTime.getTime() - borrowedDate.getTime()) / oneHour
@@ -65,19 +104,12 @@ export class EmailCron implements Cron {
                     }
 
                     if (recipients.length > 0) {
-                        // send the emails
-                        console.log('Sent emails using AWS')
-                        Logger.info({
-                            message: 'Sent emails',
-                            recipients,
-                        })
+                        logger.info({ message: 'Sent emails', recipients })
                     } else {
-                        Logger.info({
-                            message: 'no users have overdue dish',
-                        })
+                        logger.info({ message: 'no users have overdue dish' })
                     }
                 } else {
-                    console.log('Sending email with nodemailer')
+                    logger.info({ message: 'Sending email with nodemailer' })
                 }
             })
         }
@@ -103,10 +135,7 @@ export const isEmailCronEnabled = async () => {
 export const initializeEmailCron = async (options: CronOptions, client: EmailClient) => {
     emailCron = new EmailCron(options, client)
     emailCron.start()
-    Logger.info({
-        message: 'starting email cron',
-        cron: emailCron,
-    })
+    logger.info({ message: 'starting email cron' })
 }
 
 export const getEmailCron = () => {

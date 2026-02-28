@@ -65,3 +65,4 @@ export const convertToMT = (minute: number, hour: number, day: string) : [number
 
     return [minute, newHour, day]
 }
+

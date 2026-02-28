@@ -1,7 +1,12 @@
 import Joi from 'joi'
-import { User } from '../models/user'
-import { auth, db } from '../internal/firebase'
+import { auth, db } from '@/firebase'
 import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
+
+export type User = {
+    id: string
+    role: string
+    email: string
+}
 
 export const getUsersWithRole = async (role: string) => {
     const snapshot = await db.collection('users').where('role', '==', role).get()
@@ -57,12 +62,27 @@ export const getUserById = async (id: string) => {
     }
 }
 
-export const verifyIfUserAdmin = (userClaims: DecodedIdToken) => {
-    return userClaims.role === 'admin'
-}
+export const ensureUserExistsForDecodedToken = async (decodedIdToken: DecodedIdToken) => {
+    const email = decodedIdToken.email
+    if (!email) {
+        throw new Error('Email is not provided')
+    }
 
-export const verifyIfUserVolunteer = (userClaims: DecodedIdToken) => {
-    return userClaims.role === 'volunteer'
+    const existingUser = await getUserByEmail(email)
+    if (!existingUser) {
+        const user: Partial<User> = {
+            email,
+            role: 'customer',
+        }
+
+        await auth.setCustomUserClaims(decodedIdToken.sub, { role: 'customer' })
+        await db.collection('users').doc(decodedIdToken.uid).set(user)
+
+        const createdUser = await getUserByEmail(email)
+        return createdUser
+    }
+
+    return existingUser
 }
 
 export const verifyRole = (role: string) => {

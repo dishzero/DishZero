@@ -1,10 +1,22 @@
 import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
-import { Transaction } from '../models/transaction'
-import { db } from '../internal/firebase'
-import Logger from '../utils/logger'
+import { db } from '@/firebase'
 import nodeConfig from 'config'
-import { getUserById } from './users'
-import { User } from '../models/user'
+
+export type Transaction = {
+    id?: string
+    dish: {
+        qid: number
+        id: string
+        type: string
+    }
+    returned: {
+        condition: string
+        timestamp?: string
+    }
+    timestamp: string
+    // Keeping this as any since transaction.user shape varies across usage sites
+    user: any
+}
 
 export const getUserTransactions = async (userClaims: DecodedIdToken) => {
     let transactions = <Array<Transaction>>[]
@@ -43,11 +55,6 @@ export const getAllTransactions = async () => {
 
 export const registerTransaction = async (transaction: Transaction) => {
     let docRef = await db.collection(nodeConfig.get('collections.transactions')).add(transaction)
-    Logger.info({
-        message: 'Transaction registered',
-        module: 'transaction.services',
-        function: 'registerTransaction',
-    })
     return {
         ...transaction,
         id: docRef.id,
@@ -64,12 +71,6 @@ export const getLatestTransaction = async (userClaims: DecodedIdToken, qid: numb
     if (transactionQuery.empty) {
         return null
     }
-
-    Logger.info({
-        message: 'Transaction found',
-        module: 'transaction.services',
-        function: 'getTransaction',
-    })
 
     return {
         ...transactionQuery.docs[0].data(),
@@ -132,14 +133,26 @@ export const getLatestTransactionBydishId = async (userClaims: DecodedIdToken, d
         return null
     }
 
-    Logger.info({
-        message: 'Transaction found',
-        module: 'transaction.services',
-        function: 'getTransactionBydishId',
-    })
-
     return {
         ...snapshot.docs[0].data(),
         id: snapshot.docs[0].id,
     }
+}
+
+export const updateTransactionReturn = async (
+    transactionId: string,
+    options: { condition: string; timestamp: string; email?: string }
+) => {
+    const returned: { condition: string; timestamp: string; email?: string } = {
+        condition: options.condition,
+        timestamp: options.timestamp,
+    }
+
+    if (options.email) {
+        returned.email = options.email
+    }
+
+    await db.collection(nodeConfig.get('collections.transactions')).doc(transactionId).update({
+        returned,
+    })
 }

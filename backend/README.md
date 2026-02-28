@@ -6,8 +6,6 @@ For the server to connect to firebase where the users are stored, you need to sa
 [contents of a private key file](https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments)
 to `credentials.json`.
 
-Set your local environment variables by copying `.env.example` to an `.env` file.
-
 Then to install dependencies, run
 
 ```
@@ -20,8 +18,7 @@ Then, to start the local development server, run:
 yarn dev
 ```
 
-this will start the server on port 8080 but can updated from `default.json` file in `config` directory or by setting
-`PORT` environment variable.
+this will start the server on port 8080.
 
 ## Test
 

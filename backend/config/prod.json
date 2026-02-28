@@ -9,28 +9,12 @@
             "refresh": "7d"
         }
     },
-    "featureFlags": {
-        "routes": {
-            "dish": {
-                "enabled": true
-            },
-            "transactions": {
-                "enabled": true
-            }
-        }
-    },
     "collections": {
         "transactions": "transactions-new",
         "dishes": "dishes",
         "users": "users",
         "qrcodes": "qr-codes",
         "cron": "cron"
-    },
-    "cron": {
-        "enabled": false,
-        "default": {
-            "email": "0 0 12 * * WED"
-        }
     },
     "aws": {
         "region": "us-west-2"
