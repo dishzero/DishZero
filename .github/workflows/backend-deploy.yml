@@ -19,8 +19,8 @@ jobs:
           script: |
             set -e
 
-            export NVM_DIR=~/.nvm
-            source ~/.nvm/nvm.sh
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 
             nvm install 20
             npm i -g pm2 yarn
