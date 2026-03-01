@@ -11,20 +11,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Rebuild backend and deploy
-        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2  # v1.2.5, pinned for supply chain safety; get the new full SHA if we need to updgrade
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2  # v1.2.5, pinned for supply chain safety; get the new full SHA if we need to upgrade
         with:
           host: ${{ secrets.EC2_URL }}
           username: 'ubuntu'
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /home/ubuntu/DishZero/backend
-            export NVM_DIR=~/.nvm
-            source ~/.nvm/nvm.sh
-            npm i -g pm2
-            npm i -g yarn
-            pm2 stop dishzero
-            pm2 delete dishzero
+            echo "=== Setting up Node ==="
+            export NVM_DIR="$HOME/.nvm"
+            . "$NVM_DIR/nvm.sh"
+
+            set -e
+
+            echo "=== Installing Node ==="
+            nvm install 20
+            nvm use 20
+
+            echo "=== Installing PM2 and Yarn ==="
+            npm i -g pm2 yarn
+
+            echo "=== Pulling latest code ==="
+            cd /home/ubuntu/DishZero
             git pull
-            yarn install
+
+            echo "=== Installing dependencies ==="
+            cd backend
+            yarn install --frozen-lockfile
+            yarn cache clean
+
+            echo "=== Building ==="
             yarn build
-            pm2 start yarn --name "dishzero" -- start
+
+            echo "=== Restarting server ==="
+            pm2 restart dishzero || pm2 start yarn --name dishzero -- start
+
+            echo "=== Saving PM2 ==="
+            pm2 save
