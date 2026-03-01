@@ -20,11 +20,11 @@ jobs:
           capture_stdout: true
           debug: true
           script: |
-            set -e
-
             echo "=== Setting up Node ==="
             export NVM_DIR="$HOME/.nvm"
             . "$NVM_DIR/nvm.sh"
+
+            set -e
 
             echo "=== Installing Node ==="
             nvm install 20
