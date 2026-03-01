@@ -16,6 +16,7 @@ jobs:
           host: ${{ secrets.EC2_URL }}
           username: 'ubuntu'
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          capture_stdout: true
           script: |
             set -e
 
