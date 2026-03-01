@@ -8,6 +8,7 @@ import { getUserById } from '@/services/users';
 
 dotenv.config();
 
+// TODO: update to express 5 and remove this
 /**
  * Wraps async route handlers so rejected promises are passed to Express error middleware.
  */
@@ -39,10 +40,10 @@ export const verifyFirebaseToken = async (req: Request, res: Response, next: Nex
         }
         (req as FirebaseRequest).firebase.role = user.role;
         next();
-    } catch (error) {
+    } catch (err) {
         logger.error({
             reqId: req.id,
-            error,
+            err,
             message: 'Error when verifying firebase session token',
         });
         // TODO: How can we differentiate an invalid token from something that should return a 500?
