@@ -2,9 +2,10 @@ import { randomUUID } from 'crypto';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import * as dotenv from 'dotenv';
-import express, { Request, Response } from 'express';
+import express, { ErrorRequestHandler, Request, Response } from 'express';
 import pinoHttp from 'pino-http';
 
+import { INTERNAL_SERVER_ERROR_RESPONSE } from '@/constants';
 import logger from '@/logger';
 import { authRouter } from '@/routes/auth';
 import { cronRouter } from '@/routes/cron';
@@ -55,13 +56,24 @@ app.get('/health', (_: Request, res: Response) => {
 });
 
 // TODO: audit all route names for REST best practices; they're a mixed bag right now
-// TODO: audit all routes for consistent try-catch (look into error handling in the middleware?)
 app.use('/api/auth', authRouter);
 app.use('/api/dish', dishRouter);
 app.use('/api/transactions', transactionsRouter);
 app.use('/api/users', userRouter);
 app.use('/api/qrcode', qrCodeRouter);
 app.use('/api/cron', cronRouter);
+
+const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
+    logger.error({
+        reqId: req.id,
+        err,
+    });
+    if (res.headersSent) {
+        return next(err);
+    }
+    res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE);
+};
+app.use(errorHandler);
 
 handleCron();
 

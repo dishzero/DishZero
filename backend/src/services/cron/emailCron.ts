@@ -50,9 +50,9 @@ const sendEmail = async (recepientEmails: Array<string>, subject: string, body: 
     const command = new SendEmailCommand(params);
     try {
         await sesClient.send(command);
-    } catch (error: any) {
+    } catch (err: any) {
         logger.error({
-            error,
+            err,
             message: 'Failed to send emails',
         });
     }

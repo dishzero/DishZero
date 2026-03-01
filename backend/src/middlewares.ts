@@ -8,7 +8,15 @@ import { getUserById } from '@/services/users';
 
 dotenv.config();
 
-// Define the custom request object
+// TODO: update to express 5 and remove this
+/**
+ * Wraps async route handlers so rejected promises are passed to Express error middleware.
+ */
+export const asyncRouteHandler =
+    (fn: (req: Request, res: Response, next: NextFunction) => Promise<void | Response>) =>
+    (req: Request, res: Response, next: NextFunction) => {
+        Promise.resolve(fn(req, res, next)).catch(next);
+    };
 
 /**
  * verifies the firebase session token in the request header
@@ -32,10 +40,10 @@ export const verifyFirebaseToken = async (req: Request, res: Response, next: Nex
         }
         (req as FirebaseRequest).firebase.role = user.role;
         next();
-    } catch (error) {
+    } catch (err) {
         logger.error({
             reqId: req.id,
-            error,
+            err,
             message: 'Error when verifying firebase session token',
         });
         // TODO: How can we differentiate an invalid token from something that should return a 500?

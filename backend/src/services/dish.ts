@@ -112,7 +112,7 @@ export const getDishById = async (id: string): Promise<Dish | null | undefined> 
     return data as Dish;
 };
 
-export const createDishInDatabase = async (dish: Partial<Dish>) => {
+export const createDishInDatabase = async (dish: Partial<Dish>, reqId: string) => {
     let validation = validateDishCreateRequestBody(dish);
     if (validation.error) {
         throw new Error(validation.error.message);
@@ -142,12 +142,12 @@ export const createDishInDatabase = async (dish: Partial<Dish>) => {
         await db.collection('qr-codes').doc(dish.qid!.toString()).set({
             dishId: createdDish.id,
         });
-    } catch (error) {
+    } catch (err) {
         logger.error({
-            error,
-            message: 'Failed to create qr code. Please try again.',
+            reqId,
+            err,
+            message: 'Failed to create QR code, rolling back dish creation',
         });
-        // if adding a qr code fails, delete the dish
         await db.collection('dishes').doc(createdDish.id).delete();
     }
 
@@ -157,7 +157,7 @@ export const createDishInDatabase = async (dish: Partial<Dish>) => {
     };
 };
 
-export const batchCreateDishes = async (dishIdLower: number, dishIdUpper: number, dishType: string) => {
+export const batchCreateDishes = async (dishIdLower: number, dishIdUpper: number, dishType: string, reqId: string) => {
     let validation = validateBatchCreate(dishIdLower, dishIdUpper, dishType);
     if (validation.error) {
         throw new Error(validation.error.message);
@@ -190,30 +190,23 @@ export const batchCreateDishes = async (dishIdLower: number, dishIdUpper: number
 
         // also add a new qr code to the database
         try {
-            db.collection('qr-codes').doc(dish.qid.toString()).set({
+            await db.collection('qr-codes').doc(dish.qid.toString()).set({
                 dishId: dishRef.id,
             });
-        } catch (error) {
+        } catch (err) {
             logger.error({
-                error,
-                message: 'Failed to create qr code in batch. Please try again.',
+                reqId,
+                err,
+                message: 'Failed to create QR code, rolling back dish creation',
             });
             // if adding a qr code fails, remove the dish from the batch
             batch.delete(dishRef);
         }
     }
 
-    try {
-        const response = await batch.commit();
-        const responseWithExistingDishes = { ...response, existingDishes };
-        return responseWithExistingDishes;
-    } catch (error: any) {
-        logger.error({
-            error,
-            message: 'Error adding batch of dishes',
-        });
-        return error;
-    }
+    const response = await batch.commit();
+    const responseWithExistingDishes = { ...response, existingDishes };
+    return responseWithExistingDishes;
 };
 
 export const addDishTypeToDatabase = async (type: string) => {
