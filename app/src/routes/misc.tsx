@@ -1,10 +1,8 @@
 import { Link } from 'react-router-dom';
 
 import leaf_icon from '../assets/leaf-green.svg';
-
-import '../styles/error404.css';
-
 import { useAuth } from '../contexts/AuthContext';
+import '../styles/error404.css';
 
 const Error404 = () => {
     const { currentUser } = useAuth();

@@ -1,10 +1,9 @@
-import '../styles/index.css';
-
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
 import container from '../assets/dish_icon_contained.svg';
 import mug from '../assets/mug_icon_contained.svg';
+import '../styles/index.css';
 
 export default ({ dish, token }) => {
     const [dishAPI, setDishAPI] = useState([]);

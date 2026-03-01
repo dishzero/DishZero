@@ -1,20 +1,18 @@
 /*eslint-disable*/
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-
-//import Scanner from "../widgets/scanner"
-//import DishAPI from "../features/api"
-import '../styles/QRScanner.css';
-
 import { faCoffee, faExclamation, faLeaf } from '@fortawesome/free-solid-svg-icons';
 //import { Button, Modal } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import '@fortawesome/fontawesome-free/css/all.css';
 
 import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../contexts/AuthContext';
+//import Scanner from "../widgets/scanner"
+//import DishAPI from "../features/api"
+import '../styles/QRScanner.css';
 import { AppHeader } from '../widgets/appHeader';
 import BottomTextInput from '../widgets/bottomTextInput';
 

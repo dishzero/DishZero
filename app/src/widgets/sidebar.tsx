@@ -1,10 +1,6 @@
-import { useEffect, useState } from 'react';
-import { slide as Menu } from 'react-burger-menu';
-
-import '../styles/sidebar.css';
-
 import { Link } from '@mui/material';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { slide as Menu } from 'react-burger-menu';
 import { Link as ReactRouterLink } from 'react-router-dom';
 
 import admin_panel_icon from '../assets/admin_panel_settings.png';
@@ -15,6 +11,7 @@ import logout_icon from '../assets/logout.svg';
 import our_impact_icon from '../assets/our_impact.png';
 import task_icon from '../assets/task_icon.png';
 import { useAuth } from '../contexts/AuthContext';
+import '../styles/sidebar.css';
 
 export const Sidebar = () => {
     const { currentUser, logout } = useAuth();

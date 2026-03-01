@@ -7,5 +7,6 @@
     "proseWrap": "always",
     "arrowParens": "always",
     "plugins": ["@ianvs/prettier-plugin-sort-imports"],
+    "importOrderSafeSideEffects": ["\\.css$"],
     "importOrder": ["<THIRD_PARTY_MODULES>", "", "^@/", "", "^[./]"]
 }

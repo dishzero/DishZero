@@ -1,21 +1,16 @@
 /*eslint-disable*/
 
-import { useState } from 'react';
-
-import '../styles/QRScanner.css';
-
-import Form from 'react-bootstrap/Form';
-
-import 'bootstrap/dist/css/bootstrap.min.css';
-
-import { Button, Container, InputGroup } from 'react-bootstrap';
-import Navbar from 'react-bootstrap/Navbar';
-
-import 'bootstrap/dist/css/bootstrap.min.css';
-
 import { faCameraRotate, faClose, faSearch, faVideoCamera } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { useState } from 'react';
+import { Button, Container, InputGroup } from 'react-bootstrap';
+import Form from 'react-bootstrap/Form';
+import Navbar from 'react-bootstrap/Navbar';
 import QrReader from 'react-qr-scanner';
+
+import '../styles/QRScanner.css';
 
 const Header = ({ handleClose, title, style }) => {
     return (

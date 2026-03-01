@@ -1,9 +1,4 @@
 /*eslint-disable*/
-import React, { memo, useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-
-import '../styles/QRScanner.css';
-
 import {
     Avatar,
     Box,
@@ -18,6 +13,8 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import { useSnackbar } from 'notistack';
+import React, { memo, useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import adminApi from '../admin/adminApi';
 import { Dish, DishStatus } from '../admin/DishesPage/constants';
@@ -29,6 +26,7 @@ import ReportIcon from '../assets/megaphone.svg';
 import mugIcon from '../assets/mug_icon_contained.svg';
 import CloseIcon from '../assets/X_icon.svg';
 import { useAuth } from '../contexts/AuthContext';
+import '../styles/QRScanner.css';
 import { AppHeader } from '../widgets/appHeader';
 import BottomTextInput from '../widgets/bottomTextInput';
 import CameraInput from '../widgets/cameraScanner';

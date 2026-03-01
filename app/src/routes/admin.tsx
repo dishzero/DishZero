@@ -1,17 +1,14 @@
-import { BrowserView, MobileView } from 'react-device-detect';
-
-import leaf_icon from '../assets/leaf-green.svg';
-
-import '../styles/admin.css';
-
 import { Box, createTheme, ThemeProvider } from '@mui/material';
 import { SnackbarProvider } from 'notistack';
+import { BrowserView, MobileView } from 'react-device-detect';
 
 import AdminHomePage from '../admin/AdminHome/adminHomePage';
 import AdminSidebar, { SIDEBAR_WIDTH } from '../admin/AdminSidebar/adminSidebar';
 import AdminDishesPage from '../admin/DishesPage/dishesPage';
 import Email from '../admin/EmailPage/email';
 import AdminUserPage from '../admin/UserPage/userPage';
+import leaf_icon from '../assets/leaf-green.svg';
+import '../styles/admin.css';
 
 export default function Admin({ path }: { path?: string }) {
     const theme = createTheme({

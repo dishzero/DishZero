@@ -1,20 +1,17 @@
+import { AppBar, Box, Link as LinkMUI, Typography } from '@mui/material';
+import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { BallTriangle } from 'react-loader-spinner';
 import { Link as ReactRouterLink } from 'react-router-dom';
 
 import external_link from '../assets/external_link.svg';
 import leaf_green from '../assets/leaf-green.svg';
+import MobileBackground from '../assets/leaf-mobile-background.png';
 import leaf_white from '../assets/leaf-white.svg';
 import scan_icon from '../assets/scan.svg';
-import DishCard from '../widgets/dishcard';
-
-import '../styles/index.css';
-
-import { AppBar, Box, Link as LinkMUI, Typography } from '@mui/material';
-import axios from 'axios';
-import { BallTriangle } from 'react-loader-spinner';
-
-import MobileBackground from '../assets/leaf-mobile-background.png';
 import { useAuth } from '../contexts/AuthContext';
+import '../styles/index.css';
+import DishCard from '../widgets/dishcard';
 
 // Display DishCard for unreturned dishes
 const DishLog = ({ dishes }) => {
