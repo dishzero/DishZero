@@ -11,12 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Rebuild backend and deploy
+        id: deploy
         uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2  # v1.2.5, pinned for supply chain safety; get the new full SHA if we need to upgrade
         with:
           host: ${{ secrets.EC2_URL }}
           username: 'ubuntu'
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           capture_stdout: true
+          debug: true
           script: |
             set -e
 
@@ -48,3 +50,7 @@ jobs:
 
             echo "=== Saving PM2 ==="
             pm2 save
+
+      - name: Show deploy output
+        if: always()
+        run: echo "${{ steps.deploy.outputs.stdout }}"
