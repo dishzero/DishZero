@@ -19,20 +19,31 @@ jobs:
           script: |
             set -e
 
+            echo "=== Setting up Node ==="
             export NVM_DIR=~/.nvm
             source ~/.nvm/nvm.sh
 
+            echo "=== Installing Node ==="
             nvm install 20
             nvm use 20
+
+            echo "=== Installing PM2 and Yarn ==="
             npm i -g pm2 yarn
 
+            echo "=== Pulling latest code ==="
             cd /home/ubuntu/DishZero
             git pull
 
+            echo "=== Installing dependencies ==="
             cd backend
             yarn install --frozen-lockfile
             yarn cache clean
+
+            echo "=== Building ==="
             yarn build
 
+            echo "=== Restarting server ==="
             pm2 restart dishzero || pm2 start yarn --name dishzero -- start
+
+            echo "=== Saving PM2 ==="
             pm2 save
