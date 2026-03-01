@@ -127,7 +127,7 @@ async function createMultipleDishes(req: Request, res: Response) {
 }
 
 async function createDish(req: Request, res: Response) {
-    const dish = await createDishInDatabase(req.body.dish);
+    const dish = await createDishInDatabase(req.body.dish, req.id.toString());
     return res.status(200).json({ dish });
 }
 

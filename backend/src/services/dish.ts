@@ -112,7 +112,7 @@ export const getDishById = async (id: string): Promise<Dish | null | undefined> 
     return data as Dish;
 };
 
-export const createDishInDatabase = async (dish: Partial<Dish>) => {
+export const createDishInDatabase = async (dish: Partial<Dish>, reqId: string) => {
     let validation = validateDishCreateRequestBody(dish);
     if (validation.error) {
         throw new Error(validation.error.message);
@@ -144,6 +144,7 @@ export const createDishInDatabase = async (dish: Partial<Dish>) => {
         });
     } catch (err) {
         logger.error({
+            reqId,
             err,
             message: 'Failed to create QR code, rolling back dish creation',
         });
