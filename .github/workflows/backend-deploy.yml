@@ -23,8 +23,8 @@ jobs:
             set -e
 
             echo "=== Setting up Node ==="
-            export NVM_DIR=~/.nvm
-            source ~/.nvm/nvm.sh
+            export NVM_DIR="$HOME/.nvm"
+            . "$NVM_DIR/nvm.sh"
 
             echo "=== Installing Node ==="
             nvm install 20
