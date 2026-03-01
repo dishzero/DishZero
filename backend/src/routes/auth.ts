@@ -1,12 +1,9 @@
 import express, { Request, Response } from 'express';
 
-import {
-    INTERNAL_SERVER_ERROR_RESPONSE,
-    SUCCESS_STATUS_RESPONSE,
-    UNAUTHORIZED_REQUEST_ERROR_RESPONSE,
-} from '@/constants';
+import { SUCCESS_STATUS_RESPONSE, UNAUTHORIZED_REQUEST_ERROR_RESPONSE } from '@/constants';
 import { auth } from '@/firebase';
 import logger from '@/logger';
+import { asyncRouteHandler } from '@/middlewares';
 import { ensureUserExistsForDecodedToken } from '@/services/users';
 
 async function login(req: Request, res: Response) {
@@ -29,22 +26,13 @@ async function login(req: Request, res: Response) {
     }
 
     const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
-    try {
-        const sessionCookie = await auth.createSessionCookie(idToken, { expiresIn });
-        const user = await ensureUserExistsForDecodedToken(decodedToken);
-        res.cookie('session', sessionCookie, { maxAge: expiresIn, httpOnly: true, secure: true });
-        return res.status(200).json({
-            session: sessionCookie,
-            user,
-        });
-    } catch (error) {
-        logger.error({
-            reqId: req.id,
-            error,
-            message: 'Error when creating firebase session cookie',
-        });
-        return res.status(500).send(INTERNAL_SERVER_ERROR_RESPONSE);
-    }
+    const sessionCookie = await auth.createSessionCookie(idToken, { expiresIn });
+    const user = await ensureUserExistsForDecodedToken(decodedToken);
+    res.cookie('session', sessionCookie, { maxAge: expiresIn, httpOnly: true, secure: true });
+    return res.status(200).json({
+        session: sessionCookie,
+        user,
+    });
 }
 
 async function logout(req: Request, res: Response) {
@@ -71,7 +59,7 @@ async function logout(req: Request, res: Response) {
 
 const router = express.Router();
 
-router.post('/login', login);
-router.post('/logout', logout);
+router.post('/login', asyncRouteHandler(login));
+router.post('/logout', asyncRouteHandler(logout));
 
 export { router as authRouter };

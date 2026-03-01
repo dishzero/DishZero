@@ -1,8 +1,7 @@
 import express, { Request, Response } from 'express';
 
-import { BAD_REQUEST_ERROR_RESPONSE, INTERNAL_SERVER_ERROR_RESPONSE } from '@/constants';
-import logger from '@/logger';
-import { verifyAuthorizedRoles, verifyFirebaseToken } from '@/middlewares';
+import { BAD_REQUEST_ERROR_RESPONSE } from '@/constants';
+import { asyncRouteHandler, verifyAuthorizedRoles, verifyFirebaseToken } from '@/middlewares';
 import { convertToMT, convertToUTC, validateEmailFields, validateUpdateEmailBody } from '@/services/cron/cronUtils';
 import {
     EmailClient,
@@ -28,45 +27,36 @@ function stopCron() {
 }
 
 async function getEmail(req: Request, res: Response) {
-    try {
-        const cron = await fetchEmailCron();
+    const cron = await fetchEmailCron();
 
-        const utcExpr = cron?.expression.split(' ');
-        let days = utcExpr[utcExpr.length - 1];
-        if (days.length > 3) {
-            days = days.split(',');
-        } else {
-            days = [days];
-        }
-        const minutes = parseInt(utcExpr[1]);
-        const hours = parseInt(utcExpr[2]);
-
-        const setDays: Array<string> = [];
-        for (const day of days) {
-            const tuple = convertToMT(minutes, hours, day);
-            setDays.push(tuple[2]);
-        }
-        const tuple = convertToMT(minutes, hours, 'MON');
-        let cronExpression = `0 ${tuple[0]} ${tuple[1]} * * `;
-        if (setDays.length > 1) {
-            cronExpression += setDays.join(',');
-        } else {
-            cronExpression += setDays[0];
-        }
-        return res.status(200).json({
-            cron: {
-                ...cron,
-                expression: cronExpression,
-            },
-        });
-    } catch (error: any) {
-        logger.error({
-            reqId: req.id,
-            error: error,
-            message: 'Error when fetching cron from firebase',
-        });
-        return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE);
+    const utcExpr = cron?.expression.split(' ');
+    let days = utcExpr[utcExpr.length - 1];
+    if (days.length > 3) {
+        days = days.split(',');
+    } else {
+        days = [days];
     }
+    const minutes = parseInt(utcExpr[1]);
+    const hours = parseInt(utcExpr[2]);
+
+    const setDays: Array<string> = [];
+    for (const day of days) {
+        const tuple = convertToMT(minutes, hours, day);
+        setDays.push(tuple[2]);
+    }
+    const tuple = convertToMT(minutes, hours, 'MON');
+    let cronExpression = `0 ${tuple[0]} ${tuple[1]} * * `;
+    if (setDays.length > 1) {
+        cronExpression += setDays.join(',');
+    } else {
+        cronExpression += setDays[0];
+    }
+    return res.status(200).json({
+        cron: {
+            ...cron,
+            expression: cronExpression,
+        },
+    });
 }
 
 async function updateEmail(req: Request, res: Response) {
@@ -83,17 +73,8 @@ async function updateEmail(req: Request, res: Response) {
         return res.status(400).json({ error: 'invalid_body' });
     }
 
-    try {
-        await updateEmailConfig(body);
-        return res.status(200).json({ message: 'email_updated' });
-    } catch (error: any) {
-        logger.error({
-            reqId: req.id,
-            error: error,
-            message: 'Error when fetching cron from firebase',
-        });
-        return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE);
-    }
+    await updateEmailConfig(body);
+    return res.status(200).json({ message: 'email_updated' });
 }
 
 async function enableEmail(req: Request, res: Response) {
@@ -105,17 +86,8 @@ async function enableEmail(req: Request, res: Response) {
         return res.status(400).json({ error: 'invalid_enabled_parameter' });
     }
 
-    try {
-        await setEmailCronEnabled(enabled);
-        return res.status(200).json({ enabled });
-    } catch (error: any) {
-        logger.error({
-            reqId: req.id,
-            error: error,
-            message: 'Error when fetching cron from firebase',
-        });
-        return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE);
-    }
+    await setEmailCronEnabled(enabled);
+    return res.status(200).json({ enabled });
 }
 
 async function updateEmailTemplate(req: Request, res: Response) {
@@ -194,12 +166,22 @@ async function startEmailCron(req: Request, res: Response) {
 
 const router = express.Router();
 
-router.get('/email', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), getEmail);
-router.post('/email/update', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), updateEmail);
-router.post('/email/enable', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), enableEmail);
-router.post('/email/template', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), updateEmailTemplate);
-router.post('/email/expression', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), updateEmailCronExpression);
-router.post('/email/stop', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), stopEmailCron);
-router.post('/email/start', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), startEmailCron);
+router.get('/email', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), asyncRouteHandler(getEmail));
+router.post('/email/update', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), asyncRouteHandler(updateEmail));
+router.post('/email/enable', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), asyncRouteHandler(enableEmail));
+router.post(
+    '/email/template',
+    verifyFirebaseToken,
+    verifyAuthorizedRoles(['admin']),
+    asyncRouteHandler(updateEmailTemplate),
+);
+router.post(
+    '/email/expression',
+    verifyFirebaseToken,
+    verifyAuthorizedRoles(['admin']),
+    asyncRouteHandler(updateEmailCronExpression),
+);
+router.post('/email/stop', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), asyncRouteHandler(stopEmailCron));
+router.post('/email/start', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), asyncRouteHandler(startEmailCron));
 
 export { router as cronRouter };

@@ -1,9 +1,8 @@
 import express, { Request, Response } from 'express';
 
-import { FORBIDDEN_ERROR_RESPONSE, INTERNAL_SERVER_ERROR_RESPONSE, SUCCESS_STATUS_RESPONSE } from '@/constants';
+import { FORBIDDEN_ERROR_RESPONSE, SUCCESS_STATUS_RESPONSE } from '@/constants';
 import { auth, FirebaseRequest } from '@/firebase';
-import logger from '@/logger';
-import { verifyAuthorizedRoles, verifyFirebaseToken } from '@/middlewares';
+import { asyncRouteHandler, verifyAuthorizedRoles, verifyFirebaseToken } from '@/middlewares';
 import {
     getAllUsers,
     getUserById,
@@ -19,41 +18,14 @@ async function getUsers(req: Request, res: Response) {
     const role = req.query['role']?.toString();
     const id = req.query['id']?.toString();
     if (role && verifyRole(role)) {
-        try {
-            const users = await getUsersWithRole(role);
-            return res.status(200).json({ users });
-        } catch (error) {
-            logger.error({
-                reqId: req.id,
-                error: error,
-                message: 'Error when fetching users from firebase',
-            });
-            return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE);
-        }
+        const users = await getUsersWithRole(role);
+        return res.status(200).json({ users });
     } else if (id) {
-        try {
-            const user = await getUserById(id);
-            return res.status(200).json({ user });
-        } catch (error) {
-            logger.error({
-                reqId: req.id,
-                error: error,
-                message: 'Error when fetching user from firebase',
-            });
-            return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE);
-        }
+        const user = await getUserById(id);
+        return res.status(200).json({ user });
     } else {
-        try {
-            const users = await getAllUsers();
-            return res.status(200).json({ users });
-        } catch (error) {
-            logger.error({
-                reqId: req.id,
-                error: error,
-                message: 'Error when fetching users from firebase',
-            });
-            return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE);
-        }
+        const users = await getAllUsers();
+        return res.status(200).json({ users });
     }
 }
 
@@ -79,41 +51,23 @@ async function updateUser(req: Request, res: Response) {
                 return res.status(403).json(FORBIDDEN_ERROR_RESPONSE);
             }
 
-            try {
-                const user: User = req.body.user;
-                if (!user) {
-                    return res.status(400).json({ error: 'no_user_provided' });
-                }
-
-                await modifyUserRole(user, userClaims);
-
-                return res.status(200).json(SUCCESS_STATUS_RESPONSE);
-            } catch (error) {
-                logger.error({
-                    reqId: req.id,
-                    error,
-                    message: 'Error updating user role',
-                });
-                return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE);
+            const user: User = req.body.user;
+            if (!user) {
+                return res.status(400).json({ error: 'no_user_provided' });
             }
+
+            await modifyUserRole(user, userClaims);
+
+            return res.status(200).json(SUCCESS_STATUS_RESPONSE);
         } else if (type === 'user') {
-            try {
-                const user: User = req.body.user;
-                if (!user) {
-                    return res.status(400).json({ error: 'no_user_provided' });
-                }
-
-                await modifyUserData(user, userClaims);
-
-                return res.status(200).json(SUCCESS_STATUS_RESPONSE);
-            } catch (error: any) {
-                logger.error({
-                    reqId: req.id,
-                    error: error.message,
-                    message: 'Error updating user information',
-                });
-                return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE);
+            const user: User = req.body.user;
+            if (!user) {
+                return res.status(400).json({ error: 'no_user_provided' });
             }
+
+            await modifyUserData(user, userClaims);
+
+            return res.status(200).json(SUCCESS_STATUS_RESPONSE);
         }
     } else {
         return res.status(400).json({ error: 'invalid_type' });
@@ -122,8 +76,8 @@ async function updateUser(req: Request, res: Response) {
 
 const router = express.Router();
 
-router.get('/', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), getUsers);
-router.get('/session', verifyFirebaseToken, verifyUserSession);
-router.post('/modify/:type', verifyFirebaseToken, updateUser);
+router.get('/', verifyFirebaseToken, verifyAuthorizedRoles(['admin']), asyncRouteHandler(getUsers));
+router.get('/session', verifyFirebaseToken, asyncRouteHandler(verifyUserSession));
+router.post('/modify/:type', verifyFirebaseToken, asyncRouteHandler(updateUser));
 
 export { router as userRouter };

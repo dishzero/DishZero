@@ -8,7 +8,14 @@ import { getUserById } from '@/services/users';
 
 dotenv.config();
 
-// Define the custom request object
+/**
+ * Wraps async route handlers so rejected promises are passed to Express error middleware.
+ */
+export const asyncRouteHandler =
+    (fn: (req: Request, res: Response, next: NextFunction) => Promise<void | Response>) =>
+    (req: Request, res: Response, next: NextFunction) => {
+        Promise.resolve(fn(req, res, next)).catch(next);
+    };
 
 /**
  * verifies the firebase session token in the request header

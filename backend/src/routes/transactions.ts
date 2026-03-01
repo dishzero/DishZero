@@ -1,50 +1,28 @@
 import express, { Request, Response } from 'express';
 
-import { FORBIDDEN_ERROR_RESPONSE, INTERNAL_SERVER_ERROR_RESPONSE } from '@/constants';
+import { FORBIDDEN_ERROR_RESPONSE } from '@/constants';
 import { FirebaseRequest } from '@/firebase';
-import logger from '@/logger';
-import { verifyFirebaseToken } from '@/middlewares';
+import { asyncRouteHandler, verifyFirebaseToken } from '@/middlewares';
 import { getAllTransactions, getUserTransactions } from '@/services/transactions';
 
 async function getTransactions(req: Request, res: Response) {
     const userClaims = (req as FirebaseRequest).firebase;
     const all = req.query['all']?.toString();
-    let transactions;
     if (all === 'true') {
         // TODO: we should split out the "all" case to a different route for seperation of concerns and so we can use the verifyAuthorizedRoles(['admin']) middleware here
         if (userClaims.role !== 'admin') {
             return res.status(403).json(FORBIDDEN_ERROR_RESPONSE);
         }
-        try {
-            transactions = await getAllTransactions();
-            return res.status(200).json({ transactions });
-        } catch (err: any) {
-            logger.error({
-                reqId: req.id,
-                error: err.message,
-            });
-            return res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE);
-        }
+        const transactions = await getAllTransactions();
+        return res.status(200).json({ transactions });
     }
 
-    try {
-        transactions = await getUserTransactions(userClaims);
-    } catch (e) {
-        logger.error({
-            reqId: req.id,
-            error: e,
-            message: 'Error when fetching transactions from firebase',
-        });
-        res.status(500).json(INTERNAL_SERVER_ERROR_RESPONSE);
-        return;
-    }
-
-    res.status(200).json({ transactions });
-    return;
+    const transactions = await getUserTransactions(userClaims);
+    return res.status(200).json({ transactions });
 }
 
 const router = express.Router();
 
-router.get('/', verifyFirebaseToken, getTransactions);
+router.get('/', verifyFirebaseToken, asyncRouteHandler(getTransactions));
 
 export { router as transactionsRouter };
