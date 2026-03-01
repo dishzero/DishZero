@@ -190,7 +190,7 @@ export const batchCreateDishes = async (dishIdLower: number, dishIdUpper: number
 
         // also add a new qr code to the database
         try {
-            db.collection('qr-codes').doc(dish.qid.toString()).set({
+            await db.collection('qr-codes').doc(dish.qid.toString()).set({
                 dishId: dishRef.id,
             });
         } catch (err) {

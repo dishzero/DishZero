@@ -18,6 +18,7 @@ async function login(req: Request, res: Response) {
     } catch (err) {
         logger.error({
             reqId: req.id,
+            message: 'Error when verifying firebase id token',
             err,
         });
         // TODO: How can we differentiate an invalid token from something that should return a 500?
@@ -48,6 +49,7 @@ async function logout(req: Request, res: Response) {
     } catch (err) {
         logger.error({
             reqId: req.id,
+            message: 'Error when revoking firebase session cookie',
             err,
         });
         // TODO: How can we differentiate an invalid token from something that should return a 500?
