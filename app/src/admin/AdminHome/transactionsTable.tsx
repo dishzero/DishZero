@@ -1,14 +1,15 @@
-import { Transaction, generateTransactionColumns } from './constants'
-import CustomToolbar from '../DataGrid/customToolbar'
-import { StyledDataGrid } from '../DataGrid/constants'
-import NoResultsOverlay from '../DataGrid/noResultsOverlay'
-import { GridOverlay } from '@mui/x-data-grid'
-import { BallTriangle } from 'react-loader-spinner'
+import { GridOverlay } from '@mui/x-data-grid';
+import { BallTriangle } from 'react-loader-spinner';
+
+import { StyledDataGrid } from '../DataGrid/constants';
+import CustomToolbar from '../DataGrid/customToolbar';
+import NoResultsOverlay from '../DataGrid/noResultsOverlay';
+import { generateTransactionColumns, Transaction } from './constants';
 
 interface Props {
-    filteredRows: Transaction[]
-    loadingTransactions: boolean
-    dishTypes: string[]
+    filteredRows: Transaction[];
+    loadingTransactions: boolean;
+    dishTypes: string[];
 }
 
 export default function AdminTransactionsTable({ filteredRows, loadingTransactions, dishTypes }: Props) {
@@ -61,5 +62,5 @@ export default function AdminTransactionsTable({ filteredRows, loadingTransactio
                 experimentalFeatures={{ ariaV7: true }}
             />
         </>
-    )
+    );
 }

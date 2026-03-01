@@ -56,7 +56,7 @@ The routes are then imported in the `src/app.ts` file and are mounted on the `/a
 The auth routes are defined in the `src/routes/auth.ts` file. The routes are mounted on the `/auth` path. The routes
 are:
 
--   #### POST `/api/auth/login`
+- #### POST `/api/auth/login`
 
     This will login the user and return a session cookie. if the user is not registered, then it will register the user
     with customClaims and then return the session cookie.
@@ -67,7 +67,7 @@ are:
     idToken: firebase idToken generated after successful login using frontend firebase client
     ```
 
--   #### POST `/api/auth/logout`
+- #### POST `/api/auth/logout`
     This will logout the user and clear the session cookie. headers:
     ```
     session-token: generated sessionCookie from firebase after login
@@ -78,7 +78,7 @@ are:
 The dish routes are defined in the `src/routes/dish.ts` file. The routes are mounted on the `/dish` path. The routes
 are:
 
--   #### GET `/api/dish?all=&transaction=&id=&qid=`
+- #### GET `/api/dish?all=&transaction=&id=&qid=`
 
     This route returns all the dishes in the database.
 
@@ -97,7 +97,7 @@ are:
     qid: if set, then only the dish with this qid will be returned
     ```
 
--   #### POST `/api/dish/create`
+- #### POST `/api/dish/create`
 
     This route will create a new dish in the database only if user is an admin.
 
@@ -117,7 +117,7 @@ are:
     }
     ```
 
--   #### POST `/api/dish/borrow?qid=`
+- #### POST `/api/dish/borrow?qid=`
 
     This route will borrow a dish if the user is logged in and the dish is available. The route will also create a
     transaction in the database.
@@ -134,7 +134,7 @@ are:
     qid: qr_code of the dish to be borrowed
     ```
 
--   #### POST `/api/dish/return?qid=&id=`
+- #### POST `/api/dish/return?qid=&id=`
 
     This route will return a dish if the user is logged in and the dish is borrowed by the user. The route will also
     update the transaction in the database.
@@ -171,7 +171,7 @@ are:
     }
     ```
 
--   #### POST `/api/dish/condition?id=`
+- #### POST `/api/dish/condition?id=`
 
     This route will update the condition for the dish.
 
@@ -211,7 +211,7 @@ are:
 The transaction routes are defined in the `src/routes/transaction.ts` file. The routes are mounted on the
 `/transactions` path. The routes are:
 
--   #### GET `/api/transactions?all=`
+- #### GET `/api/transactions?all=`
     This route returns all the transactions in the database is user is admin and all is set to `true`. Otherwise returns
     all the transactions based on the user_id retrieved from the session cookie. headers:
     ```
@@ -227,7 +227,7 @@ The transaction routes are defined in the `src/routes/transaction.ts` file. The 
 the user routes are defined in the `src/routes/user.ts` file. The routes are mounted on the `/users` path. The routes
 are:
 
--   #### GET `/api/users?role=&id=`
+- #### GET `/api/users?role=&id=`
 
     This route returns all the users in the database only if the user is admin.
 
@@ -244,7 +244,7 @@ are:
     id: return the user with this id
     ```
 
--   #### GET `api/users/session`
+- #### GET `api/users/session`
 
     This route returns the user details of the logged in user and verify the session cookie.
 
@@ -254,7 +254,7 @@ are:
     session-token: generated sessionCookie from firebase after login
     ```
 
--   #### POST `api/users/modify/:type`
+- #### POST `api/users/modify/:type`
 
     This route is used to modify the user data. The type can be `role` or `user`. The body should contain the `uid` of
     the user and the new value of the type.
@@ -282,7 +282,7 @@ are:
 the qr code routes are defined in the `src/routes/qrCode.ts` file. The routes are mounted on the `/qrcode` path. The
 routes are:
 
--   #### GET `/api/qrcode?qid=`
+- #### GET `/api/qrcode?qid=`
 
     This route returns all the qr codes in the database only if the user is admin.
 
@@ -298,7 +298,7 @@ routes are:
     qid: return the qr code with this qid
     ```
 
--   #### POST `/api/qrcode/create`
+- #### POST `/api/qrcode/create`
 
     Create a qr code with the given request body only if user is admin
 
@@ -317,7 +317,7 @@ routes are:
     }
     ```
 
--   #### POST `/api/qrcode/update`
+- #### POST `/api/qrcode/update`
 
     Update an existing qr code with the given request body only if user is admin
 
@@ -336,7 +336,7 @@ routes are:
     }
     ```
 
--   #### DELETE `/api/qrcode?qid=`
+- #### DELETE `/api/qrcode?qid=`
     This route deletes the qr code with the given qid only if the user is admin. headers:
     ```
     session-token: generated sessionCookie from firebase after login
@@ -351,7 +351,7 @@ routes are:
 the cron routes are defined in the `src/routes/cron.ts` file. The routes are mounted on the `/cron` path. The routes
 are:
 
--   #### GET `/api/cron/email`
+- #### GET `/api/cron/email`
 
     Returns information about the email cron
 
@@ -361,7 +361,7 @@ are:
     session-token: generated sessionCookie from firebase after login
     ```
 
--   #### POST `/api/cron/email/enable`
+- #### POST `/api/cron/email/enable`
 
     Enables/disables email cron
 
@@ -377,7 +377,7 @@ are:
     enabled: boolean
     ```
 
--   #### POST `/api/cron/email/template`
+- #### POST `/api/cron/email/template`
 
     Updates email template
 
@@ -396,7 +396,7 @@ are:
     }
     ```
 
--   #### POST `/api/cron/email/expression`
+- #### POST `/api/cron/email/expression`
 
     Updates email cron expression
 
@@ -420,7 +420,7 @@ are:
     }
     ```
 
--   #### POST `/api/cron/email/stop`
+- #### POST `/api/cron/email/stop`
 
     Stops the cron job
 
@@ -430,7 +430,7 @@ are:
     session-token: generated sessionCookie from firebase after login
     ```
 
--   #### POST `/api/cron/email/start`
+- #### POST `/api/cron/email/start`
     Starts the cron job with the current expression in the database (stopping any previous running cron job) headers:
     ```
     session-token: generated sessionCookie from firebase after login

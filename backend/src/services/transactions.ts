@@ -1,65 +1,66 @@
-import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
-import { db } from '@/firebase'
-import nodeConfig from 'config'
+import nodeConfig from 'config';
+import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier';
+
+import { db } from '@/firebase';
 
 export type Transaction = {
-    id?: string
+    id?: string;
     dish: {
-        qid: number
-        id: string
-        type: string
-    }
+        qid: number;
+        id: string;
+        type: string;
+    };
     returned: {
-        condition: string
-        timestamp?: string
-    }
-    timestamp: string
+        condition: string;
+        timestamp?: string;
+    };
+    timestamp: string;
     // Keeping this as any since transaction.user shape varies across usage sites
-    user: any
-}
+    user: any;
+};
 
 export const getUserTransactions = async (userClaims: DecodedIdToken) => {
-    let transactions = <Array<Transaction>>[]
+    let transactions = <Array<Transaction>>[];
     let transactionsQuerySnapshot = await db
         .collection(nodeConfig.get('collections.transactions'))
         .where('user.id', '==', userClaims.uid)
-        .get()
+        .get();
     transactionsQuerySnapshot.docs.forEach((doc) => {
-        let data = doc.data()
+        let data = doc.data();
         transactions.push({
             id: doc.id,
             dish: data.dish ? data.dish.id : null,
             user: data.user,
             returned: data.returned ? data.returned : {},
             timestamp: data.timestamp ? data.timestamp : null,
-        })
-    })
-    return transactions
-}
+        });
+    });
+    return transactions;
+};
 
 export const getAllTransactions = async () => {
-    let transactions = <Array<Transaction>>[]
-    let transactionsQuerySnapshot = await db.collection(nodeConfig.get('collections.transactions')).get()
+    let transactions = <Array<Transaction>>[];
+    let transactionsQuerySnapshot = await db.collection(nodeConfig.get('collections.transactions')).get();
     transactionsQuerySnapshot.docs.forEach((doc) => {
-        let data = doc.data()
+        let data = doc.data();
         transactions.push({
             id: doc.id,
             dish: data.dish ?? {},
             user: data.user,
             returned: data.returned ?? {},
             timestamp: data.timestamp,
-        })
-    })
-    return transactions
-}
+        });
+    });
+    return transactions;
+};
 
 export const registerTransaction = async (transaction: Transaction) => {
-    let docRef = await db.collection(nodeConfig.get('collections.transactions')).add(transaction)
+    let docRef = await db.collection(nodeConfig.get('collections.transactions')).add(transaction);
     return {
         ...transaction,
         id: docRef.id,
-    }
-}
+    };
+};
 
 export const getLatestTransaction = async (userClaims: DecodedIdToken, qid: number) => {
     let transactionQuery = await db
@@ -67,16 +68,16 @@ export const getLatestTransaction = async (userClaims: DecodedIdToken, qid: numb
         .where('user.id', '==', userClaims.uid)
         .where('dish.qid', '==', qid)
         .where('returned.timestamp', '==', '')
-        .get()
+        .get();
     if (transactionQuery.empty) {
-        return null
+        return null;
     }
 
     return {
         ...transactionQuery.docs[0].data(),
         id: transactionQuery.docs[0].id,
-    }
-}
+    };
+};
 
 /**
  * Fetches the latest transaction by timestamp and qid
@@ -90,15 +91,15 @@ export const getLatestTransactionByTstamp = async (qid: number) => {
         .where('returned.timestamp', '==', '')
         .orderBy('timestamp', 'desc')
         .limit(1)
-        .get()
+        .get();
     if (transactionQuery.empty) {
-        return null
+        return null;
     }
     return {
         ...transactionQuery.docs[0].data(),
         id: transactionQuery.docs[0].id,
-    }
-}
+    };
+};
 
 /**
  * Fetches the latest transaction by timestamp and dishId
@@ -112,15 +113,15 @@ export const getLatestTransactionByTstampAndDishId = async (dishId: string) => {
         .where('returned.timestamp', '==', '')
         .orderBy('timestamp', 'desc')
         .limit(1)
-        .get()
+        .get();
     if (transactionQuery.empty) {
-        return null
+        return null;
     }
     return {
         ...transactionQuery.docs[0].data(),
         id: transactionQuery.docs[0].id,
-    }
-}
+    };
+};
 
 export const getLatestTransactionBydishId = async (userClaims: DecodedIdToken, dishId: string) => {
     let snapshot = await db
@@ -128,31 +129,31 @@ export const getLatestTransactionBydishId = async (userClaims: DecodedIdToken, d
         .where('user.id', '==', userClaims.uid)
         .where('dish.id', '==', dishId)
         .where('returned.timestamp', '==', '')
-        .get()
+        .get();
     if (snapshot.empty) {
-        return null
+        return null;
     }
 
     return {
         ...snapshot.docs[0].data(),
         id: snapshot.docs[0].id,
-    }
-}
+    };
+};
 
 export const updateTransactionReturn = async (
     transactionId: string,
-    options: { condition: string; timestamp: string; email?: string }
+    options: { condition: string; timestamp: string; email?: string },
 ) => {
     const returned: { condition: string; timestamp: string; email?: string } = {
         condition: options.condition,
         timestamp: options.timestamp,
-    }
+    };
 
     if (options.email) {
-        returned.email = options.email
+        returned.email = options.email;
     }
 
     await db.collection(nodeConfig.get('collections.transactions')).doc(transactionId).update({
         returned,
-    })
-}
+    });
+};

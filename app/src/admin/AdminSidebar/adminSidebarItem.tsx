@@ -1,15 +1,15 @@
-import { ListItemButton, ListItemIcon, Typography } from '@mui/material'
-import { Link } from 'react-router-dom'
+import { ListItemButton, ListItemIcon, Typography } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 interface Props {
-    url: string
-    icon: React.ReactNode
-    text: string
+    url: string;
+    icon: React.ReactNode;
+    text: string;
 }
 
 export default function AdminSidebarItem({ url, icon, text }: Props) {
-    const path = window.location.pathname
-    const buttonColor = url === path ? 'primary.main' : 'white'
+    const path = window.location.pathname;
+    const buttonColor = url === path ? 'primary.main' : 'white';
     return (
         <ListItemButton
             component={Link}
@@ -23,5 +23,5 @@ export default function AdminSidebarItem({ url, icon, text }: Props) {
                 {text}
             </Typography>
         </ListItemButton>
-    )
+    );
 }

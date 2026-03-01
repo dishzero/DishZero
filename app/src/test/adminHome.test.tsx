@@ -1,15 +1,16 @@
-import { render, act, screen, waitFor, fireEvent } from '@testing-library/react'
-import { BrowserRouter as Router } from 'react-router-dom'
-import axios from 'axios'
-import '@testing-library/jest-dom'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import axios from 'axios';
+import { BrowserRouter as Router } from 'react-router-dom';
 
-import Admin from '../routes/admin'
-import { DishStatus } from '../admin/DishesPage/constants'
+import '@testing-library/jest-dom';
 
-jest.mock('axios')
-const mockedAxios = axios as jest.Mocked<typeof axios>
+import { DishStatus } from '../admin/DishesPage/constants';
+import Admin from '../routes/admin';
+
+jest.mock('axios');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const useAuthMock = jest.spyOn(require('../contexts/AuthContext'), 'useAuth')
+const useAuthMock = jest.spyOn(require('../contexts/AuthContext'), 'useAuth');
 
 jest.mock('../contexts/AuthContext', () => ({
     ...jest.requireActual('../contexts/AuthContext'),
@@ -23,7 +24,7 @@ jest.mock('../contexts/AuthContext', () => ({
         login: jest.fn(),
         logout: jest.fn(),
     }),
-}))
+}));
 
 const mockDishesData = [
     {
@@ -90,7 +91,7 @@ const mockDishesData = [
         type: 'plate',
         userId: 'lost123',
     },
-]
+];
 
 const mockTransactionsData = [
     {
@@ -167,10 +168,10 @@ const mockTransactionsData = [
             role: 'customer',
         },
     },
-]
+];
 
 beforeEach(async () => {
-    jest.clearAllMocks()
+    jest.clearAllMocks();
 
     // Mock implementation for useAuth
     useAuthMock.mockImplementation(() => ({
@@ -182,15 +183,15 @@ beforeEach(async () => {
         sessionToken: 'mocked-session-token',
         login: jest.fn(),
         logout: jest.fn(),
-    }))
+    }));
 
     mockedAxios.get.mockResolvedValue({
         data: {
             dishes: mockDishesData,
             transactions: mockTransactionsData,
         },
-    })
-})
+    });
+});
 
 test('Renders homepage without crashing', async () => {
     await act(async () => {
@@ -198,13 +199,13 @@ test('Renders homepage without crashing', async () => {
             <Router>
                 <Admin />
             </Router>,
-        )
-    })
+        );
+    });
 
-    expect(screen.getByPlaceholderText('Type text here...')).toBeInTheDocument()
-    expect(screen.getByText('Dish ID')).toBeInTheDocument()
-    expect(screen.getByText('Dish type')).toBeInTheDocument()
-})
+    expect(screen.getByPlaceholderText('Type text here...')).toBeInTheDocument();
+    expect(screen.getByText('Dish ID')).toBeInTheDocument();
+    expect(screen.getByText('Dish type')).toBeInTheDocument();
+});
 
 describe('Dish Status', () => {
     it('check currently used and available dishes', async () => {
@@ -213,25 +214,25 @@ describe('Dish Status', () => {
                 <Router>
                     <Admin />
                 </Router>,
-            )
-        })
+            );
+        });
 
         await waitFor(() => {
-            expect(screen.getByText('Currently in use')).toBeInTheDocument()
-            expect(screen.getByText('Available')).toBeInTheDocument()
-        })
+            expect(screen.getByText('Currently in use')).toBeInTheDocument();
+            expect(screen.getByText('Available')).toBeInTheDocument();
+        });
 
         // Check the numbers displayed on the screen
-        const inUseDishes = mockDishesData.filter((dish) => dish.status === DishStatus.borrowed).length
+        const inUseDishes = mockDishesData.filter((dish) => dish.status === DishStatus.borrowed).length;
         // const inUseDishes = mockDishesData.filter(dish => dish.borrowed == true).length;
-        const availableDishes = mockDishesData.filter((dish) => dish.status !== DishStatus.borrowed).length
+        const availableDishes = mockDishesData.filter((dish) => dish.status !== DishStatus.borrowed).length;
         // const availableDishes = mockDishesData.filter(dish => dish.borrowed == false).length;
 
         await waitFor(() => {
-            expect(screen.getByTestId('in-use')).toHaveTextContent(inUseDishes.toString())
-            expect(screen.getByTestId('returned')).toHaveTextContent(availableDishes.toString())
-        })
-    })
+            expect(screen.getByTestId('in-use')).toHaveTextContent(inUseDishes.toString());
+            expect(screen.getByTestId('returned')).toHaveTextContent(availableDishes.toString());
+        });
+    });
 
     // Add more tests as needed
     it('check for overdue dishes', async () => {
@@ -240,27 +241,27 @@ describe('Dish Status', () => {
                 <Router>
                     <Admin />
                 </Router>,
-            )
-        })
+            );
+        });
 
         await waitFor(() => {
-            expect(screen.getByTestId('overdue-text')).toBeInTheDocument()
-        })
+            expect(screen.getByTestId('overdue-text')).toBeInTheDocument();
+        });
 
         // Calculate the number of overdue dishes (more than 2 days but less than 30 days)
-        const timeToday = new Date()
+        const timeToday = new Date();
         const overdueDishes = mockTransactionsData.filter((transaction) => {
-            if (transaction.returned.timestamp) return false // Skip if already returned
-            const borrowTime = new Date(transaction.timestamp)
-            const timeDifference = (timeToday.getTime() - borrowTime.getTime()) / (1000 * 60 * 60 * 24)
-            return timeDifference > 2 && timeDifference < 30
-        }).length
+            if (transaction.returned.timestamp) return false; // Skip if already returned
+            const borrowTime = new Date(transaction.timestamp);
+            const timeDifference = (timeToday.getTime() - borrowTime.getTime()) / (1000 * 60 * 60 * 24);
+            return timeDifference > 2 && timeDifference < 30;
+        }).length;
 
         // Check if the number of overdue dishes is displayed correctly
         await waitFor(() => {
-            expect(screen.getByTestId('overdue-count')).toHaveTextContent(overdueDishes.toString())
-        })
-    })
+            expect(screen.getByTestId('overdue-count')).toHaveTextContent(overdueDishes.toString());
+        });
+    });
 
     it('check for lost dishes', async () => {
         await act(async () => {
@@ -268,28 +269,28 @@ describe('Dish Status', () => {
                 <Router>
                     <Admin />
                 </Router>,
-            )
-        })
+            );
+        });
 
         await waitFor(() => {
-            expect(screen.getByText('Dishes Lost')).toBeInTheDocument()
-        })
+            expect(screen.getByText('Dishes Lost')).toBeInTheDocument();
+        });
 
         // Check the numbers displayed on the screen
         // Calculate the number of lost dishes
-        const timeToday = new Date()
+        const timeToday = new Date();
         const dishesLost = mockTransactionsData.filter((transaction) => {
-            if (transaction.returned.timestamp) return false // Skip if already returned
-            const borrowTime = new Date(transaction.timestamp)
-            const timeDifference = (timeToday.getTime() - borrowTime.getTime()) / (1000 * 60 * 60 * 24)
-            return timeDifference >= 30
-        }).length
+            if (transaction.returned.timestamp) return false; // Skip if already returned
+            const borrowTime = new Date(transaction.timestamp);
+            const timeDifference = (timeToday.getTime() - borrowTime.getTime()) / (1000 * 60 * 60 * 24);
+            return timeDifference >= 30;
+        }).length;
 
         await waitFor(() => {
-            expect(screen.getByTestId('lost-count')).toHaveTextContent(dishesLost.toString())
-        })
-    })
-})
+            expect(screen.getByTestId('lost-count')).toHaveTextContent(dishesLost.toString());
+        });
+    });
+});
 
 describe('Table Functionalities', () => {
     it('renders the five column headers', async () => {
@@ -298,19 +299,19 @@ describe('Table Functionalities', () => {
                 <Router>
                     <Admin />
                 </Router>,
-            )
-        })
+            );
+        });
 
         await waitFor(() => {
-            expect(screen.getByText('Dish ID')).toBeInTheDocument()
-            expect(screen.getByText('Dish type')).toBeInTheDocument()
-            expect(screen.getByText('Dish Status')).toBeInTheDocument()
-            expect(screen.getByTestId('overdue-table')).toBeInTheDocument()
-            expect(screen.getByTestId('email-table')).toBeInTheDocument()
-        })
+            expect(screen.getByText('Dish ID')).toBeInTheDocument();
+            expect(screen.getByText('Dish type')).toBeInTheDocument();
+            expect(screen.getByText('Dish Status')).toBeInTheDocument();
+            expect(screen.getByTestId('overdue-table')).toBeInTheDocument();
+            expect(screen.getByTestId('email-table')).toBeInTheDocument();
+        });
 
-        useAuthMock.mockRestore()
-    })
+        useAuthMock.mockRestore();
+    });
 
     it('fetches and displays transactions data', async () => {
         await act(async () => {
@@ -318,30 +319,30 @@ describe('Table Functionalities', () => {
                 <Router>
                     <Admin />
                 </Router>,
-            )
-        })
+            );
+        });
 
         for (const dish of mockDishesData) {
-            const correspondingTransaction = mockTransactionsData.find((transaction) => transaction.dish === dish.id)
+            const correspondingTransaction = mockTransactionsData.find((transaction) => transaction.dish === dish.id);
 
             // Verify the columns
-            const idElements = await screen.findAllByTestId(`row-${dish.qid}`)
-            const rowEmails = await screen.findAllByTestId(`row-${correspondingTransaction?.user.email}`)
-            const dishTypes = await screen.findAllByTestId(`row-${dish.type}`)
+            const idElements = await screen.findAllByTestId(`row-${dish.qid}`);
+            const rowEmails = await screen.findAllByTestId(`row-${correspondingTransaction?.user.email}`);
+            const dishTypes = await screen.findAllByTestId(`row-${dish.type}`);
 
             for (const idElement of idElements) {
-                expect(idElement.textContent).toBe(correspondingTransaction?.id)
+                expect(idElement.textContent).toBe(correspondingTransaction?.id);
             }
             for (const email of rowEmails) {
-                expect(email.textContent).toBe(correspondingTransaction?.user.email)
+                expect(email.textContent).toBe(correspondingTransaction?.user.email);
             }
             for (const dishType of dishTypes) {
-                expect(dishType.textContent).toBe(dish.type)
+                expect(dishType.textContent).toBe(dish.type);
             }
         }
 
-        useAuthMock.mockRestore()
-    })
+        useAuthMock.mockRestore();
+    });
 
     it('search functionality', async () => {
         await act(async () => {
@@ -349,21 +350,21 @@ describe('Table Functionalities', () => {
                 <Router>
                     <Admin />
                 </Router>,
-            )
-        })
+            );
+        });
 
         // Simulate typing into the search bar
-        const searchInput = screen.getByPlaceholderText('Type text here...')
-        fireEvent.change(searchInput, { target: { value: mockTransactionsData[0].id } })
+        const searchInput = screen.getByPlaceholderText('Type text here...');
+        fireEvent.change(searchInput, { target: { value: mockTransactionsData[0].id } });
 
         // Simulate click on the search button
-        const searchButton = screen.getByText('Search')
-        fireEvent.click(searchButton)
+        const searchButton = screen.getByText('Search');
+        fireEvent.click(searchButton);
 
         // Assert that the table contains the expected data
-        const expectedData = screen.getByText(mockTransactionsData[0].user.email)
-        expect(expectedData).toBeInTheDocument()
+        const expectedData = screen.getByText(mockTransactionsData[0].user.email);
+        expect(expectedData).toBeInTheDocument();
 
-        useAuthMock.mockRestore()
-    })
-})
+        useAuthMock.mockRestore();
+    });
+});

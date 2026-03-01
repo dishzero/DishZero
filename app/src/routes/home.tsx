@@ -1,37 +1,38 @@
-import { useState, useEffect } from 'react'
-import { Link as ReactRouterLink } from 'react-router-dom'
-import scan_icon from '../assets/scan.svg'
-import leaf_white from '../assets/leaf-white.svg'
-import leaf_green from '../assets/leaf-green.svg'
-import external_link from '../assets/external_link.svg'
-import DishCard from '../widgets/dishcard'
-import '../styles/index.css'
-import axios from 'axios'
-import { Box, AppBar, Typography, Link as LinkMUI } from '@mui/material'
-import { useAuth } from '../contexts/AuthContext'
-import { BallTriangle } from 'react-loader-spinner'
-import MobileBackground from '../assets/leaf-mobile-background.png'
+import { AppBar, Box, Link as LinkMUI, Typography } from '@mui/material';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { BallTriangle } from 'react-loader-spinner';
+import { Link as ReactRouterLink } from 'react-router-dom';
+
+import external_link from '../assets/external_link.svg';
+import leaf_green from '../assets/leaf-green.svg';
+import MobileBackground from '../assets/leaf-mobile-background.png';
+import leaf_white from '../assets/leaf-white.svg';
+import scan_icon from '../assets/scan.svg';
+import { useAuth } from '../contexts/AuthContext';
+import '../styles/index.css';
+import DishCard from '../widgets/dishcard';
 
 // Display DishCard for unreturned dishes
 const DishLog = ({ dishes }) => {
-    const { sessionToken } = useAuth()
+    const { sessionToken } = useAuth();
     if (!dishes) {
-        dishes = []
+        dishes = [];
     }
     return (
         <div id="dish-log" className="mt-3">
             {dishes.map((dish) => {
                 if (dish.returned.timestamp == '') {
-                    return <DishCard dish={dish} token={sessionToken} key={dish.id} />
+                    return <DishCard dish={dish} token={sessionToken} key={dish.id} />;
                 }
             })}
         </div>
-    )
-}
+    );
+};
 
 // Get user dishes status to be displayed in the homepage
 const GetDishes = (dishesUsed) => {
-    const checkedOutDishes = dishesUsed?.filter((dish) => dish.returned.timestamp == '').length
+    const checkedOutDishes = dishesUsed?.filter((dish) => dish.returned.timestamp == '').length;
     return (
         <div id="dishes" style={{ marginTop: '24px' }}>
             <div className="d-flex justify-content-between">
@@ -62,12 +63,12 @@ const GetDishes = (dishesUsed) => {
                 </div>
             )}
         </div>
-    )
-}
+    );
+};
 
 // Display homepage for new users
 const NewUser = (dishesUsed) => {
-    const content = GetDishes(dishesUsed)
+    const content = GetDishes(dishesUsed);
     return (
         <div style={{ padding: '24px' }}>
             <div className="sub-header-3">
@@ -143,13 +144,13 @@ const NewUser = (dishesUsed) => {
             </div>
             {content}
         </div>
-    )
-}
+    );
+};
 
 // Display homepage for existing users
 const ExistingUser = (dishesUsed) => {
-    const content = GetDishes(dishesUsed)
-    const returnedDishes = dishesUsed?.filter((dish) => dish.returned.timestamp != '').length
+    const content = GetDishes(dishesUsed);
+    const returnedDishes = dishesUsed?.filter((dish) => dish.returned.timestamp != '').length;
     return (
         <div style={{ padding: '24px' }}>
             <div id="impact" className="sub-header-3">
@@ -194,8 +195,8 @@ const ExistingUser = (dishesUsed) => {
             </div>
             {content}
         </div>
-    )
-}
+    );
+};
 
 const Header = () => {
     return (
@@ -213,8 +214,8 @@ const Header = () => {
                 </AppBar>
             </Box>
         </div>
-    )
-}
+    );
+};
 
 const Footer = () => {
     return (
@@ -223,22 +224,22 @@ const Footer = () => {
                 <img src={scan_icon} alt="scan icon" />
             </ReactRouterLink>
         </div>
-    )
-}
+    );
+};
 
 export default () => {
     //Show spinner as soon as page is refreshed
-    const [isLoading, setIsLoading] = useState(true)
-    const { currentUser, sessionToken } = useAuth()
-    const [dishesUsed, setDishesUsed] = useState([])
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768) //eslint-disable-line @typescript-eslint/no-unused-vars
-    let content
+    const [isLoading, setIsLoading] = useState(true);
+    const { currentUser, sessionToken } = useAuth();
+    const [dishesUsed, setDishesUsed] = useState([]);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768); //eslint-disable-line @typescript-eslint/no-unused-vars
+    let content;
     // Fetch dishes transaction for the user
     useEffect(() => {
-        const redirectURL = sessionStorage.getItem('previousURL')
+        const redirectURL = sessionStorage.getItem('previousURL');
         if (redirectURL) {
             // Redirect to the borrow page
-            window.location.href = redirectURL
+            window.location.href = redirectURL;
         } else {
             axios
                 .get(`/api/transactions`, {
@@ -246,26 +247,26 @@ export default () => {
                     baseURL: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
                 })
                 .then(function (response) {
-                    setDishesUsed(response.data.transactions)
-                    setIsLoading(false)
+                    setDishesUsed(response.data.transactions);
+                    setIsLoading(false);
                 })
                 .catch(function (error) {
-                    console.log(error)
-                })
+                    console.log(error);
+                });
         }
 
         // Clear the temporary storage
-        sessionStorage.removeItem('previousURL')
-    }, [])
+        sessionStorage.removeItem('previousURL');
+    }, []);
 
-    const user = currentUser
+    const user = currentUser;
 
     if (user) {
         // User is defined
         if (Number(dishesUsed) === 0) {
-            content = NewUser(dishesUsed)
+            content = NewUser(dishesUsed);
         } else {
-            content = ExistingUser(dishesUsed)
+            content = ExistingUser(dishesUsed);
         }
     }
     if (isLoading) {
@@ -281,7 +282,7 @@ export default () => {
                     visible={true}
                 />
             </Box>
-        )
+        );
     }
     return (
         <div>
@@ -289,8 +290,8 @@ export default () => {
             {content}
             <Footer />
         </div>
-    )
-}
+    );
+};
 
 const styles = {
     rootDesktop: {
@@ -310,4 +311,4 @@ const styles = {
         backgroundImage: `url(${MobileBackground})`,
         backgroundSize: 'cover',
     },
-}
+};

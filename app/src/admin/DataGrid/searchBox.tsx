@@ -1,17 +1,17 @@
-import { Clear, Search } from '@mui/icons-material'
-import { Box, IconButton, InputAdornment, TextField } from '@mui/material'
-import { useCallback } from 'react'
+import { Clear, Search } from '@mui/icons-material';
+import { Box, IconButton, InputAdornment, TextField } from '@mui/material';
+import { useCallback } from 'react';
 
 interface Props {
-    searchQuery: string // the value of the search box
-    handleSearch: (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => void // the function to handle search
+    searchQuery: string; // the value of the search box
+    handleSearch: (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => void; // the function to handle search
 }
 
 export default function StyledSearchBox({ searchQuery, handleSearch }: Props) {
     // clear the search box
     const handleClearSearch = useCallback(() => {
-        handleSearch({ target: { value: '' } } as React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>)
-    }, [handleSearch])
+        handleSearch({ target: { value: '' } } as React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>);
+    }, [handleSearch]);
 
     return (
         <Box display="flex">
@@ -46,5 +46,5 @@ export default function StyledSearchBox({ searchQuery, handleSearch }: Props) {
                 }}
             />
         </Box>
-    )
+    );
 }

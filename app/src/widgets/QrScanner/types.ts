@@ -1,46 +1,46 @@
-import { BrowserQRCodeReader } from '@zxing/browser'
-import { Result } from '@zxing/library'
+import { BrowserQRCodeReader } from '@zxing/browser';
+import { Result } from '@zxing/library';
 
 export type QrReaderProps = {
     /**
      * Media track constraints object, to specify which camera and capabilities to use
      */
-    constraints?: MediaTrackConstraints
+    constraints?: MediaTrackConstraints;
     /**
      * Called when an error occurs.
      */
-    onResult: OnResultFunction
+    onResult: OnResultFunction;
     /**
      * Property that represents the view finder component
      */
-    ViewFinder?: (props: any) => React.ReactElement<any, any> | null
+    ViewFinder?: (props: any) => React.ReactElement<any, any> | null;
     /**
      * Property that represents the scan period
      */
-    scanDelay?: number
+    scanDelay?: number;
     /**
      * Property that represents the ID of the video element
      */
-    videoId?: string
+    videoId?: string;
     /**
      * Property that represents an optional className to modify styles
      */
-    className?: string
+    className?: string;
     /**
      * Property that represents a style for the container
      */
-    containerStyle?: any
+    containerStyle?: any;
     /**
      * Property that represents a style for the video container
      */
-    videoContainerStyle?: any
+    videoContainerStyle?: any;
     /**
      * Property that represents a style for the video
      */
-    videoStyle?: any
-    onError?: any
-    deviceIndex: number
-}
+    videoStyle?: any;
+    onError?: any;
+    deviceIndex: number;
+};
 
 export type OnResultFunction = (
     /**
@@ -55,29 +55,29 @@ export type OnResultFunction = (
      * The instance of the QR browser reader
      */
     codeReader?: BrowserQRCodeReader,
-) => void
+) => void;
 
-export type OnErrorFunction = (error?: Error | undefined | null) => void
+export type OnErrorFunction = (error?: Error | undefined | null) => void;
 
 export type UseQrReaderHookProps = {
     /**
      * Media constraints object, to specify which camera and capabilities to use
      */
-    constraints?: MediaTrackConstraints
+    constraints?: MediaTrackConstraints;
     /**
      * Callback for retrieving the result
      */
-    onResult: OnResultFunction
-    onError: OnErrorFunction
+    onResult: OnResultFunction;
+    onError: OnErrorFunction;
     /**
      * Property that represents the scan period
      */
-    scanDelay?: number
+    scanDelay?: number;
     /**
      * Property that represents the ID of the video element
      */
-    videoId?: string
-    deviceIndex: number
-}
+    videoId?: string;
+    deviceIndex: number;
+};
 
-export type UseQrReaderHook = (props: UseQrReaderHookProps) => void
+export type UseQrReaderHook = (props: UseQrReaderHookProps) => void;

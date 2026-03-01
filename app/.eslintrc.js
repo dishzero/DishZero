@@ -11,4 +11,4 @@ module.exports = {
         '@typescript-eslint/no-explicit-any': 'warn',
         'prettier/prettier': 'warn',
     },
-}
+};

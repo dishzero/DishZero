@@ -1,43 +1,43 @@
-import { useEffect, useState } from 'react'
-import { slide as Menu } from 'react-burger-menu'
-import '../styles/sidebar.css'
-import { Link } from '@mui/material'
-import React from 'react'
-import how_it_works_icon from '../assets/how_it_works.png'
-import logout_icon from '../assets/logout.svg'
-import our_impact_icon from '../assets/our_impact.png'
-import home_icon from '../assets/home.png'
-import admin_panel_icon from '../assets/admin_panel_settings.png'
-import task_icon from '../assets/task_icon.png'
-import logo from '../assets/logo.svg'
-import { useAuth } from '../contexts/AuthContext'
-import { Link as ReactRouterLink } from 'react-router-dom'
+import { Link } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { slide as Menu } from 'react-burger-menu';
+import { Link as ReactRouterLink } from 'react-router-dom';
+
+import admin_panel_icon from '../assets/admin_panel_settings.png';
+import home_icon from '../assets/home.png';
+import how_it_works_icon from '../assets/how_it_works.png';
+import logo from '../assets/logo.svg';
+import logout_icon from '../assets/logout.svg';
+import our_impact_icon from '../assets/our_impact.png';
+import task_icon from '../assets/task_icon.png';
+import { useAuth } from '../contexts/AuthContext';
+import '../styles/sidebar.css';
 
 export const Sidebar = () => {
-    const { currentUser, logout } = useAuth()
-    const [admin, setAdmin] = useState(false)
-    const [volunteer, setVolunteer] = useState(false)
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+    const { currentUser, logout } = useAuth();
+    const [admin, setAdmin] = useState(false);
+    const [volunteer, setVolunteer] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const closeSidebar = () => {
-        setIsSidebarOpen(false)
-    }
+        setIsSidebarOpen(false);
+    };
 
     // Sync state with the opening/closing of the sidebar
     const handleSidebarStateChange = (state) => {
-        setIsSidebarOpen(state.isOpen)
-    }
+        setIsSidebarOpen(state.isOpen);
+    };
 
     //When we load the page or refresh, check the role of the user and setadmin or volunteer accordingly
     useEffect(() => {
         if (currentUser?.role === 'admin') {
-            setAdmin(true)
-            setVolunteer(true)
+            setAdmin(true);
+            setVolunteer(true);
         } else if (currentUser?.role === 'volunteer') {
-            setAdmin(false)
-            setVolunteer(true)
+            setAdmin(false);
+            setVolunteer(true);
         }
-    }, [currentUser])
+    }, [currentUser]);
 
     return (
         <Menu isOpen={isSidebarOpen} onStateChange={handleSidebarStateChange}>
@@ -89,5 +89,5 @@ export const Sidebar = () => {
             </ReactRouterLink>
             <br></br>
         </Menu>
-    )
-}
+    );
+};

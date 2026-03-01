@@ -1,15 +1,16 @@
-import { useEffect, useState } from 'react'
-import { Alert, Avatar, Box, Button, Fade, TextField, Typography } from '@mui/material'
-import { useAuth } from '../../contexts/AuthContext'
-import axios from 'axios'
-import { headers } from '../adminApi'
+import { Alert, Avatar, Box, Button, Fade, TextField, Typography } from '@mui/material';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+
+import { useAuth } from '../../contexts/AuthContext';
+import { headers } from '../adminApi';
 
 function Email() {
-    const { sessionToken } = useAuth()
-    const [sender, setSender] = useState<string>('')
-    const [subject, setSubject] = useState<string>('')
-    const [content, setContent] = useState<string>('')
-    const [exprTime, setExprTime] = useState<string>('')
+    const { sessionToken } = useAuth();
+    const [sender, setSender] = useState<string>('');
+    const [subject, setSubject] = useState<string>('');
+    const [content, setContent] = useState<string>('');
+    const [exprTime, setExprTime] = useState<string>('');
     const [days, setDays] = useState({
         monday: false,
         tuesday: false,
@@ -18,36 +19,36 @@ function Email() {
         friday: false,
         saturday: false,
         sunday: false,
-    })
-    const [successOpen, setSuccessOpen] = useState(false)
-    const [errorOpen, setErrorOpen] = useState(false)
+    });
+    const [successOpen, setSuccessOpen] = useState(false);
+    const [errorOpen, setErrorOpen] = useState(false);
 
     useEffect(() => {
         // get data from backend and set state
-        getInfo()
-    }, [])
+        getInfo();
+    }, []);
 
     async function getInfo() {
         try {
             const response = await axios.get(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/cron/email/`, {
                 headers: headers(sessionToken),
-            })
+            });
 
             if (!(response && response.status === 200)) {
-                alert('Unable to get saved template! Make sure you enter all fields before saving.')
-                return
+                alert('Unable to get saved template! Make sure you enter all fields before saving.');
+                return;
             } else {
-                const data = response.data
-                setSender(data.cron.senderEmail)
-                setContent(data.cron.body)
-                setSubject(data.cron.subject)
-                const exprArr = (data.cron.expression as string).split(' ')
-                let hours = exprArr[2]
-                if (hours.length == 1) hours = '0' + hours
-                let minutes = exprArr[1]
-                if (minutes.length == 1) minutes = '0' + minutes
-                setExprTime(`${hours}:${minutes}`)
-                const daysExpr = exprArr[exprArr.length - 1] as string
+                const data = response.data;
+                setSender(data.cron.senderEmail);
+                setContent(data.cron.body);
+                setSubject(data.cron.subject);
+                const exprArr = (data.cron.expression as string).split(' ');
+                let hours = exprArr[2];
+                if (hours.length == 1) hours = '0' + hours;
+                let minutes = exprArr[1];
+                if (minutes.length == 1) minutes = '0' + minutes;
+                setExprTime(`${hours}:${minutes}`);
+                const daysExpr = exprArr[exprArr.length - 1] as string;
                 const exprMap = {
                     MON: 'monday',
                     TUE: 'tuesday',
@@ -56,7 +57,7 @@ function Email() {
                     FRI: 'friday',
                     SAT: 'saturday',
                     SUN: 'sunday',
-                }
+                };
                 const days = {
                     monday: false,
                     tuesday: false,
@@ -65,15 +66,15 @@ function Email() {
                     friday: false,
                     saturday: false,
                     sunday: false,
-                }
+                };
                 for (const day of daysExpr.split(',')) {
-                    days[exprMap[day]] = true
+                    days[exprMap[day]] = true;
                 }
-                setDays(days)
+                setDays(days);
             }
         } catch (error: unknown) {
-            alert('Unable to get saved template! Make sure you enter all fields before saving.')
-            return
+            alert('Unable to get saved template! Make sure you enter all fields before saving.');
+            return;
         }
     }
 
@@ -81,7 +82,7 @@ function Email() {
         setDays((prev) => ({
             ...prev,
             [day]: !prev[day],
-        }))
+        }));
     }
 
     function DayCheckBox(day) {
@@ -97,7 +98,7 @@ function Email() {
                 onClick={() => handleDayChange(day)}>
                 {day[0].toUpperCase()}
             </Avatar>
-        )
+        );
     }
 
     function SuccessAlert() {
@@ -115,7 +116,7 @@ function Email() {
                     <Alert sx={{ width: '50%' }}>Changes saved.</Alert>
                 </Box>
             </Fade>
-        )
+        );
     }
 
     function ErrorAlert() {
@@ -135,7 +136,7 @@ function Email() {
                     </Alert>
                 </Box>
             </Fade>
-        )
+        );
     }
 
     async function startCronJob() {
@@ -146,24 +147,24 @@ function Email() {
                 {
                     headers: headers(sessionToken),
                 },
-            )
+            );
 
             if (response && response.status === 200) {
-                setSuccessOpen(true)
+                setSuccessOpen(true);
                 setTimeout(() => {
-                    setSuccessOpen(false)
-                }, 2000)
+                    setSuccessOpen(false);
+                }, 2000);
             } else {
-                setErrorOpen(true)
+                setErrorOpen(true);
                 setTimeout(() => {
-                    setErrorOpen(false)
-                }, 2000)
+                    setErrorOpen(false);
+                }, 2000);
             }
         } catch (error: unknown) {
-            setErrorOpen(true)
+            setErrorOpen(true);
             setTimeout(() => {
-                setErrorOpen(false)
-            }, 2000)
+                setErrorOpen(false);
+            }, 2000);
         }
     }
 
@@ -175,24 +176,24 @@ function Email() {
                 {
                     headers: headers(sessionToken),
                 },
-            )
+            );
 
             if (response && response.status === 200) {
-                setSuccessOpen(true)
+                setSuccessOpen(true);
                 setTimeout(() => {
-                    setSuccessOpen(false)
-                }, 2000)
+                    setSuccessOpen(false);
+                }, 2000);
             } else {
-                setErrorOpen(true)
+                setErrorOpen(true);
                 setTimeout(() => {
-                    setErrorOpen(false)
-                }, 2000)
+                    setErrorOpen(false);
+                }, 2000);
             }
         } catch (error: unknown) {
-            setErrorOpen(true)
+            setErrorOpen(true);
             setTimeout(() => {
-                setErrorOpen(false)
-            }, 2000)
+                setErrorOpen(false);
+            }, 2000);
         }
     }
     async function saveTemplate() {
@@ -209,21 +210,21 @@ function Email() {
                 {
                     headers: headers(sessionToken),
                 },
-            )
+            );
 
             if (!(response && response.status === 200)) {
-                setErrorOpen(true)
+                setErrorOpen(true);
                 setTimeout(() => {
-                    setErrorOpen(false)
-                }, 2000)
-                return
+                    setErrorOpen(false);
+                }, 2000);
+                return;
             }
         } catch (error: unknown) {
-            setErrorOpen(true)
+            setErrorOpen(true);
             setTimeout(() => {
-                setErrorOpen(false)
-            }, 2000)
-            return
+                setErrorOpen(false);
+            }, 2000);
+            return;
         }
 
         try {
@@ -236,31 +237,31 @@ function Email() {
                 {
                     headers: headers(sessionToken),
                 },
-            )
+            );
 
             if (response && response.status === 200) {
-                setSuccessOpen(true)
+                setSuccessOpen(true);
                 setTimeout(() => {
-                    setSuccessOpen(false)
-                }, 2000)
+                    setSuccessOpen(false);
+                }, 2000);
             } else {
-                setErrorOpen(true)
+                setErrorOpen(true);
                 setTimeout(() => {
-                    setErrorOpen(false)
-                }, 2000)
+                    setErrorOpen(false);
+                }, 2000);
             }
         } catch (error: unknown) {
-            setErrorOpen(true)
+            setErrorOpen(true);
             setTimeout(() => {
-                setErrorOpen(false)
-            }, 2000)
+                setErrorOpen(false);
+            }, 2000);
         }
     }
 
     function resetInputValues() {
-        setSender('')
-        setSubject('')
-        setContent('')
+        setSender('');
+        setSubject('');
+        setContent('');
         setDays({
             monday: false,
             tuesday: false,
@@ -269,7 +270,7 @@ function Email() {
             friday: false,
             saturday: false,
             sunday: false,
-        })
+        });
     }
 
     return (
@@ -319,7 +320,7 @@ function Email() {
                         value={sender}
                         placeholder="Type subject here..."
                         onChange={(e) => {
-                            setSender(e.target.value)
+                            setSender(e.target.value);
                         }}
                         size="small"
                         sx={{
@@ -352,7 +353,7 @@ function Email() {
                         value={subject}
                         placeholder="Type subject here..."
                         onChange={(e) => {
-                            setSubject(e.target.value)
+                            setSubject(e.target.value);
                         }}
                         size="small"
                         sx={{
@@ -385,7 +386,7 @@ function Email() {
                         value={content}
                         placeholder="Type subject here..."
                         onChange={(e) => {
-                            setContent(e.target.value)
+                            setContent(e.target.value);
                         }}
                         sx={{
                             marginLeft: '120px',
@@ -422,8 +423,8 @@ function Email() {
                             id="time-input"
                             value={exprTime}
                             onChange={(e) => {
-                                e.preventDefault()
-                                setExprTime(e.target.value)
+                                e.preventDefault();
+                                setExprTime(e.target.value);
                             }}
                         />
                     </Box>
@@ -536,7 +537,7 @@ function Email() {
                 </Box>
             </Box>
         </>
-    )
+    );
 }
 
-export default Email
+export default Email;

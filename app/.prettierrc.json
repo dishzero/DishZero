@@ -1,9 +1,12 @@
 {
     "tabWidth": 4,
-    "semi": false,
+    "semi": true,
     "singleQuote": true,
     "bracketSameLine": true,
     "printWidth": 120,
     "proseWrap": "always",
-    "arrowParens": "always"
+    "arrowParens": "always",
+    "plugins": ["@ianvs/prettier-plugin-sort-imports"],
+    "importOrderSafeSideEffects": ["\\.css$"],
+    "importOrder": ["<THIRD_PARTY_MODULES>", "", "^@/", "", "^[./]"]
 }

@@ -1,28 +1,29 @@
-import { Add } from '@mui/icons-material'
-import { Box, Typography } from '@mui/material'
-import { useState } from 'react'
-import AddNewDishDialog from './addNewDish'
-import { Dish, StyledContainedButton } from './constants'
-import { searchGrid } from '../DataGrid/constants'
-import StyledSearchBox from '../DataGrid/searchBox'
+import { Add } from '@mui/icons-material';
+import { Box, Typography } from '@mui/material';
+import { useState } from 'react';
+
+import { searchGrid } from '../DataGrid/constants';
+import StyledSearchBox from '../DataGrid/searchBox';
+import AddNewDishDialog from './addNewDish';
+import { Dish, StyledContainedButton } from './constants';
 
 interface Props {
-    allRows: Dish[]
-    setFilteredRows: React.Dispatch<React.SetStateAction<Dish[]>>
-    fetchDishes: () => void
-    dishTypes: string[]
-    fetchDishTypes: () => void
+    allRows: Dish[];
+    setFilteredRows: React.Dispatch<React.SetStateAction<Dish[]>>;
+    fetchDishes: () => void;
+    dishTypes: string[];
+    fetchDishTypes: () => void;
 }
 
 export default function AdminDishesHeader({ allRows, setFilteredRows, fetchDishes, dishTypes, fetchDishTypes }: Props) {
-    const [open, setOpen] = useState(false)
-    const [searchQuery, setSearchQuery] = useState('')
+    const [open, setOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const handleSearch = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-        const newSearchQuery = e.target.value
-        searchGrid(newSearchQuery, allRows, setFilteredRows)
-        setSearchQuery(newSearchQuery)
-    }
+        const newSearchQuery = e.target.value;
+        searchGrid(newSearchQuery, allRows, setFilteredRows);
+        setSearchQuery(newSearchQuery);
+    };
 
     return (
         <Box sx={{ maxWidth: 1300 }}>
@@ -45,5 +46,5 @@ export default function AdminDishesHeader({ allRows, setFilteredRows, fetchDishe
                 fetchDishes={fetchDishes}
             />
         </Box>
-    )
+    );
 }

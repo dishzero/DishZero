@@ -1,9 +1,10 @@
-import { app } from '@/app'
-import nodeConfig from 'config'
-import logger from '@/logger'
+import nodeConfig from 'config';
 
-const port = nodeConfig.get('server.port') || 8080
+import { app } from '@/app';
+import logger from '@/logger';
+
+const port = nodeConfig.get('server.port') || 8080;
 
 app.listen(port, () => {
-    logger.info(`Server is listening on port ${port}`)
-})
+    logger.info(`Server is listening on port ${port}`);
+});

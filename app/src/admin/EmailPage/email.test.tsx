@@ -1,12 +1,12 @@
-import { waitFor } from '@testing-library/react'
-import fetchMock from 'fetch-mock'
+import { waitFor } from '@testing-library/react';
+import fetchMock from 'fetch-mock';
 
-const apiAddress = process.env.REACT_APP_BACKEND_ADDRESS
+const apiAddress = process.env.REACT_APP_BACKEND_ADDRESS;
 
 describe('Admin Email Page', () => {
     it('should be true', () => {
-        expect(true).toBe(true)
-    })
+        expect(true).toBe(true);
+    });
 
     describe('initial render', () => {
         it('should initially have the template from the backend', () => {
@@ -24,11 +24,11 @@ describe('Admin Email Page', () => {
                         enabled: true,
                     },
                 },
-            })
+            });
 
             waitFor(() => {
-                expect(fetchMock.called()).toBe(true)
-            })
-        })
-    })
-})
+                expect(fetchMock.called()).toBe(true);
+            });
+        });
+    });
+});

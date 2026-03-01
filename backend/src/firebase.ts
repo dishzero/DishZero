@@ -1,19 +1,20 @@
-import { initializeApp, cert } from 'firebase-admin/app'
-import { getFirestore, Timestamp, FieldValue, Filter } from 'firebase-admin/firestore'
-import * as admin from 'firebase-admin'
-import { Request } from 'express'
-import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
-const serviceAccount = require('../credentials.json')
+import { Request } from 'express';
+import * as admin from 'firebase-admin';
+import { cert, initializeApp } from 'firebase-admin/app';
+import { FieldValue, Filter, getFirestore, Timestamp } from 'firebase-admin/firestore';
+import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier';
+
+const serviceAccount = require('../credentials.json');
 
 initializeApp({
     credential: cert(serviceAccount),
-})
+});
 
-const db = getFirestore()
-const auth = admin.auth()
+const db = getFirestore();
+const auth = admin.auth();
 
 interface FirebaseRequest extends Request {
-    firebase: DecodedIdToken
+    firebase: DecodedIdToken;
 }
 
-export { db, Timestamp, FieldValue, Filter, auth, FirebaseRequest }
+export { db, Timestamp, FieldValue, Filter, auth, FirebaseRequest };

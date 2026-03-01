@@ -1,3 +1,4 @@
+import { AddCircleOutline, Close, HelpOutline } from '@mui/icons-material';
 import {
     Box,
     DialogContent,
@@ -10,117 +11,117 @@ import {
     TextField,
     Tooltip,
     Typography,
-} from '@mui/material'
-import { useEffect, useState } from 'react'
-import { StyledContainedButton, StyledOutlinedButton } from './constants'
-import { AddCircleOutline, Close, HelpOutline } from '@mui/icons-material'
-import adminApi from '../adminApi'
-import { useAuth } from '../../contexts/AuthContext'
-import CustomDialogTitle from './customDialogTitle'
-import AddNewDishTypeDialog from './addNewDishType'
-import { closeSnackbar, useSnackbar } from 'notistack'
-import UploadCSVDialog from './uploadCSVDialog'
-import { capitalizeFirstLetter } from '../AdminHome/constants'
+} from '@mui/material';
+import { closeSnackbar, useSnackbar } from 'notistack';
+import { useEffect, useState } from 'react';
+
+import { useAuth } from '../../contexts/AuthContext';
+import adminApi from '../adminApi';
+import { capitalizeFirstLetter } from '../AdminHome/constants';
+import AddNewDishTypeDialog from './addNewDishType';
+import { StyledContainedButton, StyledOutlinedButton } from './constants';
+import CustomDialogTitle from './customDialogTitle';
+import UploadCSVDialog from './uploadCSVDialog';
 
 interface Props {
-    open: boolean
-    setOpen: (open: boolean) => void
-    dishTypes: string[]
-    fetchDishTypes: () => void // function to reload the dish types from the backend
-    fetchDishes: () => void // function to reload the dishes from the backend
+    open: boolean;
+    setOpen: (open: boolean) => void;
+    dishTypes: string[];
+    fetchDishTypes: () => void; // function to reload the dish types from the backend
+    fetchDishes: () => void; // function to reload the dishes from the backend
 }
 
 export const usePreventReload = (loading: boolean) => {
     useEffect(() => {
         const handleBeforeUnload = (event) => {
             if (loading) {
-                event.preventDefault()
-                event.returnValue = ''
+                event.preventDefault();
+                event.returnValue = '';
             }
-        }
+        };
 
-        window.addEventListener('beforeunload', handleBeforeUnload)
+        window.addEventListener('beforeunload', handleBeforeUnload);
 
         return () => {
-            window.removeEventListener('beforeunload', handleBeforeUnload)
-        }
-    }, [loading])
-}
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, [loading]);
+};
 
 export default function AddNewDishDialog({ open, setOpen, dishTypes, fetchDishTypes, fetchDishes }: Props) {
-    const { sessionToken } = useAuth()
-    const { enqueueSnackbar } = useSnackbar()
+    const { sessionToken } = useAuth();
+    const { enqueueSnackbar } = useSnackbar();
 
-    const [addDishTypeDialogOpen, setAddDishTypeDialogOpen] = useState<boolean>(false)
-    const [uploadCSVDialogOpen, setUploadCSVDialogOpen] = useState<boolean>(false)
+    const [addDishTypeDialogOpen, setAddDishTypeDialogOpen] = useState<boolean>(false);
+    const [uploadCSVDialogOpen, setUploadCSVDialogOpen] = useState<boolean>(false);
 
-    const [error, setError] = useState<boolean>(false) // dish type or id is not entered
-    const [loading, setLoading] = useState<boolean>(false)
+    const [error, setError] = useState<boolean>(false); // dish type or id is not entered
+    const [loading, setLoading] = useState<boolean>(false);
 
-    const [dishTypeValue, setDishTypeValue] = useState<string>('') // dish type value selected by user
-    const [dishIdValue, setDishIdValue] = useState<string>('') // dish id value entered by user
+    const [dishTypeValue, setDishTypeValue] = useState<string>(''); // dish type value selected by user
+    const [dishIdValue, setDishIdValue] = useState<string>(''); // dish id value entered by user
 
     const resetState = () => {
-        setError(false)
-        setDishTypeValue('')
-        setDishIdValue('')
-    }
+        setError(false);
+        setDishTypeValue('');
+        setDishIdValue('');
+    };
 
     // prevent page reload when loading
-    usePreventReload(loading)
+    usePreventReload(loading);
 
     // if fields are filled out -> no longer show error
     useEffect(() => {
-        if (dishTypeValue && dishIdValue && error) setError(false)
-    }, [dishTypeValue, dishIdValue])
+        if (dishTypeValue && dishIdValue && error) setError(false);
+    }, [dishTypeValue, dishIdValue]);
 
     const addDish = async () => {
         if (!dishTypeValue || !dishIdValue) {
-            setError(true)
-            return
+            setError(true);
+            return;
         }
 
         // parse the dish ids
         let dishIdLower = -1,
-            dishIdUpper = -1
+            dishIdUpper = -1;
         try {
             if (dishIdValue.includes('-')) {
-                const splitDishIdString = dishIdValue.split('-')
-                dishIdLower = parseInt(splitDishIdString[0].trim())
-                dishIdUpper = parseInt(splitDishIdString[1].trim())
+                const splitDishIdString = dishIdValue.split('-');
+                dishIdLower = parseInt(splitDishIdString[0].trim());
+                dishIdUpper = parseInt(splitDishIdString[1].trim());
             } else {
-                dishIdLower = dishIdUpper = parseInt(dishIdValue.trim())
+                dishIdLower = dishIdUpper = parseInt(dishIdValue.trim());
             }
         } catch (error: unknown) {
             if (error instanceof Error) {
                 // eslint-disable-next-line no-console
-                console.error(`Failed to add dishes: ${error.message}`)
+                console.error(`Failed to add dishes: ${error.message}`);
             } else {
                 // eslint-disable-next-line no-console
-                console.error(`An unexpected error occurred: ${JSON.stringify(error)}`)
+                console.error(`An unexpected error occurred: ${JSON.stringify(error)}`);
             }
         }
 
         if (sessionToken) {
-            setLoading(true)
+            setLoading(true);
             // eslint-disable-next-line no-console
-            console.log('Adding dishes...', dishTypeValue, dishIdLower, dishIdUpper)
-            const response = await adminApi.addDishes(sessionToken, dishTypeValue, dishIdLower, dishIdUpper)
+            console.log('Adding dishes...', dishTypeValue, dishIdLower, dishIdUpper);
+            const response = await adminApi.addDishes(sessionToken, dishTypeValue, dishIdLower, dishIdUpper);
 
             // eslint-disable-next-line no-console
-            console.log('Response:', response)
+            console.log('Response:', response);
 
             if (response && response.status != 200) {
-                enqueueSnackbar('Failed to add dish(es): ' + response.message, { variant: 'error' })
+                enqueueSnackbar('Failed to add dish(es): ' + response.message, { variant: 'error' });
             } else {
-                setOpen(false)
-                fetchDishes()
-                resetState()
-                const dishesAdded = dishIdUpper - dishIdLower + 1
+                setOpen(false);
+                fetchDishes();
+                resetState();
+                const dishesAdded = dishIdUpper - dishIdLower + 1;
                 const existingDishes = Array.isArray(response.data.response.existingDishes)
                     ? response.data.response.existingDishes.length
-                    : 0
-                const addedNewDishes = dishesAdded - existingDishes
+                    : 0;
+                const addedNewDishes = dishesAdded - existingDishes;
                 enqueueSnackbar(
                     `${addedNewDishes ? 'Successfully added dish(es).' : 'No dishes added.'} ${
                         existingDishes > 0
@@ -140,11 +141,11 @@ export default function AddNewDishDialog({ open, setOpen, dishTypes, fetchDishTy
                             </IconButton>
                         ),
                     },
-                )
+                );
             }
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
     return (
         <>
@@ -165,7 +166,7 @@ export default function AddNewDishDialog({ open, setOpen, dishTypes, fetchDishTy
                         name="dish-types-radio-group"
                         sx={{ mb: '1rem' }}
                         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                            setDishTypeValue(event.target.value)
+                            setDishTypeValue(event.target.value);
                         }}>
                         {dishTypes.map((type) => (
                             <FormControlLabel
@@ -180,7 +181,7 @@ export default function AddNewDishDialog({ open, setOpen, dishTypes, fetchDishTy
                             <IconButton
                                 disabled={loading}
                                 onClick={() => {
-                                    setAddDishTypeDialogOpen(true)
+                                    setAddDishTypeDialogOpen(true);
                                 }}
                                 sx={{ color: 'secondary.main', alignSelf: 'center', cursor: 'pointer' }}>
                                 <AddCircleOutline />
@@ -196,14 +197,14 @@ export default function AddNewDishDialog({ open, setOpen, dishTypes, fetchDishTy
                                 sx={{ width: '100%', mb: '0.25rem', mt: '0.25rem' }}
                                 placeholder="Enter dish ids..."
                                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                    const newValue = event.target.value
+                                    const newValue = event.target.value;
 
                                     // only accept a number or a range of numbers
                                     if (newValue === '' || !/^(\d+(-\d+)?)$/.test(newValue)) {
-                                        setError(true)
+                                        setError(true);
                                     } else {
-                                        setError(false)
-                                        setDishIdValue(newValue)
+                                        setError(false);
+                                        setDishIdValue(newValue);
                                     }
                                 }}
                                 disabled={loading}
@@ -256,5 +257,5 @@ export default function AddNewDishDialog({ open, setOpen, dishTypes, fetchDishTy
             />
             <UploadCSVDialog open={uploadCSVDialogOpen} setOpen={setUploadCSVDialogOpen} fetchDishes={fetchDishes} />
         </>
-    )
+    );
 }

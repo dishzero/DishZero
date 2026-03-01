@@ -1,82 +1,83 @@
-import { useState } from 'react'
-import { Dish, StyledContainedButton, StyledOutlinedButton, generateColumns } from './constants'
-import { useAuth } from '../../contexts/AuthContext'
-import adminApi from '../adminApi'
-import CustomToolbar from '../DataGrid/customToolbar'
-import { StyledDataGrid } from '../DataGrid/constants'
-import NoResultsOverlay from '../DataGrid/noResultsOverlay'
-import { Box, Button, Dialog, DialogContent, Typography } from '@mui/material'
-import { GridOverlay, GridRowId, GridRowModel } from '@mui/x-data-grid'
-import { useSnackbar } from 'notistack'
-import CustomDialogTitle from './customDialogTitle'
-import { BallTriangle } from 'react-loader-spinner'
+import { Box, Button, Dialog, DialogContent, Typography } from '@mui/material';
+import { GridOverlay, GridRowId, GridRowModel } from '@mui/x-data-grid';
+import { useSnackbar } from 'notistack';
+import { useState } from 'react';
+import { BallTriangle } from 'react-loader-spinner';
+
+import { useAuth } from '../../contexts/AuthContext';
+import adminApi from '../adminApi';
+import { StyledDataGrid } from '../DataGrid/constants';
+import CustomToolbar from '../DataGrid/customToolbar';
+import NoResultsOverlay from '../DataGrid/noResultsOverlay';
+import { Dish, generateColumns, StyledContainedButton, StyledOutlinedButton } from './constants';
+import CustomDialogTitle from './customDialogTitle';
 
 interface Props {
-    filteredRows: Dish[]
-    dishTypes: string[]
-    dishVendors: Record<string, string[]>
-    loadingDishes: boolean
-    fetchDishes: () => void
+    filteredRows: Dish[];
+    dishTypes: string[];
+    dishVendors: Record<string, string[]>;
+    loadingDishes: boolean;
+    fetchDishes: () => void;
 }
 
 export default function AdminDishesTable({ filteredRows, dishTypes, dishVendors, loadingDishes, fetchDishes }: Props) {
-    const { sessionToken } = useAuth()
-    const [selectedRows, setSelectedRows] = useState<GridRowId[]>([])
-    const [open, setOpen] = useState(false)
-    const [deleting, setDeleting] = useState(false)
+    const { sessionToken } = useAuth();
+    const [selectedRows, setSelectedRows] = useState<GridRowId[]>([]);
+    const [open, setOpen] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
-    const { enqueueSnackbar } = useSnackbar()
+    const { enqueueSnackbar } = useSnackbar();
 
     const handleDishDelete = async function () {
         if (sessionToken) {
-            setDeleting(true)
-            const response = await adminApi.deleteDishes(sessionToken, selectedRows)
+            setDeleting(true);
+            const response = await adminApi.deleteDishes(sessionToken, selectedRows);
 
             if (response && response.status != 200) {
-                enqueueSnackbar(`Failed to delete dishes: ${response.status}`, { variant: 'error' })
+                enqueueSnackbar(`Failed to delete dishes: ${response.status}`, { variant: 'error' });
             } else {
-                setOpen(false)
-                setSelectedRows([])
-                enqueueSnackbar('Successfully deleted dishes', { variant: 'success' })
-                fetchDishes()
+                setOpen(false);
+                setSelectedRows([]);
+                enqueueSnackbar('Successfully deleted dishes', { variant: 'success' });
+                fetchDishes();
             }
-            setDeleting(false)
+            setDeleting(false);
         }
-    }
+    };
 
     const modifyDish = async (id: string, field: string, oldValue: string, newValue: string) => {
         if (sessionToken) {
-            return await adminApi.modifyDishAttribute(sessionToken, id, field, oldValue, newValue)
+            return await adminApi.modifyDishAttribute(sessionToken, id, field, oldValue, newValue);
         }
-    }
+    };
 
     // must return the GridRowModel to update the internal state of the grid
     const processRowUpdate = async (newRow: GridRowModel, oldRow: GridRowModel) => {
-        let response
+        let response;
         if (newRow.status !== oldRow.status) {
-            response = (await modifyDish(newRow.id, 'status', oldRow.status, newRow.status)) as any
+            response = (await modifyDish(newRow.id, 'status', oldRow.status, newRow.status)) as any;
         } else if (newRow.location !== oldRow.location) {
-            response = (await modifyDish(newRow.id, 'location', oldRow.location, newRow.location)) as any
+            response = (await modifyDish(newRow.id, 'location', oldRow.location, newRow.location)) as any;
             if (response && response.status === 200) {
-                newRow.vendor = ''
-                response = (await modifyDish(newRow.id, 'vendor', oldRow.vendor, newRow.vendor)) as any
+                newRow.vendor = '';
+                response = (await modifyDish(newRow.id, 'vendor', oldRow.vendor, newRow.vendor)) as any;
             }
         } else if (newRow.vendor !== oldRow.vendor) {
-            response = (await modifyDish(newRow.id, 'vendor', oldRow.vendor, newRow.vendor)) as any
+            response = (await modifyDish(newRow.id, 'vendor', oldRow.vendor, newRow.vendor)) as any;
         }
 
         if (!response) {
-            return oldRow
+            return oldRow;
         } else if (response && response?.status !== 200) {
             enqueueSnackbar(`Failed to modify dish: ${response.message}; ${response.response.data.message}`, {
                 variant: 'error',
-            })
-            return oldRow
+            });
+            return oldRow;
         } else {
-            enqueueSnackbar(`Successfully modified dish`, { variant: 'success' })
-            return newRow
+            enqueueSnackbar(`Successfully modified dish`, { variant: 'success' });
+            return newRow;
         }
-    }
+    };
 
     return (
         <>
@@ -125,7 +126,7 @@ export default function AdminDishesTable({ filteredRows, dishTypes, dishVendors,
                 getRowId={(row) => row.qid}
                 experimentalFeatures={{ ariaV7: true }}
                 onRowSelectionModelChange={(newSelection) => {
-                    setSelectedRows(newSelection)
+                    setSelectedRows(newSelection);
                 }}
             />
             <Dialog
@@ -162,5 +163,5 @@ export default function AdminDishesTable({ filteredRows, dishTypes, dishVendors,
                 </CustomDialogTitle>
             </Dialog>
         </>
-    )
+    );
 }

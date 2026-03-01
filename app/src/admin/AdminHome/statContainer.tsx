@@ -1,9 +1,10 @@
-import { alpha, Box, styled, Typography } from '@mui/material'
-import leaf_white from '../../assets/leaf-white.svg'
+import { alpha, Box, styled, Typography } from '@mui/material';
+
+import leaf_white from '../../assets/leaf-white.svg';
 
 interface Props {
-    statTitle: string
-    statValue: number
+    statTitle: string;
+    statValue: number;
 }
 
 const StyledStatBox = styled(Box)(({ theme }) => ({
@@ -21,7 +22,7 @@ const StyledStatBox = styled(Box)(({ theme }) => ({
     },
     cursor: 'pointer',
     boxSizing: 'border-box',
-}))
+}));
 
 export default function AdminStatContainer({ statTitle, statValue }: Props) {
     return (
@@ -48,5 +49,5 @@ export default function AdminStatContainer({ statTitle, statValue }: Props) {
                 {statTitle}
             </Typography>
         </StyledStatBox>
-    )
+    );
 }
