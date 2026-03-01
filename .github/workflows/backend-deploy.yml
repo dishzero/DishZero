@@ -32,6 +32,7 @@ jobs:
 
             echo "=== Pulling latest code ==="
             cd /home/ubuntu/DishZero
+            git reset --hard HEAD
             git pull
 
             echo "=== Installing dependencies ==="
