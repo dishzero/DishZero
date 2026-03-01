@@ -15,11 +15,10 @@ async function login(req: Request, res: Response) {
 
     try {
         decodedToken = await auth.verifyIdToken(idToken);
-    } catch (error) {
+    } catch (err) {
         logger.error({
             reqId: req.id,
-            error,
-            message: 'Error when verifying firebase id token',
+            err,
         });
         // TODO: How can we differentiate an invalid token from something that should return a 500?
         return res.status(401).send(UNAUTHORIZED_REQUEST_ERROR_RESPONSE);
@@ -46,11 +45,10 @@ async function logout(req: Request, res: Response) {
         const decodedClaims = await auth.verifySessionCookie(sessionCookie);
         await auth.revokeRefreshTokens(decodedClaims.sub);
         return res.status(200).send(SUCCESS_STATUS_RESPONSE);
-    } catch (error) {
+    } catch (err) {
         logger.error({
             reqId: req.id,
-            error,
-            message: 'Error when revoking firebase session cookie',
+            err,
         });
         // TODO: How can we differentiate an invalid token from something that should return a 500?
         return res.status(401).send(UNAUTHORIZED_REQUEST_ERROR_RESPONSE);

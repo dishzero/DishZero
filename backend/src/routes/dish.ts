@@ -122,7 +122,7 @@ async function createMultipleDishes(req: Request, res: Response) {
     const dishIdLower = req.body.dishIdLower as number;
     const dishIdUpper = req.body.dishIdUpper as number;
 
-    const response = await batchCreateDishes(dishIdLower, dishIdUpper, dishType);
+    const response = await batchCreateDishes(dishIdLower, dishIdUpper, dishType, req.id.toString());
     return res.status(200).json({ response });
 }
 
