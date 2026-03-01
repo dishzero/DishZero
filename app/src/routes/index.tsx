@@ -1,12 +1,13 @@
-import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
-import LoginRoute from './login'
-import HomeRoute from './home'
-import BorrowRoute from './borrow'
-import ReturnRoute from './return'
-import Admin from './admin'
-import { Sidebar } from '../widgets/sidebar'
-import { Error404 } from './misc'
-import { AuthProvider, useAuth } from '../contexts/AuthContext'
+import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
+
+import { AuthProvider, useAuth } from '../contexts/AuthContext';
+import { Sidebar } from '../widgets/sidebar';
+import Admin from './admin';
+import BorrowRoute from './borrow';
+import HomeRoute from './home';
+import LoginRoute from './login';
+import { Error404 } from './misc';
+import ReturnRoute from './return';
 
 const enum Role {
     admin = 'admin',
@@ -15,7 +16,7 @@ const enum Role {
 }
 
 interface PermissionProps {
-    validator: (role: string | undefined) => boolean
+    validator: (role: string | undefined) => boolean;
 }
 
 const AuthLayout = () => {
@@ -23,11 +24,11 @@ const AuthLayout = () => {
         <AuthProvider>
             <Outlet />
         </AuthProvider>
-    )
-}
+    );
+};
 
 const UserRoute = () => {
-    const { currentUser } = useAuth()
+    const { currentUser } = useAuth();
 
     if (currentUser) {
         return (
@@ -35,19 +36,19 @@ const UserRoute = () => {
                 <Sidebar />
                 <Outlet />
             </>
-        )
+        );
     }
 
-    return <LoginRoute />
-}
+    return <LoginRoute />;
+};
 
 const PermissionsRoute = (props: PermissionProps) => {
-    const { currentUser } = useAuth()
+    const { currentUser } = useAuth();
     if (props.validator(currentUser?.role)) {
-        return <Outlet />
+        return <Outlet />;
     }
-    return <Error404 />
-}
+    return <Error404 />;
+};
 
 const router = createBrowserRouter([
     {
@@ -71,19 +72,19 @@ const router = createBrowserRouter([
                         path: '/borrow',
                         element: <BorrowRoute />,
                         loader: async ({ request }) => {
-                            const url = new URL(request.url)
-                            const qid = url.searchParams.get('q')
+                            const url = new URL(request.url);
+                            const qid = url.searchParams.get('q');
                             if (!qid) {
-                                return null
+                                return null;
                             }
 
                             try {
                                 // const tid = await DishAPI.addDishBorrow(qid, null);
-                                const tid = 1
-                                return { qid: qid, tid: tid }
+                                const tid = 1;
+                                return { qid: qid, tid: tid };
                             } catch (e) {
-                                console.log('Unable to immediately borrow:', e)
-                                return { qid: qid, error: e }
+                                console.log('Unable to immediately borrow:', e);
+                                return { qid: qid, error: e };
                             }
                         },
                     },
@@ -134,8 +135,8 @@ const router = createBrowserRouter([
             },
         ],
     },
-])
+]);
 
 export default () => {
-    return <RouterProvider router={router} fallbackElement={<Error404 />} />
-}
+    return <RouterProvider router={router} fallbackElement={<Error404 />} />;
+};

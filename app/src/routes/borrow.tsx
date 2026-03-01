@@ -1,62 +1,64 @@
 /*eslint-disable*/
-import { useState, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
-import React from 'react'
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+
 //import Scanner from "../widgets/scanner"
 //import DishAPI from "../features/api"
-import '../styles/QRScanner.css'
+import '../styles/QRScanner.css';
+
+import { faCoffee, faExclamation, faLeaf } from '@fortawesome/free-solid-svg-icons';
 //import { Button, Modal } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import Modal from 'react-bootstrap/Modal'
-import { AppHeader } from '../widgets/appHeader'
-import BottomTextInput from '../widgets/bottomTextInput'
-import { useAuth } from '../contexts/AuthContext'
-import { faCoffee, faExclamation, faLeaf } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import '@fortawesome/fontawesome-free/css/all.css';
 
-import axios from 'axios'
+import axios from 'axios';
+import Modal from 'react-bootstrap/Modal';
+
+import { useAuth } from '../contexts/AuthContext';
+import { AppHeader } from '../widgets/appHeader';
+import BottomTextInput from '../widgets/bottomTextInput';
 
 const Borrow = () => {
-    const [scanId, setScanId] = useState('')
-    const [showNotif, setShowNotif] = useState(false)
-    const [popUp, setPopUp] = useState(false)
-    const [dishType, setDishType] = useState('')
-    const [qid, setQid] = useState('')
-    const [isLoading, setIsLoading] = useState(false)
-    const [dishIcon, setDishIcon] = useState()
-    const [notifType, setNotifType] = useState('returned')
-    const [error, setError] = useState('')
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
-    const [reportPopUp, setReportPopUp] = useState(false)
-    const [reportValue, setReportValue] = useState('good')
-    const [dishID, setDishID] = useState('')
-    const { currentUser, sessionToken } = useAuth()
-    const [confirm, setConfirm] = useState(false)
-    const [dishNotFound, setDishNotFound] = useState(false)
+    const [scanId, setScanId] = useState('');
+    const [showNotif, setShowNotif] = useState(false);
+    const [popUp, setPopUp] = useState(false);
+    const [dishType, setDishType] = useState('');
+    const [qid, setQid] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [dishIcon, setDishIcon] = useState();
+    const [notifType, setNotifType] = useState('returned');
+    const [error, setError] = useState('');
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+    const [reportPopUp, setReportPopUp] = useState(false);
+    const [reportValue, setReportValue] = useState('good');
+    const [dishID, setDishID] = useState('');
+    const { currentUser, sessionToken } = useAuth();
+    const [confirm, setConfirm] = useState(false);
+    const [dishNotFound, setDishNotFound] = useState(false);
     const [borrowDishResult, setBorrowDishResult] = useState({
         show: false,
         success: false,
-    })
+    });
     useEffect(() => {
-        const queryParams = new URLSearchParams(window.location.search)
-        const previousURL = queryParams.get('previousURL')
+        const queryParams = new URLSearchParams(window.location.search);
+        const previousURL = queryParams.get('previousURL');
         if (previousURL?.includes('dishzero.ca')) {
-            const dishID = (previousURL.match(/dishID=([^&]+)/) || '')[1]
-            setConfirm(true)
-            onConfirm(dishID)
+            const dishID = (previousURL.match(/dishID=([^&]+)/) || '')[1];
+            setConfirm(true);
+            onConfirm(dishID);
         }
-    }, [])
+    }, []);
 
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     useEffect(() => {
         const timer = setTimeout(() => {
             if (popUp) {
-                setPopUp(false)
+                setPopUp(false);
             }
-        }, 5000)
-        return () => clearTimeout(timer)
-    }, [popUp])
+        }, 5000);
+        return () => clearTimeout(timer);
+    }, [popUp]);
 
     // const onCancel = popUp
     //   ? () => {
@@ -65,8 +67,8 @@ const Borrow = () => {
     //   : null;
 
     const onClick = () => {
-        setPopUp(true)
-    }
+        setPopUp(true);
+    };
 
     const DishNotFound = ({ show, onCancel, id }) => {
         return (
@@ -77,8 +79,8 @@ const Borrow = () => {
                     <p style={{ textAlign: 'center' }}>Dish ID: {id} does not exist. Please try again.</p>
                 </Modal.Body>
             </Modal>
-        )
-    }
+        );
+    };
 
     const BorrowDishSuccess = ({ show, success, onCancel, id }) => {
         return (
@@ -109,18 +111,18 @@ const Borrow = () => {
                     )}
                 </Modal.Body>
             </Modal>
-        )
-    }
+        );
+    };
 
     const onConfirm = async (scanId: string) => {
         // if (!confirm) {
         //   return false;
         // }
-        setConfirm(false)
-        setScanId(scanId)
-        const user = currentUser?.id || null
-        console.log('USER: ' + user)
-        console.log('scanid', scanId)
+        setConfirm(false);
+        setScanId(scanId);
+        const user = currentUser?.id || null;
+        console.log('USER: ' + user);
+        console.log('scanid', scanId);
 
         axios
             .post(
@@ -133,20 +135,20 @@ const Borrow = () => {
             )
             .then(function (response) {
                 //eslint-disable-line @typescript-eslint/no-unused-vars
-                setBorrowDishResult({ show: true, success: true })
+                setBorrowDishResult({ show: true, success: true });
             })
             .catch(function (error) {
-                setBorrowDishResult({ show: true, success: false })
-                console.log(error)
-            })
-    }
+                setBorrowDishResult({ show: true, success: false });
+                console.log(error);
+            });
+    };
 
     const onCancel = () => {
-        setScanId('')
-        setConfirm(false)
-        setDishNotFound(false)
-        setBorrowDishResult({ ...borrowDishResult, show: false })
-    }
+        setScanId('');
+        setConfirm(false);
+        setDishNotFound(false);
+        setBorrowDishResult({ ...borrowDishResult, show: false });
+    };
     return (
         <div
             style={{
@@ -173,7 +175,7 @@ const Borrow = () => {
                     value={scanId}
                     onChange={(e) => setScanId(e.target.value)}
                     onSubmit={async () => {
-                        await onConfirm(scanId)
+                        await onConfirm(scanId);
                     }}
                 />
 
@@ -186,7 +188,7 @@ const Borrow = () => {
                 />
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default Borrow
+export default Borrow;

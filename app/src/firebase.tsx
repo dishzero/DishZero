@@ -1,6 +1,8 @@
-import { initializeApp } from 'firebase/app'
-import 'firebase/auth'
-import { GoogleAuthProvider, getAuth } from 'firebase/auth'
+import { initializeApp } from 'firebase/app';
+
+import 'firebase/auth';
+
+import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 
 // can change to use env variables if we don't want info on github
 const app = initializeApp({
@@ -11,14 +13,14 @@ const app = initializeApp({
     messagingSenderId: '273096823928',
     appId: '1:273096823928:web:3ae7f21ca35890cc86098d',
     measurementId: 'G-YH3SYRJJ6D',
-})
+});
 
-const provider = new GoogleAuthProvider()
-provider.setCustomParameters({ hd: 'ualberta.ca' })
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ hd: 'ualberta.ca' });
 
-const googleAuthProvider = new GoogleAuthProvider()
-const auth = getAuth(app)
+const googleAuthProvider = new GoogleAuthProvider();
+const auth = getAuth(app);
 
-export { auth, provider, googleAuthProvider }
+export { auth, provider, googleAuthProvider };
 
-export default app
+export default app;

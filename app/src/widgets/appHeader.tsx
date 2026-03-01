@@ -1,8 +1,8 @@
-import { Box, AppBar, Typography } from '@mui/material'
-import React from 'react'
+import { AppBar, Box, Typography } from '@mui/material';
+import React from 'react';
 
 interface Props {
-    title: string
+    title: string;
 }
 
 export const AppHeader = ({ title }: Props) => {
@@ -16,5 +16,5 @@ export const AppHeader = ({ title }: Props) => {
                 </AppBar>
             </Box>
         </div>
-    )
-}
+    );
+};

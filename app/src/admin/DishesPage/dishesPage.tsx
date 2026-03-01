@@ -1,56 +1,57 @@
-import { useAuth } from '../../contexts/AuthContext'
-import adminApi from '../adminApi'
-import { Dish } from './constants'
-import AdminDishesHeader from './dishesHeader'
-import AdminDishesTable from './dishesTable'
-import { Box } from '@mui/material'
-import { useEffect, useState } from 'react'
+import { Box } from '@mui/material';
+import { useEffect, useState } from 'react';
+
+import { useAuth } from '../../contexts/AuthContext';
+import adminApi from '../adminApi';
+import { Dish } from './constants';
+import AdminDishesHeader from './dishesHeader';
+import AdminDishesTable from './dishesTable';
 
 export default function AdminDishesPage() {
-    const { sessionToken } = useAuth()
+    const { sessionToken } = useAuth();
 
-    const [filteredRows, setFilteredRows] = useState<Dish[]>([]) // rows visible in table
-    const [allRows, setAllRows] = useState<Dish[]>([]) // all rows fetched from backend
-    const [dishTypes, setDishTypes] = useState<string[]>([])
-    const [dishVendors, setDishVendors] = useState<Record<string, string[]>>({})
-    const [loadingDishes, setLoadingDishes] = useState(true)
+    const [filteredRows, setFilteredRows] = useState<Dish[]>([]); // rows visible in table
+    const [allRows, setAllRows] = useState<Dish[]>([]); // all rows fetched from backend
+    const [dishTypes, setDishTypes] = useState<string[]>([]);
+    const [dishVendors, setDishVendors] = useState<Record<string, string[]>>({});
+    const [loadingDishes, setLoadingDishes] = useState(true);
 
     const fetchDishes = async () => {
-        let dishData: Dish[] = []
+        let dishData: Dish[] = [];
         if (sessionToken) {
-            setLoadingDishes(true)
-            dishData = await adminApi.getAllDishes(sessionToken, true)
-            setLoadingDishes(false)
+            setLoadingDishes(true);
+            dishData = await adminApi.getAllDishes(sessionToken, true);
+            setLoadingDishes(false);
         }
-        setAllRows(dishData)
-    }
+        setAllRows(dishData);
+    };
 
     const fetchDishTypes = async () => {
-        let dishTypes: string[] = []
+        let dishTypes: string[] = [];
         if (sessionToken) {
-            dishTypes = await adminApi.getDishTypes(sessionToken)
+            dishTypes = await adminApi.getDishTypes(sessionToken);
         }
-        setDishTypes(dishTypes)
-    }
+        setDishTypes(dishTypes);
+    };
 
     const fetchDishVendors = async () => {
-        let dishVendors: Record<string, string[]> = {}
+        let dishVendors: Record<string, string[]> = {};
         if (sessionToken) {
-            dishVendors = await adminApi.getDishVendors(sessionToken)
+            dishVendors = await adminApi.getDishVendors(sessionToken);
         }
-        setDishVendors(dishVendors)
-    }
+        setDishVendors(dishVendors);
+    };
 
     useEffect(() => {
-        fetchDishes()
-        fetchDishTypes()
-        fetchDishVendors()
-    }, [])
+        fetchDishes();
+        fetchDishTypes();
+        fetchDishVendors();
+    }, []);
 
     // update visible rows if all rows changes
     useEffect(() => {
-        setFilteredRows(allRows)
-    }, [allRows])
+        setFilteredRows(allRows);
+    }, [allRows]);
 
     return (
         <Box sx={{ m: '20px', flex: 1 }}>
@@ -69,5 +70,5 @@ export default function AdminDishesPage() {
                 dishVendors={dishVendors}
             />
         </Box>
-    )
+    );
 }

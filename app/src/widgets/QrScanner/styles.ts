@@ -15,4 +15,4 @@ export const styles: any = {
         position: 'absolute',
         transform: undefined,
     },
-}
+};

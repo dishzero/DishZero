@@ -1,10 +1,13 @@
-import { Link } from 'react-router-dom'
-import leaf_icon from '../assets/leaf-green.svg'
-import '../styles/error404.css'
-import { useAuth } from '../contexts/AuthContext'
+import { Link } from 'react-router-dom';
+
+import leaf_icon from '../assets/leaf-green.svg';
+
+import '../styles/error404.css';
+
+import { useAuth } from '../contexts/AuthContext';
 
 const Error404 = () => {
-    const { currentUser } = useAuth()
+    const { currentUser } = useAuth();
 
     return (
         <div className="error404-wrapper d-flex flex-column align-items-center justify-content-center px-4">
@@ -38,12 +41,12 @@ const Error404 = () => {
                 </>
             )}
         </div>
-    )
-}
+    );
+};
 
 const AdminOnMobile = () => {
-    return <p>Hello Admin, you are on mobile!</p>
-}
+    return <p>Hello Admin, you are on mobile!</p>;
+};
 
 const WelcomePage = () => {
     return (
@@ -51,7 +54,7 @@ const WelcomePage = () => {
             <p>Welcome Prompt</p>
             <Link to="/home" />
         </div>
-    )
-}
+    );
+};
 
-export { Error404, AdminOnMobile, WelcomePage }
+export { Error404, AdminOnMobile, WelcomePage };

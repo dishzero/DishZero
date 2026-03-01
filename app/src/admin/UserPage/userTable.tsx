@@ -1,52 +1,53 @@
-import { User, userColumns } from './constants'
-import { useAuth } from '../../contexts/AuthContext'
-import adminApi from '../adminApi'
-import CustomToolbar from '../DataGrid/customToolbar'
-import { StyledDataGrid } from '../DataGrid/constants'
-import NoResultsOverlay from '../DataGrid/noResultsOverlay'
-import { GridOverlay, GridRowModel } from '@mui/x-data-grid'
-import { useSnackbar } from 'notistack'
-import { BallTriangle } from 'react-loader-spinner'
+import { GridOverlay, GridRowModel } from '@mui/x-data-grid';
+import { useSnackbar } from 'notistack';
+import { BallTriangle } from 'react-loader-spinner';
+
+import { useAuth } from '../../contexts/AuthContext';
+import adminApi from '../adminApi';
+import { StyledDataGrid } from '../DataGrid/constants';
+import CustomToolbar from '../DataGrid/customToolbar';
+import NoResultsOverlay from '../DataGrid/noResultsOverlay';
+import { User, userColumns } from './constants';
 
 interface Props {
-    filteredRows: User[]
-    loadingUsers: boolean
+    filteredRows: User[];
+    loadingUsers: boolean;
 }
 
 export default function AdminUserTable({ filteredRows, loadingUsers }: Props) {
-    const { sessionToken } = useAuth()
+    const { sessionToken } = useAuth();
 
-    const { enqueueSnackbar } = useSnackbar()
+    const { enqueueSnackbar } = useSnackbar();
 
     const modifyUserRole = async (userId: string, newRole: string, email: string) => {
         if (sessionToken) {
-            const response = await adminApi.modifyRole(sessionToken, userId, newRole, email)
+            const response = await adminApi.modifyRole(sessionToken, userId, newRole, email);
 
-            return response
+            return response;
         }
-    }
+    };
 
     // must return the GridRowModel to update the internal state of the grid
     const processRowUpdate = async (newRow: GridRowModel, oldRow: GridRowModel) => {
         if (newRow.role !== oldRow.role) {
             // const oldRole = oldRow.role
-            const { role: newRole, userId, email } = newRow
-            const response = (await modifyUserRole(userId, newRole, email)) as any
+            const { role: newRole, userId, email } = newRow;
+            const response = (await modifyUserRole(userId, newRole, email)) as any;
 
             if (response && response?.status !== 200) {
                 enqueueSnackbar(`Failed to modify user: ${response.message}; ${response.response.data.message}`, {
                     variant: 'error',
-                })
-                return oldRow
+                });
+                return oldRow;
             } else {
-                enqueueSnackbar(`Successfully updated user`, { variant: 'success' })
-                return newRow
+                enqueueSnackbar(`Successfully updated user`, { variant: 'success' });
+                return newRow;
             }
         }
 
         // if no status change, just return the old row
-        return oldRow
-    }
+        return oldRow;
+    };
 
     return (
         <>
@@ -100,5 +101,5 @@ export default function AdminUserTable({ filteredRows, loadingUsers }: Props) {
                 // }}
             />
         </>
-    )
+    );
 }

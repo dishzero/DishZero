@@ -1,13 +1,13 @@
-import { GridColDef, useGridApiContext } from '@mui/x-data-grid'
-import { Box, IconButton } from '@mui/material'
-import EditIcon from '@mui/icons-material/ArrowDropDown'
+import EditIcon from '@mui/icons-material/ArrowDropDown';
+import { Box, IconButton } from '@mui/material';
+import { GridColDef, useGridApiContext } from '@mui/x-data-grid';
 
 export interface User {
-    userId: string
-    email: string
-    inUse: number
-    overdue: number
-    role: string // TODO: should this be an enum?
+    userId: string;
+    email: string;
+    inUse: number;
+    overdue: number;
+    role: string; // TODO: should this be an enum?
 }
 
 export enum UserRole {
@@ -48,12 +48,12 @@ export const userColumns: GridColDef[] = [
         type: 'singleSelect',
         valueOptions: Object.values(UserRole) as string[],
         renderCell: (params) => {
-            const apiRef = useGridApiContext()
+            const apiRef = useGridApiContext();
 
             const handleEditClick = (event) => {
-                event.stopPropagation() // Prevent row selection
-                apiRef.current.startCellEditMode({ id: params.id, field: 'role' })
-            }
+                event.stopPropagation(); // Prevent row selection
+                apiRef.current.startCellEditMode({ id: params.id, field: 'role' });
+            };
 
             return (
                 <Box
@@ -73,10 +73,10 @@ export const userColumns: GridColDef[] = [
                         <EditIcon fontSize="small" />
                     </IconButton>
                 </Box>
-            )
+            );
         },
     },
-]
+];
 
 export const mockUsers: Array<User> = [
     {
@@ -128,4 +128,4 @@ export const mockUsers: Array<User> = [
         overdue: 30,
         role: UserRole.customer,
     },
-]
+];

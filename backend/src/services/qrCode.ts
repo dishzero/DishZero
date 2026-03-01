@@ -1,79 +1,80 @@
-import { db } from '@/firebase'
-import nodeConfig from 'config'
-import Joi from 'joi'
+import nodeConfig from 'config';
+import Joi from 'joi';
+
+import { db } from '@/firebase';
 
 export type QrCode = {
-    qid: number
-    dishId: string
-}
+    qid: number;
+    dishId: string;
+};
 
 export const getQrCode = async (qid: string) => {
-    let doc = await db.collection(nodeConfig.get('collections.qrcodes')).doc(qid.toString()).get()
+    let doc = await db.collection(nodeConfig.get('collections.qrcodes')).doc(qid.toString()).get();
     if (!doc.exists) {
-        return null
+        return null;
     }
-    let data = doc.data()
+    let data = doc.data();
     return {
         qid: parseInt(doc.id, 10),
         dishId: data?.dishId,
-    }
-}
+    };
+};
 
 export const getAllQrCodes = async () => {
-    let codes = <Array<QrCode>>[]
-    let qs = await db.collection(nodeConfig.get('collections.qrcodes')).get()
+    let codes = <Array<QrCode>>[];
+    let qs = await db.collection(nodeConfig.get('collections.qrcodes')).get();
     qs.forEach((doc) => {
-        let data = doc.data()
+        let data = doc.data();
         codes.push({
             qid: parseInt(doc.id, 10),
             dishId: data.dishId,
-        })
-    })
-    return codes
-}
+        });
+    });
+    return codes;
+};
 
 export const createQrCodeInDatabase = async (qrcode: QrCode, update: boolean): Promise<QrCode> => {
-    let validation = validateQrRequestBody(qrcode)
+    let validation = validateQrRequestBody(qrcode);
     if (validation.error) {
-        throw new Error(validation.error.message)
+        throw new Error(validation.error.message);
     }
 
     // check if qr code already exists if not updating
     if (!update) {
-        let existingQrCode = await getQrCode(qrcode.qid.toString())
+        let existingQrCode = await getQrCode(qrcode.qid.toString());
         if (existingQrCode) {
-            throw new Error('qrCode already exists')
+            throw new Error('qrCode already exists');
         }
     }
 
-    let qid = qrcode.qid
-    let dishId = qrcode.dishId
+    let qid = qrcode.qid;
+    let dishId = qrcode.dishId;
     // create qr code
-    await db.collection(nodeConfig.get('collections.qrcodes')).doc(qid.toString()).set({ dishId })
+    await db.collection(nodeConfig.get('collections.qrcodes')).doc(qid.toString()).set({ dishId });
 
     return {
         qid: qid,
         dishId: dishId,
-    }
-}
+    };
+};
 
 export const deleteQrCodeFromDatabase = async (qid: string) => {
     // if doesn't exist just pretend delete
-    let existingQrCode = await getQrCode(qid)
+    let existingQrCode = await getQrCode(qid);
     if (!existingQrCode) {
-        return
+        return;
     }
 
     // delete qr code
-    await db.collection(nodeConfig.get('collections.qrcodes')).doc(qid.toString()).delete()
-    return
-}
+    await db.collection(nodeConfig.get('collections.qrcodes')).doc(qid.toString()).delete();
+    return;
+};
 
 export const validateQrRequestBody = (qrcode: QrCode) => {
     const schema = Joi.object({
         qid: Joi.number().required(),
         dishId: Joi.string().required(),
-    }).required()
+    }).required();
 
-    return schema.validate(qrcode)
-}
+    return schema.validate(qrcode);
+};

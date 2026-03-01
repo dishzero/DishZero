@@ -1,36 +1,37 @@
-import Joi from 'joi'
-import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
-import { db } from '@/firebase'
-import logger from '@/logger'
+import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier';
+import Joi from 'joi';
+
+import { db } from '@/firebase';
+import logger from '@/logger';
 
 export type Dish = {
-    id: string
-    qid: number
-    type: string
-    status: DishStatus
-    condition?: string
-    timesBorrowed: number
-    registered: string
-    userId: string | null
-    borrowedAt: string | null
-    location: string | null
-    vendor: string | null
-}
+    id: string;
+    qid: number;
+    type: string;
+    status: DishStatus;
+    condition?: string;
+    timesBorrowed: number;
+    registered: string;
+    userId: string | null;
+    borrowedAt: string | null;
+    location: string | null;
+    vendor: string | null;
+};
 
 export type DishSimple = {
-    id: string
-    qid: number
-    registered: string
-    type: string
-}
+    id: string;
+    qid: number;
+    registered: string;
+    type: string;
+};
 
 // minimum fields needed to create a dish
 export type newDishSimple = {
-    id: string
-    dishId: number
-    dateAdded: string
-    type: string
-}
+    id: string;
+    dishId: number;
+    dateAdded: string;
+    type: string;
+};
 
 export enum DishStatus {
     borrowed = 'borrowed',
@@ -49,127 +50,127 @@ export enum DishCondition {
 }
 
 export const getDish = async (qid: number): Promise<Dish | undefined | null> => {
-    const snapshot = await db.collection('dishes').where('qid', '==', qid).get()
+    const snapshot = await db.collection('dishes').where('qid', '==', qid).get();
     if (snapshot.empty) {
-        return null
+        return null;
     }
-    let data = snapshot.docs[0].data()
-    data.id = snapshot.docs[0].id
-    return data as Dish
-}
+    let data = snapshot.docs[0].data();
+    data.id = snapshot.docs[0].id;
+    return data as Dish;
+};
 
 export const getAllDishTypes = async (): Promise<string[] | null> => {
     // const snapshot = await db.collection('dish-types').get()
-    const snapshot = await db.collection('dish-types').get()
+    const snapshot = await db.collection('dish-types').get();
     if (snapshot.empty) {
-        return null
+        return null;
     }
-    let dishTypes = snapshot.docs.map((doc) => doc.id)
-    return dishTypes
-}
+    let dishTypes = snapshot.docs.map((doc) => doc.id);
+    return dishTypes;
+};
 
 export const getAllDishVendors = async (): Promise<Record<string, string[]> | null> => {
-    const snapshot = await db.collection('vendors').get()
+    const snapshot = await db.collection('vendors').get();
     if (snapshot.empty) {
-        return null
+        return null;
     }
 
-    let dishVendors: Record<string, string[]> = {}
+    let dishVendors: Record<string, string[]> = {};
 
     snapshot.docs.forEach((doc) => {
-        const location = doc.id // The document ID represents the location
-        const vendorData = doc.data().vendors ?? []
+        const location = doc.id; // The document ID represents the location
+        const vendorData = doc.data().vendors ?? [];
 
         if (!dishVendors[location]) {
-            dishVendors[location] = []
+            dishVendors[location] = [];
         }
 
-        dishVendors[location] = vendorData
-    })
+        dishVendors[location] = vendorData;
+    });
 
-    return dishVendors
-}
+    return dishVendors;
+};
 
 export const deleteDish = async (qid: number): Promise<void> => {
-    const snapshot = await db.collection('dishes').where('qid', '==', qid).get()
+    const snapshot = await db.collection('dishes').where('qid', '==', qid).get();
     if (snapshot.empty) {
-        return
+        return;
     }
-    await db.collection('dishes').doc(snapshot.docs[0].id).delete()
+    await db.collection('dishes').doc(snapshot.docs[0].id).delete();
     // delete qr code
-    await db.collection('qr-codes').doc(qid.toString()).delete()
-}
+    await db.collection('qr-codes').doc(qid.toString()).delete();
+};
 
 export const getDishById = async (id: string): Promise<Dish | null | undefined> => {
-    const snapshot = await db.collection('dishes').doc(id).get()
+    const snapshot = await db.collection('dishes').doc(id).get();
     if (!snapshot.exists) {
-        return null
+        return null;
     }
 
-    let data = snapshot.data()
-    data!.id = snapshot.id
-    return data as Dish
-}
+    let data = snapshot.data();
+    data!.id = snapshot.id;
+    return data as Dish;
+};
 
 export const createDishInDatabase = async (dish: Partial<Dish>) => {
-    let validation = validateDishCreateRequestBody(dish)
+    let validation = validateDishCreateRequestBody(dish);
     if (validation.error) {
-        throw new Error(validation.error.message)
+        throw new Error(validation.error.message);
     }
 
     // check if dish with qid already exists
-    let existingDish = await getDish(dish.qid!)
+    let existingDish = await getDish(dish.qid!);
     if (existingDish) {
-        throw new Error('Dish with qid already exists')
+        throw new Error('Dish with qid already exists');
     }
 
     // set registered date to current date if not provided
     if (!dish.registered) {
-        dish.registered = new Date().toISOString()
+        dish.registered = new Date().toISOString();
     }
 
     // only assign status & timesBorrwed if dish if they don't exist
-    dish.status = dish.status ?? DishStatus.available
-    dish.timesBorrowed = dish.timesBorrowed ?? 0
-    dish.userId = null
-    dish.borrowedAt = null
+    dish.status = dish.status ?? DishStatus.available;
+    dish.timesBorrowed = dish.timesBorrowed ?? 0;
+    dish.userId = null;
+    dish.borrowedAt = null;
 
-    let createdDish = await db.collection('dishes').add(dish)
+    let createdDish = await db.collection('dishes').add(dish);
 
     // also add a new qr code to the database
     try {
         await db.collection('qr-codes').doc(dish.qid!.toString()).set({
             dishId: createdDish.id,
-        })
+        });
     } catch (error) {
         logger.error({
             error,
             message: 'Failed to create qr code. Please try again.',
-        })
+        });
         // if adding a qr code fails, delete the dish
-        await db.collection('dishes').doc(createdDish.id).delete()
+        await db.collection('dishes').doc(createdDish.id).delete();
     }
 
     return {
         ...dish,
         id: createdDish.id,
-    }
-}
+    };
+};
 
 export const batchCreateDishes = async (dishIdLower: number, dishIdUpper: number, dishType: string) => {
-    let validation = validateBatchCreate(dishIdLower, dishIdUpper, dishType)
+    let validation = validateBatchCreate(dishIdLower, dishIdUpper, dishType);
     if (validation.error) {
-        throw new Error(validation.error.message)
+        throw new Error(validation.error.message);
     }
-    const batch = db.batch()
-    let existingDishes = []
+    const batch = db.batch();
+    let existingDishes = [];
 
     for (let dishId = dishIdLower; dishId <= dishIdUpper; dishId++) {
         // check if dish with qid already exists
-        let existingDish = await getDish(dishId)
+        let existingDish = await getDish(dishId);
         if (existingDish) {
-            existingDishes.push(dishId)
-            continue
+            existingDishes.push(dishId);
+            continue;
         }
 
         let dish = {
@@ -181,62 +182,62 @@ export const batchCreateDishes = async (dishIdLower: number, dishIdUpper: number
             userId: null,
             borrowedAt: null,
             registered: new Date().toISOString(),
-        }
+        };
 
         // add dish to batch
-        const dishRef = db.collection('dishes').doc()
-        batch.set(dishRef, dish)
+        const dishRef = db.collection('dishes').doc();
+        batch.set(dishRef, dish);
 
         // also add a new qr code to the database
         try {
             db.collection('qr-codes').doc(dish.qid.toString()).set({
                 dishId: dishRef.id,
-            })
+            });
         } catch (error) {
             logger.error({
                 error,
                 message: 'Failed to create qr code in batch. Please try again.',
-            })
+            });
             // if adding a qr code fails, remove the dish from the batch
-            batch.delete(dishRef)
+            batch.delete(dishRef);
         }
     }
 
     try {
-        const response = await batch.commit()
-        const responseWithExistingDishes = { ...response, existingDishes }
-        return responseWithExistingDishes
+        const response = await batch.commit();
+        const responseWithExistingDishes = { ...response, existingDishes };
+        return responseWithExistingDishes;
     } catch (error: any) {
         logger.error({
             error,
             message: 'Error adding batch of dishes',
-        })
-        return error
+        });
+        return error;
     }
-}
+};
 
 export const addDishTypeToDatabase = async (type: string) => {
-    let validation = validateDishType(type)
+    let validation = validateDishType(type);
     if (validation.error) {
-        throw new Error(validation.error.message)
+        throw new Error(validation.error.message);
     }
-    const newDishType = await db.collection('dish-types').doc(type).set({})
+    const newDishType = await db.collection('dish-types').doc(type).set({});
 
     return {
         ...newDishType,
-    }
-}
+    };
+};
 
 export async function getAllDishesSimple(): Promise<Array<Partial<Dish>>> {
-    let dishData = <Array<Partial<Dish>>>[]
-    let dishesQuerySnapshot = await db.collection('dishes').orderBy('qid').get()
+    let dishData = <Array<Partial<Dish>>>[];
+    let dishesQuerySnapshot = await db.collection('dishes').orderBy('qid').get();
     dishesQuerySnapshot.docs.forEach((doc) => {
-        let data = doc.data()
-        let time = data.registered
+        let data = doc.data();
+        let time = data.registered;
 
         if (typeof time !== 'string') {
             // assuming it's a firebase timestamp
-            time = time.toDate().toISOString()
+            time = time.toDate().toISOString();
         }
 
         dishData.push({
@@ -244,21 +245,21 @@ export async function getAllDishesSimple(): Promise<Array<Partial<Dish>>> {
             qid: parseInt(data.qid, 10),
             registered: time,
             type: data.type,
-        })
-    })
-    return dishData
+        });
+    });
+    return dishData;
 }
 
 export async function getUserDishesSimple(userClaims: DecodedIdToken): Promise<Array<Dish>> {
-    let dishData = <Array<Dish>>[]
-    let dishesQuerySnapshot = await db.collection('dishes').where('userId', '==', userClaims.uid).get()
+    let dishData = <Array<Dish>>[];
+    let dishesQuerySnapshot = await db.collection('dishes').where('userId', '==', userClaims.uid).get();
     dishesQuerySnapshot.docs.forEach((doc) => {
-        let data = doc.data()
-        let time = data.registered
+        let data = doc.data();
+        let time = data.registered;
 
         if (typeof time !== 'string') {
             // assuming it's a firebase timestamp
-            time = time.toDate().toISOString()
+            time = time.toDate().toISOString();
         }
 
         dishData.push({
@@ -273,29 +274,29 @@ export async function getUserDishesSimple(userClaims: DecodedIdToken): Promise<A
             borrowedAt: data.borrowedAt ?? null,
             location: data.location ?? '',
             vendor: data.vendor ?? '',
-        })
-    })
-    return dishData
+        });
+    });
+    return dishData;
 }
 
 export async function getAllDishes(withEmail?: boolean): Promise<Array<Dish>> {
-    let dishData = <Array<Dish>>[]
-    let dishesQuerySnapshot = await db.collection('dishes').orderBy('qid').get()
+    let dishData = <Array<Dish>>[];
+    let dishesQuerySnapshot = await db.collection('dishes').orderBy('qid').get();
     for (let doc of dishesQuerySnapshot.docs) {
-        let data = doc.data()
-        let time = data.registered
+        let data = doc.data();
+        let time = data.registered;
 
         if (typeof time !== 'string') {
             // assuming it's a firebase timestamp
-            time = time.toDate().toISOString()
+            time = time.toDate().toISOString();
         }
 
         // get user email (this adds a lot of time to the request)
-        let userEmail
+        let userEmail;
         if (data.userId && withEmail) {
-            let userDoc = await db.collection('users').doc(data.userId).get()
+            let userDoc = await db.collection('users').doc(data.userId).get();
             if (userDoc.exists) {
-                userEmail = userDoc.data()?.email
+                userEmail = userDoc.data()?.email;
             }
         }
 
@@ -307,25 +308,25 @@ export async function getAllDishes(withEmail?: boolean): Promise<Array<Dish>> {
             timesBorrowed: data.timesBorrowed ?? 0,
             status: data.status ?? DishStatus.available,
             condition: data.condition ?? DishCondition.good,
-            userId: withEmail ? userEmail ?? null : data.userId ?? null,
+            userId: withEmail ? (userEmail ?? null) : (data.userId ?? null),
             borrowedAt: data.borrowedAt ?? null,
             location: data.location ?? '',
             vendor: data.vendor ?? '',
-        })
+        });
     }
-    return dishData
+    return dishData;
 }
 
 export async function getUserDishes(userClaims: DecodedIdToken): Promise<Array<Dish>> {
-    let dishData = <Array<Dish>>[]
-    let dishesQuerySnapshot = await db.collection('dishes').where('userId', '==', userClaims.uid).get()
+    let dishData = <Array<Dish>>[];
+    let dishesQuerySnapshot = await db.collection('dishes').where('userId', '==', userClaims.uid).get();
     dishesQuerySnapshot.docs.forEach((doc) => {
-        let data = doc.data()
-        let time = data.registered
+        let data = doc.data();
+        let time = data.registered;
 
         if (typeof time !== 'string') {
             // assuming it's a firebase timestamp
-            time = time.toDate().toISOString()
+            time = time.toDate().toISOString();
         }
 
         dishData.push({
@@ -340,9 +341,9 @@ export async function getUserDishes(userClaims: DecodedIdToken): Promise<Array<D
             borrowedAt: data.borrowedAt ?? null,
             location: data.location ?? '',
             vendor: data.vendor ?? '',
-        })
-    })
-    return dishData
+        });
+    });
+    return dishData;
 }
 
 export const validateDishCreateRequestBody = (dish: Partial<Dish>) => {
@@ -352,45 +353,45 @@ export const validateDishCreateRequestBody = (dish: Partial<Dish>) => {
         status: Joi.string().optional(),
         timesBorrowed: Joi.number().optional(),
         registered: Joi.string().optional(),
-    }).required()
+    }).required();
 
-    return schema.validate(dish)
-}
+    return schema.validate(dish);
+};
 
 export const validateDishType = (dishType: string) => {
-    const schema = Joi.string().required()
-    return schema.validate(dishType)
-}
+    const schema = Joi.string().required();
+    return schema.validate(dishType);
+};
 
 export const validateBatchCreate = (dishIdLower: number, dishIdUpper: number, dishType: string) => {
     const schema = Joi.object({
         dishIdLower: Joi.number().required(),
         dishIdUpper: Joi.number().required(),
         dishType: Joi.string().required(),
-    })
+    });
 
-    return schema.validate({ dishIdLower, dishIdUpper, dishType })
-}
+    return schema.validate({ dishIdLower, dishIdUpper, dishType });
+};
 
 export const validateDishRequestBody = (dish: Dish) => {
     const schema = Joi.object({
         qid: Joi.number().required(),
         registered: Joi.string(),
         type: Joi.string().required(),
-    }).required()
+    }).required();
 
-    return schema.validate(dish)
-}
+    return schema.validate(dish);
+};
 
 export const validateReturnDishRequestBody = (dish: Dish) => {
     const schema = Joi.object({
         condition: Joi.string()
             .valid(...Object.values(DishCondition))
             .required(),
-    }).required()
+    }).required();
 
-    return schema.validate(dish)
-}
+    return schema.validate(dish);
+};
 export const validateModifyDish = (body: Object) => {
     const schema = Joi.object({
         id: Joi.string().required(),
@@ -399,37 +400,37 @@ export const validateModifyDish = (body: Object) => {
             .required(),
         oldValue: Joi.string().allow(''),
         newValue: Joi.string().allow(''),
-    }).required()
-    return schema.validate(body)
-}
+    }).required();
+    return schema.validate(body);
+};
 
 export const validateUpdateConditonRequestBody = (body: Object) => {
     const schema = Joi.object({
         condition: Joi.string()
             .valid(...Object.values(DishCondition))
             .required(),
-    }).required()
+    }).required();
 
-    return schema.validate(body)
-}
+    return schema.validate(body);
+};
 
 export const updateBorrowedStatus = async (
     dish: Dish,
     userClaims: DecodedIdToken,
     borrowed: boolean,
-    condition?: string
+    condition?: string,
 ) => {
     // when borrowing, set userId and increase timesBorrowed
-    let timesBorrowed = borrowed ? dish.timesBorrowed + 1 : dish.timesBorrowed
-    let userId = borrowed ? userClaims.uid : null
-    let borrowedAt = borrowed ? new Date().toISOString() : null
-    let dishCondition = condition ?? DishCondition.good
+    let timesBorrowed = borrowed ? dish.timesBorrowed + 1 : dish.timesBorrowed;
+    let userId = borrowed ? userClaims.uid : null;
+    let borrowedAt = borrowed ? new Date().toISOString() : null;
+    let dishCondition = condition ?? DishCondition.good;
 
     let status = borrowed
         ? DishStatus.borrowed
         : dishCondition !== DishCondition.good
-        ? DishStatus.broken
-        : DishStatus.available
+          ? DishStatus.broken
+          : DishStatus.available;
 
     await db.collection('dishes').doc(dish.id).update({
         condition: dishCondition,
@@ -437,26 +438,26 @@ export const updateBorrowedStatus = async (
         userId,
         borrowedAt,
         status,
-    })
-}
+    });
+};
 
 export const updateCondition = async (id: string, condition: string) => {
-    await db.collection('dishes').doc(id).update({ condition })
-}
+    await db.collection('dishes').doc(id).update({ condition });
+};
 
 export const updateDish = async (id: string, field: keyof Dish, oldValue: string, newValue: string) => {
     // check that old status is correct
-    const dish = await getDishById(id)
+    const dish = await getDishById(id);
     if (!dish) {
-        throw new Error('Dish does not exist in database')
+        throw new Error('Dish does not exist in database');
     }
     if (dish[field] && dish[field] !== oldValue) {
-        throw new Error('Old value does not match the value in database. Please reload the page')
+        throw new Error('Old value does not match the value in database. Please reload the page');
     }
 
     // update status
     await db
         .collection('dishes')
         .doc(id)
-        .update({ [field]: newValue })
-}
+        .update({ [field]: newValue });
+};

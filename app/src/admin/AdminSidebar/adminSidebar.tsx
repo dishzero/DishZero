@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Email, Home, Person2, RoomService, Settings } from '@mui/icons-material'
-import { Drawer, List, ListItemButton, Typography, styled } from '@mui/material'
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import AdminSidebarItem from './adminSidebarItem'
-import DishzeroSidebarLogo from '../../assets/dishzero-sidebar-logo.png'
+import { Email, Home, Person2, RoomService, Settings } from '@mui/icons-material';
+import { Drawer, List, ListItemButton, styled, Typography } from '@mui/material';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
-export const SIDEBAR_WIDTH = '300px'
+import DishzeroSidebarLogo from '../../assets/dishzero-sidebar-logo.png';
+import AdminSidebarItem from './adminSidebarItem';
+
+export const SIDEBAR_WIDTH = '300px';
 
 const StyledDrawer = styled(Drawer)(({ theme }) => ({
     whiteSpace: 'nowrap',
@@ -20,14 +21,14 @@ const StyledDrawer = styled(Drawer)(({ theme }) => ({
         overflowX: 'hidden',
         height: '100%',
     },
-}))
+}));
 
 export default function AdminSidebar() {
-    const [open, setOpen] = useState(true)
+    const [open, setOpen] = useState(true);
 
     const handleDrawerChange = () => {
-        setOpen(!open)
-    }
+        setOpen(!open);
+    };
     // TODO create a JSON for this then loop through
     return (
         <StyledDrawer variant="permanent" open={open} onClose={handleDrawerChange}>
@@ -60,5 +61,5 @@ export default function AdminSidebar() {
                 {/* <AdminSidebarItem url="/admin/settings" icon={<Settings />} text="Settings" /> */}
             </List>
         </StyledDrawer>
-    )
+    );
 }

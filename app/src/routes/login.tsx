@@ -1,52 +1,56 @@
-import { useEffect, useState } from 'react'
-import { Button, Typography, Box, Avatar, Tooltip } from '@mui/material'
-import desktopLogo from '../assets/dishzero-logo-desktop.png'
-import mobileLogo from '../assets/dishzero-logo-mobile.png'
-import signInButtonLogo from '../assets/sign-in-button-logo.png'
-import MobileBackground from '../assets/leaf-mobile-background.png'
-import 'typeface-poppins'
-import { LoginLocation, useAuth } from '../contexts/AuthContext'
-import LoadingSpinner from '../widgets/loadingSpinner'
-import { HelpOutline } from '@mui/icons-material'
+import { Avatar, Box, Button, Tooltip, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
+
+import desktopLogo from '../assets/dishzero-logo-desktop.png';
+import mobileLogo from '../assets/dishzero-logo-mobile.png';
+import MobileBackground from '../assets/leaf-mobile-background.png';
+import signInButtonLogo from '../assets/sign-in-button-logo.png';
+
+import 'typeface-poppins';
+
+import { HelpOutline } from '@mui/icons-material';
+
+import { LoginLocation, useAuth } from '../contexts/AuthContext';
+import LoadingSpinner from '../widgets/loadingSpinner';
 
 export default function Login() {
-    const { login } = useAuth()
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
+    const { login } = useAuth();
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
     //Show spinner as soon as page is refreshed
-    const [isLoading, setIsLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         const handleResize = () => {
-            setIsMobile(window.innerWidth <= 768)
-        }
+            setIsMobile(window.innerWidth <= 768);
+        };
 
-        window.addEventListener('resize', handleResize)
+        window.addEventListener('resize', handleResize);
         setTimeout(() => sessionStorage.removeItem('previousURL'), 2000);
         //sessionStorage.removeItem('previousURL')
         return () => {
-            window.removeEventListener('resize', handleResize)
-        }
-    }, [])
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
 
     // fired on button click while the user is not signed in.
     // logs in the user and navigates to home screen if successfully logged in
     const handleSignIn = async (loginLocation = LoginLocation.Other) => {
-        setIsLoading(true)
+        setIsLoading(true);
         // Get the 'previousURL' parameter from the query string
-        const urlParams = new URLSearchParams(window.location.search)
-        const previousURL = urlParams.get('previousURL')
+        const urlParams = new URLSearchParams(window.location.search);
+        const previousURL = urlParams.get('previousURL');
 
         // Save the original URL to sessionStorage
-        sessionStorage.setItem('previousURL', previousURL || '')
+        sessionStorage.setItem('previousURL', previousURL || '');
 
-        await login(loginLocation)
-    }
+        await login(loginLocation);
+    };
     //Hide spinner as soon as Auth state has changed i.e. auth state has been read
 
     //As auth state is being read, display loader spinner
     if (isLoading) {
-        return <LoadingSpinner isMobile={isMobile} />
+        return <LoadingSpinner isMobile={isMobile} />;
     }
     return (
         <Box sx={isMobile ? styles.rootMobile : styles.rootDesktop}>
@@ -90,7 +94,7 @@ export default function Login() {
                 </Box>
             </Box>
         </Box>
-    )
+    );
 }
 
 export const styles = {
@@ -219,11 +223,11 @@ export const styles = {
         color: 'white',
         marginLeft: '7px',
     },
-    
+
     signInButtonTextUofA: {
         fontSize: '1.025rem',
         fontFamily: 'Poppins, sans-serif',
         color: '#68B49A',
         marginLeft: '7px',
-    }
-}
+    },
+};

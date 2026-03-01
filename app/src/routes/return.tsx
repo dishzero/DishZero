@@ -1,53 +1,55 @@
 /*eslint-disable*/
-import { useState, useEffect, memo } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
-import React from 'react'
-import '../styles/QRScanner.css'
-import { AppHeader } from '../widgets/appHeader'
-import CameraInput from '../widgets/cameraScanner'
-import BottomTextInput from '../widgets/bottomTextInput'
+import React, { memo, useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+import '../styles/QRScanner.css';
+
 import {
-    Button,
-    Typography,
-    Box,
     Avatar,
-    FormControlLabel,
-    FormControl,
-    RadioGroup,
-    Radio,
-    IconButton,
+    Box,
+    Button,
     DialogContent,
-} from '@mui/material'
-import { useAuth } from '../contexts/AuthContext'
-import plateIcon from '../assets/dish_icon_contained.svg'
-import mugIcon from '../assets/mug_icon_contained.svg'
-import MobileBackground from '../assets/leaf-mobile-background.png'
-import ReportIcon from '../assets/megaphone.svg'
-import ErrorIcon from '../assets/error_icon.svg'
-import CloseIcon from '../assets/X_icon.svg'
-import axios from 'axios'
-import adminApi from '../admin/adminApi'
-import { Dish, DishStatus } from '../admin/DishesPage/constants'
-import { useSnackbar } from 'notistack'
-import CustomDialogTitle from '../admin/DishesPage/customDialogTitle'
+    FormControl,
+    FormControlLabel,
+    IconButton,
+    Radio,
+    RadioGroup,
+    Typography,
+} from '@mui/material';
+import axios from 'axios';
+import { useSnackbar } from 'notistack';
+
+import adminApi from '../admin/adminApi';
+import { Dish, DishStatus } from '../admin/DishesPage/constants';
+import CustomDialogTitle from '../admin/DishesPage/customDialogTitle';
+import plateIcon from '../assets/dish_icon_contained.svg';
+import ErrorIcon from '../assets/error_icon.svg';
+import MobileBackground from '../assets/leaf-mobile-background.png';
+import ReportIcon from '../assets/megaphone.svg';
+import mugIcon from '../assets/mug_icon_contained.svg';
+import CloseIcon from '../assets/X_icon.svg';
+import { useAuth } from '../contexts/AuthContext';
+import { AppHeader } from '../widgets/appHeader';
+import BottomTextInput from '../widgets/bottomTextInput';
+import CameraInput from '../widgets/cameraScanner';
 
 interface Props {
-    dishType: string
-    error: string
-    message: string
-    reportToggle: () => void
-    qid: string
-    isMobile: boolean
+    dishType: string;
+    error: string;
+    message: string;
+    reportToggle: () => void;
+    qid: string;
+    isMobile: boolean;
 }
 
 const PopUpModal = memo(({ dishType, error, message, reportToggle, qid, isMobile }: Props) => {
-    let avatarIcon
+    let avatarIcon;
     if (error) {
-        avatarIcon = ErrorIcon
+        avatarIcon = ErrorIcon;
     } else if (dishType == 'plate') {
-        avatarIcon = plateIcon
+        avatarIcon = plateIcon;
     } else {
-        avatarIcon = mugIcon
+        avatarIcon = mugIcon;
     }
     return (
         <Box sx={stylesConst.boxContainer} className="position-fixed translate-middle slide-in-popup animate">
@@ -106,31 +108,31 @@ const PopUpModal = memo(({ dishType, error, message, reportToggle, qid, isMobile
                 </div>
             )}
         </Box>
-    )
-})
+    );
+});
 const Return = ({ noTimer }) => {
-    const [scanId, setScanId] = useState('')
-    const [showNotif, setShowNotif] = useState(false)
-    const [popUp, setPopUp] = useState(false)
-    const [dishType, setDishType] = useState('')
-    const [qid, setQid] = useState('')
-    const [isLoading, setIsLoading] = useState(false)
-    const [dishIcon, setDishIcon] = useState()
-    const [notifType, setNotifType] = useState('returned')
-    const [error, setError] = useState('')
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
-    const [reportPopUp, setReportPopUp] = useState(false)
-    const [reportValue, setReportValue] = useState('small_crack_chip')
-    const [dishID, setDishID] = useState('')
-    const { currentUser, sessionToken } = useAuth()
-    const [message, setMessage] = useState('')
-    const navigate = useNavigate()
-    const location = useLocation()
+    const [scanId, setScanId] = useState('');
+    const [showNotif, setShowNotif] = useState(false);
+    const [popUp, setPopUp] = useState(false);
+    const [dishType, setDishType] = useState('');
+    const [qid, setQid] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [dishIcon, setDishIcon] = useState();
+    const [notifType, setNotifType] = useState('returned');
+    const [error, setError] = useState('');
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+    const [reportPopUp, setReportPopUp] = useState(false);
+    const [reportValue, setReportValue] = useState('small_crack_chip');
+    const [dishID, setDishID] = useState('');
+    const { currentUser, sessionToken } = useAuth();
+    const [message, setMessage] = useState('');
+    const navigate = useNavigate();
+    const location = useLocation();
 
-    const [forceSignInDialog, setForceSignInDialog] = useState(false)
-    const [forceLoading, setForceLoading] = useState(false)
+    const [forceSignInDialog, setForceSignInDialog] = useState(false);
+    const [forceLoading, setForceLoading] = useState(false);
 
-    const { enqueueSnackbar } = useSnackbar()
+    const { enqueueSnackbar } = useSnackbar();
 
     /*const onScan = async (id: string) => {
         setScanId(id);
@@ -146,30 +148,30 @@ const Return = ({ noTimer }) => {
 
     useEffect(() => {
         if (noTimer) {
-            return
+            return;
         }
         const timer = setTimeout(() => {
             if (popUp) {
-                setPopUp(false)
+                setPopUp(false);
             }
-        }, 5000)
-        return () => clearTimeout(timer)
-    }, [popUp, message])
+        }, 5000);
+        return () => clearTimeout(timer);
+    }, [popUp, message]);
 
     const onCancel = popUp
         ? () => {
-              setPopUp(false)
+              setPopUp(false);
           }
-        : null
+        : null;
 
     const onClick = () => {
-        setPopUp(true)
-    }
+        setPopUp(true);
+    };
 
     const ReportModal = () => {
         const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-            setReportValue((event.target as HTMLInputElement).value)
-        }
+            setReportValue((event.target as HTMLInputElement).value);
+        };
         return (
             <div
                 className="position-absolute top-50 start-50 translate-middle shadow-lg"
@@ -253,30 +255,30 @@ const Return = ({ noTimer }) => {
                     Report
                 </Button>
             </div>
-        )
-    }
+        );
+    };
     const onSubmit = async (condition: string) => {
-        console.log('Session-token: ', sessionToken)
-        let dishID
+        console.log('Session-token: ', sessionToken);
+        let dishID;
 
-        setDishType('')
+        setDishType('');
         if (!/^\d+$/.test(condition)) {
-            const matches = condition.match(/[0-9]+$/)
+            const matches = condition.match(/[0-9]+$/);
             if (matches) {
-                condition = String(parseInt(matches[0], 10))
+                condition = String(parseInt(matches[0], 10));
             }
         }
 
-        console.log('Condition: ', condition)
+        console.log('Condition: ', condition);
 
-        setQid(condition)
-        setIsLoading(true)
+        setQid(condition);
+        setIsLoading(true);
 
-        const dishData = (await adminApi.getDishByQid(sessionToken, condition)) as Dish
-        setDishID(dishData.id)
-        setDishType(dishData.type)
+        const dishData = (await adminApi.getDishByQid(sessionToken, condition)) as Dish;
+        setDishID(dishData.id);
+        setDishType(dishData.type);
 
-        console.log(dishData)
+        console.log(dishData);
         // check if dish is borrowed
         if (dishData.status == DishStatus.borrowed) {
             // return the dish
@@ -298,22 +300,22 @@ const Return = ({ noTimer }) => {
                     },
                 )
                 .then(function (response) {
-                    setError('')
-                    setIsLoading(false)
-                    setMessage('')
-                    setPopUp(true)
+                    setError('');
+                    setIsLoading(false);
+                    setMessage('');
+                    setPopUp(true);
                 })
                 .catch(function (error) {
                     // handle error
-                    console.log(error.response.data.message)
-                    setError(error.response.data.message)
-                    setIsLoading(false)
-                    setMessage('')
-                    setPopUp(true)
-                })
+                    console.log(error.response.data.message);
+                    setError(error.response.data.message);
+                    setIsLoading(false);
+                    setMessage('');
+                    setPopUp(true);
+                });
         } else {
             // create a popup asking if they want to force sign out and sign in
-            setForceSignInDialog(true)
+            setForceSignInDialog(true);
         }
 
         // get the dish
@@ -322,11 +324,11 @@ const Return = ({ noTimer }) => {
         //setDishIcon(icon);
 
         // Check if dish is signed out
-    }
+    };
 
     const forceSignIn = async () => {
         // sign out the dish
-        setForceLoading(true)
+        setForceLoading(true);
         const response = (await axios
             .post(
                 `${process.env.REACT_APP_BACKEND_ADDRESS}/api/dish/borrow`,
@@ -337,21 +339,21 @@ const Return = ({ noTimer }) => {
                 },
             )
             .then((res) => {
-                console.log('res', res)
-                return res
+                console.log('res', res);
+                return res;
             })
             .catch((err) => {
                 // eslint-disable-next-line no-console
-                console.error(`Failed to borrow dish ${err}.`)
-                return err
-            })) as any
-        console.log('response', response)
+                console.error(`Failed to borrow dish ${err}.`);
+                return err;
+            })) as any;
+        console.log('response', response);
 
         if (response && response.status != 200) {
-            enqueueSnackbar(`Failed to sign out the dish please try again: ${response.message}`, { variant: 'error' })
-            setForceLoading(false)
+            enqueueSnackbar(`Failed to sign out the dish please try again: ${response.message}`, { variant: 'error' });
+            setForceLoading(false);
         } else {
-            console.log('returning the dish')
+            console.log('returning the dish');
             // return the dish
             // const response = (await adminApi.returnDish(sessionToken, qid)) as any
             const response = (await axios
@@ -372,27 +374,27 @@ const Return = ({ noTimer }) => {
                     },
                 )
                 .then(function (response) {
-                    setForceSignInDialog(false)
-                    setError('')
-                    setIsLoading(false)
-                    setMessage('')
-                    setPopUp(true)
+                    setForceSignInDialog(false);
+                    setError('');
+                    setIsLoading(false);
+                    setMessage('');
+                    setPopUp(true);
                 })
                 .catch(function (error) {
                     // handle error
-                    console.log(error.response.data.message)
-                    setError(error.response.data.message)
-                    setIsLoading(false)
-                    setMessage('')
-                    setPopUp(true)
-                })) as any
-            setForceLoading(false)
+                    console.log(error.response.data.message);
+                    setError(error.response.data.message);
+                    setIsLoading(false);
+                    setMessage('');
+                    setPopUp(true);
+                })) as any;
+            setForceLoading(false);
         }
-    }
+    };
 
     const reportToggle = () => {
-        console.log(dishID)
-        console.log(reportValue)
+        console.log(dishID);
+        console.log(reportValue);
 
         if (reportPopUp) {
             axios
@@ -413,21 +415,21 @@ const Return = ({ noTimer }) => {
                     },
                 )
                 .then(function (response) {
-                    console.log(response)
-                    setMessage(response?.data?.message)
-                    setPopUp(true)
+                    console.log(response);
+                    setMessage(response?.data?.message);
+                    setPopUp(true);
                 })
                 .catch(function (error) {
                     // handle error
-                    console.log(error.response.data.message)
-                    setError(error.response.data.message)
-                    setMessage('')
-                    setPopUp(true)
-                })
+                    console.log(error.response.data.message);
+                    setError(error.response.data.message);
+                    setMessage('');
+                    setPopUp(true);
+                });
         }
 
-        setReportPopUp(!reportPopUp)
-    }
+        setReportPopUp(!reportPopUp);
+    };
 
     return (
         <div
@@ -516,10 +518,10 @@ const Return = ({ noTimer }) => {
                 onSubmit={onSubmit}
             />
         </div>
-    )
-}
+    );
+};
 
-export default Return
+export default Return;
 
 const stylesConst = {
     boxContainer: {
@@ -592,4 +594,4 @@ const stylesConst = {
         backgroundColor: 'white',
         zIndex: 1000,
     },
-} as const
+} as const;

@@ -1,44 +1,45 @@
-import { Button, Chip, Tooltip, styled } from '@mui/material'
-import { GridColDef } from '@mui/x-data-grid'
-import { capitalizeFirstLetter } from '../AdminHome/constants'
+import { Button, Chip, styled, Tooltip } from '@mui/material';
+import { GridColDef } from '@mui/x-data-grid';
+
+import { capitalizeFirstLetter } from '../AdminHome/constants';
 
 export type Dish = {
-    id: string
-    qid: number
-    type: string
-    status: DishStatus // update DishStatus enum
-    condition?: DishCondition // keep this for now
-    timesBorrowed: number
-    registered: string
-    userId: string | null
-    borrowedAt: string | null // rename to dateBorrowed?
-    location: string | null
-    vendor: string | null
+    id: string;
+    qid: number;
+    type: string;
+    status: DishStatus; // update DishStatus enum
+    condition?: DishCondition; // keep this for now
+    timesBorrowed: number;
+    registered: string;
+    userId: string | null;
+    borrowedAt: string | null; // rename to dateBorrowed?
+    location: string | null;
+    vendor: string | null;
     // notes: string | null // use to add notes to dish -> future work?
-}
+};
 
 export function tagColor(text: string): string {
     switch (text) {
         case 'mug':
-            return '#496EA5'
+            return '#496EA5';
         case 'dish':
-            return '#68B49A'
+            return '#68B49A';
         case 'borrowed':
-            return '#68B49A'
+            return '#68B49A';
         case 'returned':
-            return '#29604D'
+            return '#29604D';
         case 'available':
-            return '#29604D'
+            return '#29604D';
         case 'overdue':
-            return '#BF4949'
+            return '#BF4949';
         case 'broken':
-            return '#BF4949'
+            return '#BF4949';
         case 'lost':
-            return '#BF4949'
+            return '#BF4949';
         case 'unavailable':
-            return '#BF4949'
+            return '#BF4949';
         default:
-            return ''
+            return '';
     }
 }
 
@@ -63,7 +64,7 @@ export const StyledOutlinedButton = styled(Button)(({ theme }) => ({
     borderRadius: '30px',
     border: `2px solid !important`,
     padding: '0.5rem 2rem !important',
-}))
+}));
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const StyledContainedButton = styled(Button)(({ theme }) => ({
@@ -71,14 +72,14 @@ export const StyledContainedButton = styled(Button)(({ theme }) => ({
     color: 'white',
     padding: '0.5rem 2rem',
     margin: '1rem',
-}))
+}));
 
 export const DishConditionColors = {
     good: '#68B49A',
     small_crack_chip: '#BF4949',
     large_crack_chunk: '#BF4949',
     shattered: '#BF4949',
-}
+};
 
 export const generateColumns = (dishTypes: string[], dishVendors: Record<string, string[]>): GridColDef[] => [
     { field: 'qid', headerName: 'Dish Id', minWidth: 100, maxWidth: 100, flex: 1 },
@@ -91,10 +92,10 @@ export const generateColumns = (dishTypes: string[], dishVendors: Record<string,
         type: 'singleSelect',
         valueOptions: Object.values(dishTypes) as string[],
         valueFormatter({ value }: { value: string }) {
-            return capitalizeFirstLetter(value)
+            return capitalizeFirstLetter(value);
         },
         renderCell(params) {
-            const color = tagColor(params.value) ?? 'inherit'
+            const color = tagColor(params.value) ?? 'inherit';
             return (
                 <>
                     {params && (
@@ -108,7 +109,7 @@ export const generateColumns = (dishTypes: string[], dishVendors: Record<string,
                         />
                     )}
                 </>
-            )
+            );
         },
     },
     {
@@ -121,10 +122,10 @@ export const generateColumns = (dishTypes: string[], dishVendors: Record<string,
         type: 'singleSelect',
         valueOptions: Object.values(DishStatus) as string[],
         valueFormatter({ value }: { value: string }) {
-            return capitalizeFirstLetter(value)
+            return capitalizeFirstLetter(value);
         },
         renderCell(params) {
-            const color = tagColor(params.value) ?? 'inherit'
+            const color = tagColor(params.value) ?? 'inherit';
             return (
                 <>
                     {params && (
@@ -139,7 +140,7 @@ export const generateColumns = (dishTypes: string[], dishVendors: Record<string,
                         />
                     )}
                 </>
-            )
+            );
         },
     },
     { field: 'userId', headerName: 'Current User', minWidth: 200, maxWidth: 250, flex: 1 },
@@ -151,22 +152,22 @@ export const generateColumns = (dishTypes: string[], dishVendors: Record<string,
         flex: 1,
         type: 'date',
         valueFormatter({ value }: { value: string }) {
-            return value ? new Date(value).toLocaleString() : null
+            return value ? new Date(value).toLocaleString() : null;
         },
         renderCell(params) {
-            if (!params || !params.value || !params.formattedValue) return null
-            const timeSinceBorrowed = Date.now() - new Date(params.value).getTime()
-            const daysDifference = Math.floor(timeSinceBorrowed / (1000 * 3600 * 24))
-            const overdue = daysDifference >= 2
+            if (!params || !params.value || !params.formattedValue) return null;
+            const timeSinceBorrowed = Date.now() - new Date(params.value).getTime();
+            const daysDifference = Math.floor(timeSinceBorrowed / (1000 * 3600 * 24));
+            const overdue = daysDifference >= 2;
 
             if (overdue) {
                 return (
                     <Tooltip title={`${daysDifference} days`} placement="top" arrow>
                         <div style={{ color: '#BF4949' }}>{params.formattedValue}</div>
                     </Tooltip>
-                )
+                );
             }
-            return <div>{params.formattedValue}</div>
+            return <div>{params.formattedValue}</div>;
         },
     },
     {
@@ -187,7 +188,7 @@ export const generateColumns = (dishTypes: string[], dishVendors: Record<string,
         flex: 1,
         type: 'date',
         valueFormatter({ value }: { value: string }) {
-            return new Date(value).toLocaleDateString()
+            return new Date(value).toLocaleDateString();
         },
     },
     {
@@ -212,7 +213,7 @@ export const generateColumns = (dishTypes: string[], dishVendors: Record<string,
         valueOptions: (params) => ['', ...(dishVendors[params.row.location] ?? [])], // "" as empty selection
         valueFormatter: ({ value }: { value: string | null }) => (value ? capitalizeFirstLetter(value) : ''),
     },
-]
+];
 
 export const mockDishes: Array<Dish> = [
     {
@@ -241,4 +242,4 @@ export const mockDishes: Array<Dish> = [
         location: 'ETLC',
         vendor: 'Starbucks',
     },
-]
+];

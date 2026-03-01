@@ -1,76 +1,77 @@
-import express, { Request, Response } from 'express'
-import { ensureUserExistsForDecodedToken } from '@/services/users'
-import { auth } from '@/firebase'
-import logger from '@/logger'
+import express, { Request, Response } from 'express';
+
 import {
     INTERNAL_SERVER_ERROR_RESPONSE,
     SUCCESS_STATUS_RESPONSE,
     UNAUTHORIZED_REQUEST_ERROR_RESPONSE,
-} from '@/constants'
+} from '@/constants';
+import { auth } from '@/firebase';
+import logger from '@/logger';
+import { ensureUserExistsForDecodedToken } from '@/services/users';
 
 async function login(req: Request, res: Response) {
-    let decodedToken
-    const idToken = req.body.idToken?.toString()
+    let decodedToken;
+    const idToken = req.body.idToken?.toString();
     if (!idToken) {
-        return res.status(401).send(UNAUTHORIZED_REQUEST_ERROR_RESPONSE)
+        return res.status(401).send(UNAUTHORIZED_REQUEST_ERROR_RESPONSE);
     }
 
     try {
-        decodedToken = await auth.verifyIdToken(idToken)
+        decodedToken = await auth.verifyIdToken(idToken);
     } catch (error) {
         logger.error({
             reqId: req.id,
             error,
             message: 'Error when verifying firebase id token',
-        })
+        });
         // TODO: How can we differentiate an invalid token from something that should return a 500?
-        return res.status(401).send(UNAUTHORIZED_REQUEST_ERROR_RESPONSE)
+        return res.status(401).send(UNAUTHORIZED_REQUEST_ERROR_RESPONSE);
     }
 
-    const expiresIn = 60 * 60 * 24 * 5 * 1000 // 5 days
+    const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
     try {
-        const sessionCookie = await auth.createSessionCookie(idToken, { expiresIn })
-        const user = await ensureUserExistsForDecodedToken(decodedToken)
-        res.cookie('session', sessionCookie, { maxAge: expiresIn, httpOnly: true, secure: true })
+        const sessionCookie = await auth.createSessionCookie(idToken, { expiresIn });
+        const user = await ensureUserExistsForDecodedToken(decodedToken);
+        res.cookie('session', sessionCookie, { maxAge: expiresIn, httpOnly: true, secure: true });
         return res.status(200).json({
             session: sessionCookie,
             user,
-        })
+        });
     } catch (error) {
         logger.error({
             reqId: req.id,
             error,
             message: 'Error when creating firebase session cookie',
-        })
-        return res.status(500).send(INTERNAL_SERVER_ERROR_RESPONSE)
+        });
+        return res.status(500).send(INTERNAL_SERVER_ERROR_RESPONSE);
     }
 }
 
 async function logout(req: Request, res: Response) {
-    const sessionCookie = req.header('session-token') || req.cookies.session || ''
-    res.clearCookie('session')
+    const sessionCookie = req.header('session-token') || req.cookies.session || '';
+    res.clearCookie('session');
     if (!sessionCookie) {
-        return res.status(401).send(UNAUTHORIZED_REQUEST_ERROR_RESPONSE)
+        return res.status(401).send(UNAUTHORIZED_REQUEST_ERROR_RESPONSE);
     }
 
     try {
-        const decodedClaims = await auth.verifySessionCookie(sessionCookie)
-        await auth.revokeRefreshTokens(decodedClaims.sub)
-        return res.status(200).send(SUCCESS_STATUS_RESPONSE)
+        const decodedClaims = await auth.verifySessionCookie(sessionCookie);
+        await auth.revokeRefreshTokens(decodedClaims.sub);
+        return res.status(200).send(SUCCESS_STATUS_RESPONSE);
     } catch (error) {
         logger.error({
             reqId: req.id,
             error,
             message: 'Error when revoking firebase session cookie',
-        })
+        });
         // TODO: How can we differentiate an invalid token from something that should return a 500?
-        return res.status(401).send(UNAUTHORIZED_REQUEST_ERROR_RESPONSE)
+        return res.status(401).send(UNAUTHORIZED_REQUEST_ERROR_RESPONSE);
     }
 }
 
-const router = express.Router()
+const router = express.Router();
 
-router.post('/login', login)
-router.post('/logout', logout)
+router.post('/login', login);
+router.post('/logout', logout);
 
-export { router as authRouter }
+export { router as authRouter };

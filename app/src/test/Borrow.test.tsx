@@ -1,18 +1,19 @@
-import React from 'react'
-import { render, fireEvent, waitFor, screen } from '@testing-library/react'
-import { BrowserRouter } from 'react-router-dom'
-import Borrow from '../routes/borrow'
-import axios from 'axios' // API requests
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import axios from 'axios'; // API requests
+import React from 'react';
+import { BrowserRouter } from 'react-router-dom';
 
-import '@testing-library/jest-dom'
-jest.mock('axios')
-const mockedAxios = axios as jest.Mocked<typeof axios>
-const mockPost = axios.post as jest.MockedFunction<typeof axios.post>
+import Borrow from '../routes/borrow';
+import '@testing-library/jest-dom';
+
+jest.mock('axios');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
+const mockPost = axios.post as jest.MockedFunction<typeof axios.post>;
 
 const mockData = {
     show: true,
     success: true,
-}
+};
 
 jest.mock('../contexts/AuthContext', () => ({
     ...jest.requireActual('../contexts/AuthContext'), // use actual for all non-hook parts
@@ -26,10 +27,10 @@ jest.mock('../contexts/AuthContext', () => ({
         login: jest.fn(),
         logout: jest.fn(),
     }),
-}))
+}));
 
 //Mocking useAuth
-const useAuthMock = jest.spyOn(require('../contexts/AuthContext'), 'useAuth')
+const useAuthMock = jest.spyOn(require('../contexts/AuthContext'), 'useAuth');
 
 beforeEach(() => {
     //Mock response to be returned by our mock implementation of the useAuth
@@ -42,16 +43,16 @@ beforeEach(() => {
         sessionToken: 'mocked-session-token',
         login: jest.fn(),
         logout: jest.fn(),
-    }))
-})
+    }));
+});
 
 test('renders without crashing and displays the Scanner component', () => {
     render(
         <BrowserRouter>
             <Borrow />
         </BrowserRouter>,
-    )
-})
+    );
+});
 
 //  double check what ,toBeInTheDocument() does
 test('Confirm modal is displayed when confirm state is true', async () => {
@@ -61,15 +62,15 @@ test('Confirm modal is displayed when confirm state is true', async () => {
         <BrowserRouter>
             <Borrow />
         </BrowserRouter>,
-    )
+    );
 
     // You might need to simulate the condition that sets the confirm state to true
     // For example, if a button click sets this state, you would simulate that click
-    const enterButton = screen.getByTestId('enter-btn')
-    fireEvent.click(enterButton)
+    const enterButton = screen.getByTestId('enter-btn');
+    fireEvent.click(enterButton);
 
-    expect(screen.getByText('Borrow')).toBeInTheDocument() // Assuming 'Borrow' is unique to this modal
-})
+    expect(screen.getByText('Borrow')).toBeInTheDocument(); // Assuming 'Borrow' is unique to this modal
+});
 
 //test search bar
 test('updates on input', async () => {
@@ -77,34 +78,34 @@ test('updates on input', async () => {
         <BrowserRouter>
             <Borrow />
         </BrowserRouter>,
-    )
+    );
 
-    const input = screen.getByPlaceholderText('Enter dish id #') as HTMLInputElement
-    fireEvent.change(input, { target: { value: 'query' } })
-    expect(input.value).toBe('query')
-})
+    const input = screen.getByPlaceholderText('Enter dish id #') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: 'query' } });
+    expect(input.value).toBe('query');
+});
 
 test('triggers search on Enter key', () => {
     // Mock the API call for transactions
-    mockedAxios.get.mockResolvedValueOnce(mockData)
+    mockedAxios.get.mockResolvedValueOnce(mockData);
 
     render(
         <BrowserRouter>
             <Borrow />
         </BrowserRouter>,
-    )
+    );
 
-    const input = screen.getByPlaceholderText('Enter dish id #') as HTMLInputElement
-    fireEvent.change(input, { target: { value: 6 } })
-    const enterButton = screen.getByTestId('enter-btn')
-    fireEvent.click(enterButton)
-    expect(screen.getByText('Borrow')).toBeInTheDocument()
-    expect(screen.getByText('ID: 6'))
-})
+    const input = screen.getByPlaceholderText('Enter dish id #') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: 6 } });
+    const enterButton = screen.getByTestId('enter-btn');
+    fireEvent.click(enterButton);
+    expect(screen.getByText('Borrow')).toBeInTheDocument();
+    expect(screen.getByText('ID: 6'));
+});
 
 test('triggers search on Enter key', async () => {
     // Mock the API call for transactions
-    mockPost.mockResolvedValue(mockData)
+    mockPost.mockResolvedValue(mockData);
     //mockedAxios.get.mockResolvedValueOnce(mockData);
     //something: jest.fn(() => Promise.resolve(Promise.resolve(mockData))),
 
@@ -112,21 +113,21 @@ test('triggers search on Enter key', async () => {
         <BrowserRouter>
             <Borrow />
         </BrowserRouter>,
-    )
+    );
 
-    const input = screen.getByPlaceholderText('Enter dish id #') as HTMLInputElement
-    fireEvent.change(input, { target: { value: 6 } })
-    const enterButton = screen.getByTestId('enter-btn')
-    fireEvent.click(enterButton)
-    expect(screen.getByText('Borrow')).toBeInTheDocument()
-    expect(screen.getByText('ID: 6'))
+    const input = screen.getByPlaceholderText('Enter dish id #') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: 6 } });
+    const enterButton = screen.getByTestId('enter-btn');
+    fireEvent.click(enterButton);
+    expect(screen.getByText('Borrow')).toBeInTheDocument();
+    expect(screen.getByText('ID: 6'));
 
-    const borrowButton = screen.getByTestId('borrow-btn')
-    fireEvent.click(borrowButton)
+    const borrowButton = screen.getByTestId('borrow-btn');
+    fireEvent.click(borrowButton);
     await waitFor(() => {
-        expect(screen.getByText('Successfully borrowed'))
-        expect(screen.getByText('Dish # 6'))
-    })
+        expect(screen.getByText('Successfully borrowed'));
+        expect(screen.getByText('Dish # 6'));
+    });
 
     // Optionally, check if axios.post was called with the correct arguments
     expect(axios.post).toHaveBeenCalledWith(
@@ -138,12 +139,12 @@ test('triggers search on Enter key', async () => {
             },
             params: { qid: '6' },
         },
-    )
-})
+    );
+});
 
 test('Fail to borrow dish occurs', async () => {
     // Mock the API call for transactions
-    mockPost.mockResolvedValue(mockData)
+    mockPost.mockResolvedValue(mockData);
     //mockedAxios.get.mockResolvedValueOnce(mockData);
     //something: jest.fn(() => Promise.resolve(Promise.resolve(mockData))),
 
@@ -151,21 +152,21 @@ test('Fail to borrow dish occurs', async () => {
         <BrowserRouter>
             <Borrow />
         </BrowserRouter>,
-    )
+    );
 
-    const input = screen.getByPlaceholderText('Enter dish id #') as HTMLInputElement
-    fireEvent.change(input, { target: { value: 6 } })
-    const enterButton = screen.getByTestId('enter-btn')
-    fireEvent.click(enterButton)
-    expect(screen.getByText('Borrow')).toBeInTheDocument()
-    expect(screen.getByText('ID: 6'))
+    const input = screen.getByPlaceholderText('Enter dish id #') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: 6 } });
+    const enterButton = screen.getByTestId('enter-btn');
+    fireEvent.click(enterButton);
+    expect(screen.getByText('Borrow')).toBeInTheDocument();
+    expect(screen.getByText('ID: 6'));
 
-    const borrowButton = screen.getByTestId('borrow-btn')
-    fireEvent.click(borrowButton)
+    const borrowButton = screen.getByTestId('borrow-btn');
+    fireEvent.click(borrowButton);
     await waitFor(() => {
-        expect(screen.getByText('Successfully borrowed'))
-        expect(screen.getByText('Dish # 6'))
-    })
+        expect(screen.getByText('Successfully borrowed'));
+        expect(screen.getByText('Dish # 6'));
+    });
 
     // Optionally, check if axios.post was called with the correct arguments
     expect(axios.post).toHaveBeenCalledWith(
@@ -177,20 +178,20 @@ test('Fail to borrow dish occurs', async () => {
             },
             params: { qid: '6' },
         },
-    )
+    );
 
-    const second_input = screen.getByPlaceholderText('Enter dish id #') as HTMLInputElement
-    fireEvent.change(second_input, { target: { value: 6 } })
-    fireEvent.click(enterButton)
-    expect(screen.getByText('Borrow')).toBeInTheDocument()
-    expect(screen.getByText('ID: 6'))
+    const second_input = screen.getByPlaceholderText('Enter dish id #') as HTMLInputElement;
+    fireEvent.change(second_input, { target: { value: 6 } });
+    fireEvent.click(enterButton);
+    expect(screen.getByText('Borrow')).toBeInTheDocument();
+    expect(screen.getByText('ID: 6'));
 
-    fireEvent.click(borrowButton)
+    fireEvent.click(borrowButton);
     await waitFor(
         () => {
-            expect(screen.getByText('Failed to borrow'))
-            expect(screen.getByText('Dish # 6'))
+            expect(screen.getByText('Failed to borrow'));
+            expect(screen.getByText('Dish # 6'));
         },
         { timeout: 5000 },
-    )
-})
+    );
+});

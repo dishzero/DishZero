@@ -1,13 +1,17 @@
-import leaf_icon from '../assets/leaf-green.svg'
-import { MobileView, BrowserView } from 'react-device-detect'
-import '../styles/admin.css'
-import { Box, ThemeProvider, createTheme } from '@mui/material'
-import AdminDishesPage from '../admin/DishesPage/dishesPage'
-import { SnackbarProvider } from 'notistack'
-import Email from '../admin/EmailPage/email'
-import AdminUserPage from '../admin/UserPage/userPage'
-import AdminHomePage from '../admin/AdminHome/adminHomePage'
-import AdminSidebar, { SIDEBAR_WIDTH } from '../admin/AdminSidebar/adminSidebar'
+import { BrowserView, MobileView } from 'react-device-detect';
+
+import leaf_icon from '../assets/leaf-green.svg';
+
+import '../styles/admin.css';
+
+import { Box, createTheme, ThemeProvider } from '@mui/material';
+import { SnackbarProvider } from 'notistack';
+
+import AdminHomePage from '../admin/AdminHome/adminHomePage';
+import AdminSidebar, { SIDEBAR_WIDTH } from '../admin/AdminSidebar/adminSidebar';
+import AdminDishesPage from '../admin/DishesPage/dishesPage';
+import Email from '../admin/EmailPage/email';
+import AdminUserPage from '../admin/UserPage/userPage';
 
 export default function Admin({ path }: { path?: string }) {
     const theme = createTheme({
@@ -23,7 +27,7 @@ export default function Admin({ path }: { path?: string }) {
                 light: '#C5899E', // SECONDARY_LIGHT
             },
         },
-    })
+    });
 
     return (
         <ThemeProvider theme={theme}>
@@ -51,5 +55,5 @@ export default function Admin({ path }: { path?: string }) {
                 </BrowserView>
             </SnackbarProvider>
         </ThemeProvider>
-    )
+    );
 }

@@ -1,23 +1,24 @@
-import { Chip } from '@mui/material'
-import { GridColDef } from '@mui/x-data-grid'
-import { tagColor } from '../DishesPage/constants'
+import { Chip } from '@mui/material';
+import { GridColDef } from '@mui/x-data-grid';
+
+import { tagColor } from '../DishesPage/constants';
 
 export const capitalizeFirstLetter = (value: string) => {
     return value
         .toLowerCase()
         .split(' ')
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ')
-}
+        .join(' ');
+};
 
 export type Transaction = {
-    id: string
-    qid: string
-    dishType: string
-    transactionType: string
-    userEmail: string
-    timestamp: string
-}
+    id: string;
+    qid: string;
+    dishType: string;
+    transactionType: string;
+    userEmail: string;
+    timestamp: string;
+};
 
 export enum TransactionType {
     BORROWED = 'borrowed',
@@ -35,10 +36,10 @@ export const generateTransactionColumns = (dishTypes: string[]): GridColDef[] =>
         type: 'singleSelect',
         valueOptions: dishTypes,
         valueFormatter({ value }: { value: string }) {
-            return capitalizeFirstLetter(value)
+            return capitalizeFirstLetter(value);
         },
         renderCell(params) {
-            const color = tagColor(params.value) ?? 'inherit'
+            const color = tagColor(params.value) ?? 'inherit';
             return (
                 <>
                     {params && (
@@ -52,7 +53,7 @@ export const generateTransactionColumns = (dishTypes: string[]): GridColDef[] =>
                         />
                     )}
                 </>
-            )
+            );
         },
     },
     {
@@ -64,10 +65,10 @@ export const generateTransactionColumns = (dishTypes: string[]): GridColDef[] =>
         type: 'singleSelect',
         valueOptions: Object.values(TransactionType),
         valueFormatter({ value }: { value: string }) {
-            return capitalizeFirstLetter(value)
+            return capitalizeFirstLetter(value);
         },
         renderCell(params) {
-            const color = tagColor(params.value) ?? 'inherit'
+            const color = tagColor(params.value) ?? 'inherit';
             return (
                 <>
                     {params && (
@@ -81,7 +82,7 @@ export const generateTransactionColumns = (dishTypes: string[]): GridColDef[] =>
                         />
                     )}
                 </>
-            )
+            );
         },
     },
     { field: 'userEmail', headerName: 'User', minWidth: 200, maxWidth: 250, flex: 1 },
@@ -93,10 +94,10 @@ export const generateTransactionColumns = (dishTypes: string[]): GridColDef[] =>
         flex: 1,
         type: 'date',
         valueFormatter({ value }: { value: string }) {
-            return value ? new Date(value).toLocaleString() : null
+            return value ? new Date(value).toLocaleString() : null;
         },
     },
-]
+];
 
 export const mockTransactions: Array<any> = [
     {
@@ -136,4 +137,4 @@ export const mockTransactions: Array<any> = [
             role: 'customer',
         },
     },
-]
+];

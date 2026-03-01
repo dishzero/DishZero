@@ -1,9 +1,9 @@
-import { Typography } from '@mui/material'
-import { GridOverlay } from '@mui/x-data-grid'
-import { WebAsset } from '@mui/icons-material'
+import { WebAsset } from '@mui/icons-material';
+import { Typography } from '@mui/material';
+import { GridOverlay } from '@mui/x-data-grid';
 
 interface Props {
-    value: string
+    value: string;
 }
 
 export default function NoResultsOverlay({ value }: Props) {
@@ -14,5 +14,5 @@ export default function NoResultsOverlay({ value }: Props) {
                 No {value}
             </Typography>
         </GridOverlay>
-    )
+    );
 }

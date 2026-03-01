@@ -1,12 +1,14 @@
-import '../styles/index.css'
-import { useEffect, useState } from 'react'
-import axios from 'axios'
-import mug from '../assets/mug_icon_contained.svg'
-import container from '../assets/dish_icon_contained.svg'
+import '../styles/index.css';
+
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+
+import container from '../assets/dish_icon_contained.svg';
+import mug from '../assets/mug_icon_contained.svg';
 
 export default ({ dish, token }) => {
-    const [dishAPI, setDishAPI] = useState([])
-    const twoDaysInMs = 86400000 * 2
+    const [dishAPI, setDishAPI] = useState([]);
+    const twoDaysInMs = 86400000 * 2;
     useEffect(() => {
         axios
             .get(`/api/dish`, {
@@ -15,19 +17,19 @@ export default ({ dish, token }) => {
                 params: { id: dish.dish },
             })
             .then(function (response) {
-                setDishAPI(response.data.dish)
+                setDishAPI(response.data.dish);
             })
             .catch(function (error) {
-                console.log(error)
-            })
-    }, [])
+                console.log(error);
+            });
+    }, []);
 
     // const icon = dishAPI['type'] == 'mug' ? mug : container
-    const icon = dishAPI && dishAPI['type'] === 'mug' ? mug : container
-    const iconAltText = dishAPI && dishAPI['type'] === 'mug' ? 'Mug Icon' : 'Container Icon'
+    const icon = dishAPI && dishAPI['type'] === 'mug' ? mug : container;
+    const iconAltText = dishAPI && dishAPI['type'] === 'mug' ? 'Mug Icon' : 'Container Icon';
 
-    const dishCheckOut = new Date(dish.timestamp)
-    const dishDue = new Date(dishCheckOut.getTime() + twoDaysInMs)
+    const dishCheckOut = new Date(dish.timestamp);
+    const dishDue = new Date(dishCheckOut.getTime() + twoDaysInMs);
     return (
         <div className="dish-card mb-3" data-testid="dish-card">
             <div className="type-icon">
@@ -45,5 +47,5 @@ export default ({ dish, token }) => {
                 </p>
             </div>
         </div>
-    )
-}
+    );
+};

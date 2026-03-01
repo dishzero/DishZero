@@ -1,14 +1,14 @@
-import { Box, Dialog, DialogTitle, IconButton, Typography } from '@mui/material'
-import { ReactNode } from 'react'
-import { Close } from '@mui/icons-material'
+import { Close } from '@mui/icons-material';
+import { Box, Dialog, DialogTitle, IconButton, Typography } from '@mui/material';
+import { ReactNode } from 'react';
 
 interface Props {
-    open: boolean
-    setOpen: (open: boolean) => void
-    dialogTitle: string
-    loading: boolean
-    children: ReactNode
-    onCloseCallback?: () => void // called when the dialog is being closed
+    open: boolean;
+    setOpen: (open: boolean) => void;
+    dialogTitle: string;
+    loading: boolean;
+    children: ReactNode;
+    onCloseCallback?: () => void; // called when the dialog is being closed
 }
 
 export default function CustomDialogTitle({ open, setOpen, dialogTitle, loading, children, onCloseCallback }: Props) {
@@ -27,8 +27,8 @@ export default function CustomDialogTitle({ open, setOpen, dialogTitle, loading,
                     </Typography>
                     <IconButton
                         onClick={() => {
-                            setOpen(false)
-                            onCloseCallback && onCloseCallback()
+                            setOpen(false);
+                            onCloseCallback && onCloseCallback();
                         }}
                         disabled={loading}>
                         <Close />
@@ -37,5 +37,5 @@ export default function CustomDialogTitle({ open, setOpen, dialogTitle, loading,
             </DialogTitle>
             {children}
         </Dialog>
-    )
+    );
 }

@@ -1,52 +1,53 @@
-import { Box, DialogContent, LinearProgress, TextField } from '@mui/material'
-import { useState } from 'react'
-import { StyledContainedButton } from './constants'
-import adminApi from '../adminApi'
-import { useAuth } from '../../contexts/AuthContext'
-import CustomDialogTitle from './customDialogTitle'
-import { usePreventReload } from './addNewDish'
-import { useSnackbar } from 'notistack'
+import { Box, DialogContent, LinearProgress, TextField } from '@mui/material';
+import { useSnackbar } from 'notistack';
+import { useState } from 'react';
+
+import { useAuth } from '../../contexts/AuthContext';
+import adminApi from '../adminApi';
+import { usePreventReload } from './addNewDish';
+import { StyledContainedButton } from './constants';
+import CustomDialogTitle from './customDialogTitle';
 
 interface Props {
-    open: boolean
-    setOpen: (open: boolean) => void
-    fetchDishTypes: () => void
+    open: boolean;
+    setOpen: (open: boolean) => void;
+    fetchDishTypes: () => void;
 }
 
 export default function AddNewDishTypeDialog({ open, setOpen, fetchDishTypes }: Props) {
-    const { sessionToken } = useAuth()
+    const { sessionToken } = useAuth();
 
-    const [error, setError] = useState<boolean>(false) // dish type is not entered
-    const [loading, setLoading] = useState<boolean>(false)
-    const [newDishTypeValue, setNewDishTypeValue] = useState<string>('')
+    const [error, setError] = useState<boolean>(false); // dish type is not entered
+    const [loading, setLoading] = useState<boolean>(false);
+    const [newDishTypeValue, setNewDishTypeValue] = useState<string>('');
 
-    const { enqueueSnackbar } = useSnackbar()
+    const { enqueueSnackbar } = useSnackbar();
 
     // prevent page reload when loading
-    usePreventReload(loading)
+    usePreventReload(loading);
 
     const resetState = () => {
-        setError(false)
-        setNewDishTypeValue('')
-    }
+        setError(false);
+        setNewDishTypeValue('');
+    };
 
     const addNewDishType = async () => {
         if (sessionToken) {
-            setLoading(true)
-            const response = await adminApi.addDishType(sessionToken, newDishTypeValue.toLowerCase())
+            setLoading(true);
+            const response = await adminApi.addDishType(sessionToken, newDishTypeValue.toLowerCase());
             if (response && response.status != 200) {
-                enqueueSnackbar(`Failed to add dish type: ${response.message}`, { variant: 'error' })
+                enqueueSnackbar(`Failed to add dish type: ${response.message}`, { variant: 'error' });
             } else {
-                enqueueSnackbar('Successfully added dish type', { variant: 'success' })
-                setOpen(false)
-                resetState()
+                enqueueSnackbar('Successfully added dish type', { variant: 'success' });
+                setOpen(false);
+                resetState();
 
                 // fetch new dish types
-                fetchDishTypes()
+                fetchDishTypes();
             }
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
     return (
         <CustomDialogTitle
@@ -62,14 +63,14 @@ export default function AddNewDishTypeDialog({ open, setOpen, fetchDishTypes }: 
                         sx={{ width: '100%', mb: '0.25rem', mt: '0.25rem' }}
                         placeholder="Enter dish type..."
                         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                            const newValue = event.target.value
+                            const newValue = event.target.value;
 
                             // only accept letters
                             if (newValue === '' || /[^a-zA-Z]/.test(newValue)) {
-                                setError(true)
+                                setError(true);
                             } else {
-                                setError(false)
-                                setNewDishTypeValue(newValue)
+                                setError(false);
+                                setNewDishTypeValue(newValue);
                             }
                         }}
                         disabled={loading}
@@ -97,5 +98,5 @@ export default function AddNewDishTypeDialog({ open, setOpen, fetchDishTypes }: 
                 )}
             </DialogContent>
         </CustomDialogTitle>
-    )
+    );
 }

@@ -1,9 +1,10 @@
-import { Box } from '@mui/material'
-import { styles } from '../routes/login'
-import { BallTriangle } from 'react-loader-spinner'
+import { Box } from '@mui/material';
+import { BallTriangle } from 'react-loader-spinner';
+
+import { styles } from '../routes/login';
 
 interface Props {
-    isMobile: boolean
+    isMobile: boolean;
 }
 
 export default function LoadingSpinner({ isMobile }: Props) {
@@ -18,5 +19,5 @@ export default function LoadingSpinner({ isMobile }: Props) {
                 visible={true}
             />
         </Box>
-    )
+    );
 }
