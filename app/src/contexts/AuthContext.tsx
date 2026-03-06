@@ -7,7 +7,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { auth, googleAuthProvider, provider } from '../firebase';
-import LoadingSpinner from '../widgets/loadingSpinner';
+import LoadingSpinner from '../widgets/LoadingSpinner';
 
 type User = {
     id: string;

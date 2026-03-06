@@ -1,13 +1,13 @@
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
 
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
-import { Sidebar } from '../widgets/sidebar';
-import Admin from './admin';
-import BorrowRoute from './borrow';
-import HomeRoute from './home';
-import LoginRoute from './login';
-import { Error404 } from './misc';
-import ReturnRoute from './return';
+import Sidebar from '../widgets/Sidebar';
+import Admin from './Admin';
+import BorrowRoute from './Borrow';
+import Error404 from './Error404';
+import HomeRoute from './Home';
+import LoginRoute from './Login';
+import ReturnRoute from './Return';
 
 const enum Role {
     admin = 'admin',
@@ -137,6 +137,8 @@ const router = createBrowserRouter([
     },
 ]);
 
-export default () => {
+function App() {
     return <RouterProvider router={router} fallbackElement={<Error404 />} />;
-};
+}
+
+export default App;

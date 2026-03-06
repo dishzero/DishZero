@@ -4,7 +4,7 @@ import { useQrReader } from './hooks';
 import { styles } from './styles';
 import { QrReaderProps } from './types';
 
-export const QrReader: React.FC<QrReaderProps> = ({
+const QrReader: React.FC<QrReaderProps> = ({
     // videoContainerStyle,
     // containerStyle,
     videoStyle,
@@ -59,3 +59,6 @@ QrReader.defaultProps = {
     videoId: 'video',
     scanDelay: 500,
 };
+
+export { QrReader };
+export default QrReader;

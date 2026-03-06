@@ -1,8 +1,8 @@
 import { GridRowId } from '@mui/x-data-grid';
 import axios from 'axios';
 
-import { DishStatus } from './DishesPage/constants';
-import { User } from './UserPage/constants';
+import { DishStatus } from '../types';
+import { User } from './types';
 
 type StatusItem = {
     email: string;
