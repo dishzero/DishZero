@@ -1,4 +1,3 @@
-# Netlify build (pnpm). In Netlify UI set Base directory to "app" and Config file path to "app/netlify.toml".
 [build]
   command = "pnpm run build"
   publish = "build"
