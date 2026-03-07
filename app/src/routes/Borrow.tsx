@@ -9,12 +9,12 @@ import React, { useEffect, useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+import AppHeader from '../components/AppHeader';
+import BottomTextInput from '../components/BottomTextInput';
 import { useAuth } from '../contexts/AuthContext';
 //import Scanner from "../widgets/scanner"
 //import DishAPI from "../features/api"
 import '../styles/QRScanner.css';
-import AppHeader from '../widgets/AppHeader';
-import BottomTextInput from '../widgets/BottomTextInput';
 
 const Borrow = () => {
     const [scanId, setScanId] = useState('');

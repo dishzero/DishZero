@@ -9,9 +9,9 @@ import leaf_green from '../assets/leaf-green.svg';
 import MobileBackground from '../assets/leaf-mobile-background.png';
 import leaf_white from '../assets/leaf-white.svg';
 import scan_icon from '../assets/scan.svg';
+import DishCard from '../components/DishCard';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/index.css';
-import DishCard from '../widgets/DishCard';
 
 // Display DishCard for unreturned dishes
 const DishLog = ({ dishes }) => {

@@ -10,8 +10,8 @@ import 'typeface-poppins';
 
 import { HelpOutline } from '@mui/icons-material';
 
+import LoadingSpinner from '../components/LoadingSpinner';
 import { LoginLocation, useAuth } from '../contexts/AuthContext';
-import LoadingSpinner from '../widgets/LoadingSpinner';
 
 export default function Login() {
     const { login } = useAuth();

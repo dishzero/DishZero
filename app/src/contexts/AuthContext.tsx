@@ -6,8 +6,8 @@ import Cookies from 'js-cookie';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import LoadingSpinner from '../components/LoadingSpinner';
 import { auth, googleAuthProvider, provider } from '../firebase';
-import LoadingSpinner from '../widgets/LoadingSpinner';
 
 type User = {
     id: string;

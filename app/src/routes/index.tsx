@@ -1,7 +1,7 @@
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
 
+import Sidebar from '../components/Sidebar';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
-import Sidebar from '../widgets/Sidebar';
 import Admin from './Admin';
 import BorrowRoute from './Borrow';
 import Error404 from './Error404';
@@ -50,6 +50,7 @@ const PermissionsRoute = (props: PermissionProps) => {
     return <Error404 />;
 };
 
+// TODO: all routes should be defined here (e.g. everything in admin) and all route's code should have a mirrored structure
 const router = createBrowserRouter([
     {
         element: <AuthLayout />,

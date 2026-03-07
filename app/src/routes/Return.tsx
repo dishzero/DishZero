@@ -16,7 +16,6 @@ import { useSnackbar } from 'notistack';
 import React, { memo, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { Dish, DishStatus } from '../types';
 import adminApi from '../admin/adminApi';
 import CustomDialogTitle from '../admin/DishesPage/CustomDialogTitle';
 import plateIcon from '../assets/dish_icon_contained.svg';
@@ -25,11 +24,12 @@ import MobileBackground from '../assets/leaf-mobile-background.png';
 import ReportIcon from '../assets/megaphone.svg';
 import mugIcon from '../assets/mug_icon_contained.svg';
 import CloseIcon from '../assets/X_icon.svg';
+import AppHeader from '../components/AppHeader';
+import BottomTextInput from '../components/BottomTextInput';
+import CameraScanner from '../components/CameraScanner';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/QRScanner.css';
-import AppHeader from '../widgets/AppHeader';
-import BottomTextInput from '../widgets/BottomTextInput';
-import CameraScanner from '../widgets/CameraScanner';
+import { Dish, DishStatus } from '../types';
 
 interface Props {
     dishType: string;
