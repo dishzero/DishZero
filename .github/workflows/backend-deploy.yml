@@ -51,9 +51,6 @@ jobs:
             echo "=== Restarting server ==="
             pm2 restart dishzero || pm2 start pnpm --name dishzero --cwd /home/ubuntu/DishZero/backend -- start
 
-            echo "=== Saving PM2 ==="
-            pm2 save
-
             echo "=== Verifying /health responds ==="
             sleep 15
             if ! curl -sf http://localhost:8080/health; then
@@ -61,3 +58,6 @@ jobs:
               pm2 logs dishzero --err --lines 20 --nostream
               exit 1
             fi
+
+            echo "=== Saving PM2 ==="
+            pm2 save
