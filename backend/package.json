@@ -1,6 +1,7 @@
 {
     "name": "dishzero_backend",
     "version": "1.0.0",
+    "packageManager": "pnpm@9.15.0",
     "type": "commonjs",
     "main": "build/server.js",
     "repository": "https://github.com/dishzero/DishZero",

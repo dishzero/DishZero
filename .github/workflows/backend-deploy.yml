@@ -27,8 +27,8 @@ jobs:
             nvm install 20
             nvm use 20
 
-            echo "=== Installing PM2 and Yarn ==="
-            npm i -g pm2 yarn
+            echo "=== Installing PM2 and pnpm ==="
+            npm i -g pm2 pnpm
 
             echo "=== Pulling latest code ==="
             cd /home/ubuntu/DishZero
@@ -37,14 +37,16 @@ jobs:
 
             echo "=== Installing dependencies ==="
             cd backend
-            yarn install --frozen-lockfile
-            yarn cache clean
+            pnpm install --frozen-lockfile
 
             echo "=== Building ==="
-            yarn build
+            pnpm run build
+
+            echo "=== Pruning pnpm store ==="
+            pnpm store prune
 
             echo "=== Restarting server ==="
-            pm2 restart dishzero || pm2 start yarn --name dishzero -- start
+            pm2 restart dishzero || pm2 start pnpm --name dishzero -- start
 
             echo "=== Saving PM2 ==="
             pm2 save
