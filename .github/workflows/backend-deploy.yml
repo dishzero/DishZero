@@ -27,8 +27,11 @@ jobs:
             nvm install 20
             nvm use 20
 
-            echo "=== Installing PM2 and pnpm ==="
-            npm i -g pm2 pnpm
+            echo "=== Enabling Corepack ==="
+            corepack enable
+
+            echo "=== Installing PM2 ==="
+            npm i -g pm2
 
             echo "=== Pulling latest code ==="
             cd /home/ubuntu/DishZero
@@ -46,7 +49,7 @@ jobs:
             pnpm store prune
 
             echo "=== Restarting server ==="
-            pm2 restart dishzero || pm2 start pnpm --name dishzero -- start
+            pm2 restart dishzero || pm2 start pnpm --name dishzero --cwd /home/ubuntu/DishZero/backend -- start
 
             echo "=== Saving PM2 ==="
             pm2 save
