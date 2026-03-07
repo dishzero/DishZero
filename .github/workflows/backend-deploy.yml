@@ -53,3 +53,11 @@ jobs:
 
             echo "=== Saving PM2 ==="
             pm2 save
+
+            echo "=== Verifying /health responds ==="
+            sleep 15
+            if ! curl -sf http://localhost:8080/health; then
+              echo "Health check failed. Last 20 error log lines:"
+              pm2 logs dishzero --err --lines 20 --nostream
+              exit 1
+            fi
