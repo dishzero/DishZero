@@ -42,6 +42,9 @@ jobs:
             echo "=== Building ==="
             pnpm run build
 
+            echo "=== Pruning pnpm store ==="
+            pnpm store prune
+
             echo "=== Restarting server ==="
             pm2 restart dishzero || pm2 start pnpm --name dishzero -- start
 
