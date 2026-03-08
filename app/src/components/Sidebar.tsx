@@ -3,12 +3,15 @@ import {
     Bento,
     Close as CloseIcon,
     Email as EmailIcon,
+    Help,
     Home,
+    Insights,
+    Kitchen,
     Logout,
     Menu as MenuIcon,
     Person2,
-    PsychologyAlt,
-    Recycling,
+    Visibility,
+    VolunteerActivism,
 } from '@mui/icons-material';
 import {
     Box,
@@ -146,8 +149,8 @@ export default function Sidebar() {
                             }}>
                             Admin
                         </ListSubheader>
-                        <NavItem to="/admin" icon={<Home />} label="Home" onClick={closeMobileDrawer} />
-                        <NavItem to="/admin/dishes" icon={<Bento />} label="Dishes" onClick={closeMobileDrawer} />
+                        <NavItem to="/admin" icon={<Visibility />} label="Overview" onClick={closeMobileDrawer} />
+                        <NavItem to="/admin/dishes" icon={<Kitchen />} label="Dishes" onClick={closeMobileDrawer} />
                         <NavItem to="/admin/users" icon={<Person2 />} label="Users" onClick={closeMobileDrawer} />
                         <NavItem to="/admin/email" icon={<EmailIcon />} label="Email" onClick={closeMobileDrawer} />
                     </>
@@ -165,7 +168,7 @@ export default function Sidebar() {
                     sx={{ mb: 0.5, mx: 1 }}
                     onClick={closeMobileDrawer}>
                     <ListItemIcon sx={{ color: 'white', minWidth: 40 }}>
-                        <PsychologyAlt />
+                        <Help />
                     </ListItemIcon>
                     <Typography variant="body2" color="white">
                         How it works
@@ -179,10 +182,24 @@ export default function Sidebar() {
                     sx={{ mb: 0.5, mx: 1 }}
                     onClick={closeMobileDrawer}>
                     <ListItemIcon sx={{ color: 'white', minWidth: 40 }}>
-                        <Recycling />
+                        <Insights />
                     </ListItemIcon>
                     <Typography variant="body2" color="white">
                         Our impact
+                    </Typography>
+                </ListItemButton>
+                <ListItemButton
+                    component="a"
+                    href="https://www.dishzero.ca/get-involved"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{ mb: 0.5, mx: 1 }}
+                    onClick={closeMobileDrawer}>
+                    <ListItemIcon sx={{ color: 'white', minWidth: 40 }}>
+                        <VolunteerActivism />
+                    </ListItemIcon>
+                    <Typography variant="body2" color="white">
+                        Become a volunteer
                     </Typography>
                 </ListItemButton>
             </List>
