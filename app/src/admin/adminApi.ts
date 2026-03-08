@@ -1,6 +1,7 @@
 import { GridRowId } from '@mui/x-data-grid';
 import axios from 'axios';
 
+import { backendAddress } from '../config/env';
 import { DishStatus } from '../types';
 import { User } from './types';
 
@@ -16,7 +17,7 @@ export const headers = (token: string) => {
 };
 
 const adminApi = {
-    serverAddress: process.env.REACT_APP_BACKEND_ADDRESS,
+    serverAddress: backendAddress,
 
     getTransactions: async function (token: string) {
         const response = await axios

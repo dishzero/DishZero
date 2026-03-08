@@ -18,6 +18,7 @@ yarn.lock
 
 # production
 */build
+*/dist
 
 # secrets
 */.env

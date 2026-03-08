@@ -2,6 +2,7 @@ import { Alert, Avatar, Box, Button, Fade, TextField, Typography } from '@mui/ma
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
+import { backendAddress } from '../../config/env';
 import { useAuth } from '../../contexts/AuthContext';
 import { headers } from '../adminApi';
 
@@ -30,7 +31,7 @@ function Email() {
 
     async function getInfo() {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/cron/email/`, {
+            const response = await axios.get(`${backendAddress}/api/cron/email/`, {
                 headers: headers(sessionToken),
             });
 
@@ -142,7 +143,7 @@ function Email() {
     async function startCronJob() {
         try {
             const response = await axios.post(
-                `${process.env.REACT_APP_BACKEND_ADDRESS}/api/cron/email/start`,
+                `${backendAddress}/api/cron/email/start`,
                 {},
                 {
                     headers: headers(sessionToken),
@@ -171,7 +172,7 @@ function Email() {
     async function stopCronJob() {
         try {
             const response = await axios.post(
-                `${process.env.REACT_APP_BACKEND_ADDRESS}/api/cron/email/stop`,
+                `${backendAddress}/api/cron/email/stop`,
                 {},
                 {
                     headers: headers(sessionToken),
@@ -199,7 +200,7 @@ function Email() {
     async function saveTemplate() {
         try {
             const response = await axios.post(
-                `${process.env.REACT_APP_BACKEND_ADDRESS}/api/cron/email/template`,
+                `${backendAddress}/api/cron/email/template`,
                 {
                     template: {
                         senderEmail: sender,
@@ -229,7 +230,7 @@ function Email() {
 
         try {
             const response = await axios.post(
-                `${process.env.REACT_APP_BACKEND_ADDRESS}/api/cron/email/expression`,
+                `${backendAddress}/api/cron/email/expression`,
                 {
                     days,
                     exprTime,

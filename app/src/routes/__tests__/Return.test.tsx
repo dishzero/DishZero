@@ -1,325 +1,253 @@
-// adapted from borrow.test.tsx by Jing
-
+import type { ReactNode } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import axios from 'axios'; // API requests
-import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import axios from 'axios';
+import { MemoryRouter } from 'react-router-dom';
+import { vi } from 'vitest';
 
+import adminApi from '../../admin/adminApi';
+import * as AuthContextModule from '../../contexts/AuthContext';
+import { backendAddress } from '../../config/env';
+import { DishStatus } from '../../types';
 import Return from '../Return';
 
-import '@testing-library/jest-dom';
-
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
-const mockPost = axios.post as jest.MockedFunction<typeof axios.post>;
-const mockGet = axios.get as jest.MockedFunction<typeof axios.get>;
-
-const mockGetData = {
-    data: {
-        dish: {
-            registered: '2023-08-22T20:19:47.144Z',
-            type: 'plate',
-            qid: 6,
-            status: 'available',
-            condition: 'good',
-            borrowedAt: '2024-01-03T06:16:09.744Z',
-            timesBorrowed: 16,
-            userId: 'lEGOWajsD7ZW9xQ23qhbanAMFMA3',
-            borrowed: true,
-            id: 'Mejp6iZt2HzzrJZDBBAy',
-        },
+vi.mock('axios');
+vi.mock('../../admin/adminApi', () => ({
+    default: {
+        getDishByQid: vi.fn(),
     },
-};
-
-// const mockPostData = ;
-
-jest.mock('../../contexts/AuthContext', () => ({
-    ...jest.requireActual('../../contexts/AuthContext'), // use actual for all non-hook parts
-    useAuth: () => ({
-        currentUser: {
-            id: 'mocked-user-id',
-            role: 'admin',
-            email: 'mocked-email@ama.ca',
-        },
-        sessionToken: 'mocked-session-token',
-        login: jest.fn(),
-        logout: jest.fn(),
+}));
+vi.mock('notistack', () => ({
+    useSnackbar: () => ({
+        enqueueSnackbar: vi.fn(),
     }),
 }));
+vi.mock('../../components/CameraScanner', () => ({
+    default: ({ onSubmit }: { onSubmit: (value: string) => void }) => (
+        <button data-testid="camera-submit" onClick={() => onSubmit('scanner-6')}>
+            Scan
+        </button>
+    ),
+}));
+vi.mock('../../admin/DishesPage/CustomDialogTitle', () => ({
+    default: ({
+        open,
+        dialogTitle,
+        children,
+    }: {
+        open: boolean;
+        dialogTitle: string;
+        children: ReactNode;
+    }) =>
+        open ? (
+            <div>
+                <div>{dialogTitle}</div>
+                {children}
+            </div>
+        ) : null,
+}));
 
-//Mocking useAuth
-const useAuthMock = jest.spyOn(require('../../contexts/AuthContext'), 'useAuth');
+const useAuthMock = vi.spyOn(AuthContextModule, 'useAuth');
+const mockPost = vi.mocked(axios.post);
+const mockedAdminApi = vi.mocked(adminApi);
+
+const renderReturn = () =>
+    render(
+        <MemoryRouter>
+            <Return noTimer={true} />
+        </MemoryRouter>,
+    );
 
 beforeEach(() => {
-    //Mock response to be returned by our mock implementation of the useAuth
-    useAuthMock.mockImplementation(() => ({
+    mockPost.mockReset();
+    mockedAdminApi.getDishByQid.mockReset();
+
+    useAuthMock.mockReturnValue({
         currentUser: {
             id: 'mocked-user-id',
             role: 'admin',
-            email: 'mocked-email@ama.ca',
+            email: 'mocked-email@ualberta.ca',
         },
         sessionToken: 'mocked-session-token',
-        login: jest.fn(),
-        logout: jest.fn(),
-    }));
+        login: vi.fn(),
+        logout: vi.fn(),
+    });
 });
 
-test('Confirm page is visible to admins', () => {
-    render(
-        <BrowserRouter>
-            <Return />
-        </BrowserRouter>,
-    );
-    expect(screen.getByText('Return Dishes')).toBeInTheDocument();
+afterEach(() => {
+    vi.clearAllMocks();
 });
 
-test('triggers search on Enter key', async () => {
-    // Mock the API call for transactions
-    mockPost.mockImplementation((url) => {
-        switch (url) {
-            case `/api/dish/return`:
-                return Promise.resolve({ data: { message: 'dish returned' } });
-            case `/api/dish/condition`:
-                return Promise.resolve({ data: { message: 'updated condition' } });
-            default:
-                return Promise.reject(new Error('not found'));
-        }
-    });
-    //   mockGet.mockRejectedValue(new Error("qr code not found"))
-    mockGet.mockResolvedValue(mockGetData);
-    //   mockPost.mockResolvedValue(mockPostData);
-    //mockedAxios.get.mockResolvedValueOnce(mockData);
-    //something: jest.fn(() => Promise.resolve(Promise.resolve(mockData))),
+test('renders the return page input', async () => {
+    renderReturn();
 
-    render(
-        <BrowserRouter>
-            <Return noTimer={true} />
-        </BrowserRouter>,
-    );
+    expect(await screen.findByPlaceholderText('Enter dish id #')).toBeInTheDocument();
+});
 
-    const input = screen.getByPlaceholderText('Enter dish id #') as HTMLInputElement;
-    fireEvent.change(input, { target: { value: 6 } });
-    const enterButton = screen.getByTestId('return-btn');
-    fireEvent.click(enterButton);
-    //   expect(screen.getByText("Borrow")).toBeInTheDocument();
-    //   expect(screen.getByText("#6"));
+test('returns a borrowed dish and opens the success popup', async () => {
+    mockedAdminApi.getDishByQid.mockResolvedValueOnce({
+        id: 'dish-1',
+        qid: 6,
+        type: 'plate',
+        status: DishStatus.borrowed,
+    } as never);
+    mockPost.mockResolvedValueOnce({ status: 200, data: {} });
 
-    //   const borrowButton = screen.getByTestId("borrow-btn");
-    //   fireEvent.click(borrowButton);
-    await Promise.resolve();
+    renderReturn();
+
+    const input = await screen.findByPlaceholderText('Enter dish id #');
+    fireEvent.change(input, { target: { value: '6' } });
+    fireEvent.click(screen.getByTestId('return-btn'));
 
     await waitFor(() => {
-        expect(screen.getByText('Successfully returned'));
-        expect(screen.getByText('Plate #6'));
-    });
-
-    const openReportButton = screen.getByTestId('open-report-modal-btn');
-    fireEvent.click(openReportButton);
-    //   await Promise.resolve();
-    //   expect(screen.getByText("Report"));
-    // const counter = await screen.findByText('Report')
-    await waitFor(() => {
-        //     expect(screen.getByText("Report")).toBeInTheDocument();
-        expect(screen.getByText('Small crack/chip'));
-        expect(screen.getByText('Large crack/chunk missing'));
-        expect(screen.getByText('Shattered'));
-    });
-    const small_crack = screen.getByTestId('small_crack');
-    fireEvent.click(small_crack);
-    const end_report_button = screen.getByTestId('end-report-btn');
-    fireEvent.click(end_report_button);
-    await Promise.resolve();
-    await waitFor(() => {
-        expect(screen.getByTestId('plate-id-and-condition')).toHaveTextContent('Updated condition');
-    });
-    // Optionally, check if axios.post was called with the correct arguments
-    expect(mockPost.mock.calls).toEqual([
-        [
+        expect(mockPost).toHaveBeenCalledWith(
             `/api/dish/return`,
             {
                 returned: {
                     condition: 'good',
                 },
-            }, // your post body
+            },
             {
                 headers: {
-                    'Content-Type': 'application/json',
                     'session-token': 'mocked-session-token',
+                    'Content-Type': 'application/json',
                 },
                 params: { qid: '6' },
-                baseURL: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
+                baseURL: backendAddress,
             },
-        ],
-        [
+        );
+    });
+
+    expect(await screen.findByText('Successfully returned')).toBeInTheDocument();
+    expect(screen.getByText('Plate #6')).toBeInTheDocument();
+});
+
+test('allows reporting a returned dish condition', async () => {
+    mockedAdminApi.getDishByQid.mockResolvedValueOnce({
+        id: 'dish-1',
+        qid: 6,
+        type: 'plate',
+        status: DishStatus.borrowed,
+    } as never);
+    mockPost.mockResolvedValueOnce({ status: 200, data: {} });
+    mockPost.mockResolvedValueOnce({ status: 200, data: { message: 'condition updated' } });
+
+    renderReturn();
+
+    const input = await screen.findByPlaceholderText('Enter dish id #');
+    fireEvent.change(input, { target: { value: '6' } });
+    fireEvent.click(screen.getByTestId('return-btn'));
+
+    fireEvent.click(await screen.findByTestId('open-report-modal-btn'));
+    fireEvent.click(screen.getByTestId('end-report-btn'));
+
+    await waitFor(() => {
+        expect(mockPost).toHaveBeenLastCalledWith(
             `/api/dish/condition`,
             {
                 condition: 'small_crack_chip',
             },
             {
-                baseURL: 'http://localhost:8080',
                 headers: {
-                    'Content-Type': 'application/json',
                     'session-token': 'mocked-session-token',
+                    'Content-Type': 'application/json',
                 },
+                baseURL: backendAddress,
                 params: {
-                    id: 'Mejp6iZt2HzzrJZDBBAy',
+                    id: 'dish-1',
                 },
             },
-        ],
-    ]);
-
-    // Optionally, check if axios.post was called with the correct arguments
-    expect(axios.get).toHaveBeenCalledWith(`/api/dish`, {
-        headers: {
-            'session-token': 'mocked-session-token',
-        },
-        params: { qid: '6' },
-        baseURL: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
+        );
     });
+
+    expect(await screen.findByText('Condition updated')).toBeInTheDocument();
 });
 
-test('Dish Not Found', async () => {
-    // Mock the API call for transactions
-    mockPost.mockImplementation((url) => {
-        switch (url) {
-            case `/api/dish/return`:
-                return Promise.reject({
-                    response: {
-                        data: {
-                            error: 'operation_not_allowed',
-                            message: 'qr code not found',
-                        },
-                    },
-                });
-            default:
-                return Promise.reject(new Error('not found'));
-        }
+test('shows the backend error when a return fails', async () => {
+    mockedAdminApi.getDishByQid.mockResolvedValueOnce({
+        id: 'dish-1',
+        qid: 6,
+        type: 'mug',
+        status: DishStatus.borrowed,
+    } as never);
+    mockPost.mockRejectedValueOnce({
+        response: {
+            data: {
+                message: 'Dish cannot be returned yet',
+            },
+        },
     });
-    mockGet.mockRejectedValue({ data: { error: 'dish_not_found' } });
-    //   mockPost.mockResolvedValue(mockPostData);
-    //mockedAxios.get.mockResolvedValueOnce(mockData);
-    //something: jest.fn(() => Promise.resolve(Promise.resolve(mockData))),
 
-    render(
-        <BrowserRouter>
-            <Return noTimer={true} />
-        </BrowserRouter>,
-    );
+    renderReturn();
 
-    const input = screen.getByPlaceholderText('Enter dish id #') as HTMLInputElement;
-    fireEvent.change(input, { target: { value: 6 } });
-    const enterButton = screen.getByTestId('return-btn');
-    fireEvent.click(enterButton);
-    //   expect(screen.getByText("Borrow")).toBeInTheDocument();
-    //   expect(screen.getByText("#6"));
+    const input = await screen.findByPlaceholderText('Enter dish id #');
+    fireEvent.change(input, { target: { value: '6' } });
+    fireEvent.click(screen.getByTestId('return-btn'));
 
-    //   const borrowButton = screen.getByTestId("borrow-btn");
-    //   fireEvent.click(borrowButton);
-    await Promise.resolve();
+    expect(await screen.findByText('Failed to return')).toBeInTheDocument();
+    expect(screen.getByText('Dish cannot be returned yet')).toBeInTheDocument();
+    expect(screen.getByText('Please scan and try again')).toBeInTheDocument();
+});
+
+test('prompts to force sign in when the dish is not currently borrowed', async () => {
+    mockedAdminApi.getDishByQid.mockResolvedValueOnce({
+        id: 'dish-1',
+        qid: 6,
+        type: 'plate',
+        status: DishStatus.available,
+    } as never);
+
+    renderReturn();
+
+    const input = await screen.findByPlaceholderText('Enter dish id #');
+    fireEvent.change(input, { target: { value: '6' } });
+    fireEvent.click(screen.getByTestId('return-btn'));
+
+    expect(await screen.findByText('Dish is not signed out')).toBeInTheDocument();
+    expect(screen.getByText('Force Sign In Dish')).toBeInTheDocument();
+});
+
+test('can force sign in a dish and then return it', async () => {
+    mockedAdminApi.getDishByQid.mockResolvedValueOnce({
+        id: 'dish-1',
+        qid: 6,
+        type: 'plate',
+        status: DishStatus.available,
+    } as never);
+    mockPost.mockResolvedValueOnce({ status: 200, data: {} });
+    mockPost.mockResolvedValueOnce({ status: 200, data: {} });
+
+    renderReturn();
+
+    const input = await screen.findByPlaceholderText('Enter dish id #');
+    fireEvent.change(input, { target: { value: '6' } });
+    fireEvent.click(screen.getByTestId('return-btn'));
+    fireEvent.click(await screen.findByText('Force Sign In Dish'));
 
     await waitFor(() => {
-        expect(screen.getByText('qr code not found'));
-        expect(screen.getByText('Please scan and try again'));
+        expect(mockPost).toHaveBeenNthCalledWith(1, `${backendAddress}/api/dish/borrow`, {}, {
+            headers: { 'session-token': 'mocked-session-token' },
+            params: { qid: '6', email: 'dishzero@ualberta.ca' },
+        });
     });
 
-    expect(mockPost.mock.calls).toEqual([
-        [
+    await waitFor(() => {
+        expect(mockPost).toHaveBeenNthCalledWith(
+            2,
             `/api/dish/return`,
             {
                 returned: {
                     condition: 'good',
                 },
-            }, // your post body
+            },
             {
                 headers: {
-                    'Content-Type': 'application/json',
                     'session-token': 'mocked-session-token',
+                    'Content-Type': 'application/json',
                 },
                 params: { qid: '6' },
-                baseURL: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
+                baseURL: backendAddress,
             },
-        ],
-    ]);
-
-    // Optionally, check if axios.post was called with the correct arguments
-    expect(axios.get).toHaveBeenCalledWith(`/api/dish`, {
-        headers: {
-            'session-token': 'mocked-session-token',
-        },
-        params: { qid: '6' },
-        baseURL: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
+        );
     });
-});
-
-test('Dish Not Borrowed', async () => {
-    // Mock the API call for transactions
-    mockPost.mockImplementation((url) => {
-        switch (url) {
-            case `/api/dish/return`:
-                return Promise.reject({
-                    response: {
-                        data: {
-                            error: 'operation_not_allowed',
-                            message: 'Dish not borrowed',
-                        },
-                    },
-                });
-            default:
-                return Promise.reject(new Error('not found'));
-        }
-    });
-    mockGet.mockRejectedValue({ data: { error: 'dish_not_found' } });
-    //   mockPost.mockResolvedValue(mockPostData);
-    //mockedAxios.get.mockResolvedValueOnce(mockData);
-    //something: jest.fn(() => Promise.resolve(Promise.resolve(mockData))),
-
-    render(
-        <BrowserRouter>
-            <Return noTimer={true} />
-        </BrowserRouter>,
-    );
-
-    const input = screen.getByPlaceholderText('Enter dish id #') as HTMLInputElement;
-    fireEvent.change(input, { target: { value: 6 } });
-    const enterButton = screen.getByTestId('return-btn');
-    fireEvent.click(enterButton);
-    //   expect(screen.getByText("Borrow")).toBeInTheDocument();
-    //   expect(screen.getByText("#6"));
-
-    //   const borrowButton = screen.getByTestId("borrow-btn");
-    //   fireEvent.click(borrowButton);
-    await Promise.resolve();
-
-    await waitFor(() => {
-        expect(screen.getByText('Dish not borrowed'));
-        expect(screen.getByText('Please scan and try again'));
-    });
-
-    expect(mockPost.mock.calls).toEqual([
-        [
-            `/api/dish/return`,
-            {
-                returned: {
-                    condition: 'good',
-                },
-            }, // your post body
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'session-token': 'mocked-session-token',
-                },
-                params: { qid: '6' },
-                baseURL: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
-            },
-        ],
-    ]);
-
-    // Optionally, check if axios.post was called with the correct arguments
-    expect(axios.get).toHaveBeenCalledWith(`/api/dish`, {
-        headers: {
-            'session-token': 'mocked-session-token',
-        },
-        params: { qid: '6' },
-        baseURL: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
-    });
+    expect(await screen.findByText('Successfully returned')).toBeInTheDocument();
 });

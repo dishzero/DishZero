@@ -16,7 +16,7 @@ export const useQrReader: UseQrReaderHook = ({
     const initialized = useRef(false);
     console.log('useEffectCalled!');
 
-    const controlsRef: MutableRefObject<IScannerControls> = useRef(null);
+    const controlsRef: MutableRefObject<IScannerControls | null> = useRef(null);
     // console.log(controlsRef)
     useEffect(() => {
         // if(controlsRef.current){
