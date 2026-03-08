@@ -1,10 +1,14 @@
 import {
+    AssignmentTurnedIn,
+    Bento,
     Close as CloseIcon,
     Email as EmailIcon,
     Home,
+    Logout,
     Menu as MenuIcon,
     Person2,
-    RoomService,
+    PsychologyAlt,
+    Recycling,
 } from '@mui/icons-material';
 import {
     Box,
@@ -23,9 +27,6 @@ import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 import DishzeroSidebarLogo from '../assets/dishzero-sidebar-logo.png';
-import how_it_works_icon from '../assets/how_it_works.png';
-import logout_icon from '../assets/logout.svg';
-import our_impact_icon from '../assets/our_impact.png';
 import { useAuth } from '../contexts/AuthContext';
 
 export const SIDEBAR_WIDTH = 250;
@@ -108,7 +109,7 @@ export default function Sidebar() {
                     </ListSubheader>
                 )}
                 <NavItem to="/home" icon={<Home />} label="Home" onClick={closeMobileDrawer} />
-                <NavItem to="/borrow" icon={<RoomService />} label="Borrow" onClick={closeMobileDrawer} />
+                <NavItem to="/borrow" icon={<Bento />} label="Borrow" onClick={closeMobileDrawer} />
 
                 {isVolunteer && (
                     <>
@@ -125,7 +126,7 @@ export default function Sidebar() {
                         </ListSubheader>
                         <NavItem
                             to="/volunteer/return"
-                            icon={<RoomService />}
+                            icon={<AssignmentTurnedIn />}
                             label="Return"
                             onClick={closeMobileDrawer}
                         />
@@ -146,7 +147,7 @@ export default function Sidebar() {
                             Admin
                         </ListSubheader>
                         <NavItem to="/admin" icon={<Home />} label="Home" onClick={closeMobileDrawer} />
-                        <NavItem to="/admin/dishes" icon={<RoomService />} label="Dishes" onClick={closeMobileDrawer} />
+                        <NavItem to="/admin/dishes" icon={<Bento />} label="Dishes" onClick={closeMobileDrawer} />
                         <NavItem to="/admin/users" icon={<Person2 />} label="Users" onClick={closeMobileDrawer} />
                         <NavItem to="/admin/email" icon={<EmailIcon />} label="Email" onClick={closeMobileDrawer} />
                     </>
@@ -164,7 +165,7 @@ export default function Sidebar() {
                     sx={{ mb: 0.5, mx: 1 }}
                     onClick={closeMobileDrawer}>
                     <ListItemIcon sx={{ color: 'white', minWidth: 40 }}>
-                        <img src={how_it_works_icon} alt="" width={24} height={24} />
+                        <PsychologyAlt />
                     </ListItemIcon>
                     <Typography variant="body2" color="white">
                         How it works
@@ -178,7 +179,7 @@ export default function Sidebar() {
                     sx={{ mb: 0.5, mx: 1 }}
                     onClick={closeMobileDrawer}>
                     <ListItemIcon sx={{ color: 'white', minWidth: 40 }}>
-                        <img src={our_impact_icon} alt="" width={24} height={24} />
+                        <Recycling />
                     </ListItemIcon>
                     <Typography variant="body2" color="white">
                         Our impact
@@ -196,7 +197,7 @@ export default function Sidebar() {
                     }}
                     sx={{ mx: 1, mb: 1 }}>
                     <ListItemIcon sx={{ color: 'white', minWidth: 40 }}>
-                        <img src={logout_icon} alt="" width={24} height={24} />
+                        <Logout />
                     </ListItemIcon>
                     <Typography variant="body2" color="white">
                         Logout

@@ -1,7 +1,5 @@
 import { createTheme } from '@mui/material/styles';
 
-import 'typeface-poppins';
-
 export const brandColors = {
     primary: '#68b49a',
     primaryDark: '#29604d',

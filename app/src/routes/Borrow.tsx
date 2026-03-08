@@ -1,6 +1,4 @@
-/*eslint-disable*/
-import { faCoffee, faExclamation, faLeaf } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Coffee, EnergySavingsLeaf, Error as ErrorIcon } from '@mui/icons-material';
 import { Box, Dialog, DialogContent, DialogTitle, Typography } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
@@ -10,14 +8,12 @@ import BottomTextInput from '../components/BottomTextInput';
 import { BACKEND_ADDRESS } from '../config/env';
 import { useAuth } from '../contexts/AuthContext';
 
-const Borrow = () => {
+export default function Borrow() {
     const [scanId, setScanId] = useState('');
     const { currentUser, sessionToken } = useAuth();
     const [confirm, setConfirm] = useState(false);
-    const [borrowDishResult, setBorrowDishResult] = useState({
-        show: false,
-        success: false,
-    });
+    const [borrowDishResult, setBorrowDishResult] = useState({ show: false, success: false });
+
     useEffect(() => {
         const queryParams = new URLSearchParams(window.location.search);
         const previousURL = queryParams.get('previousURL');
@@ -39,13 +35,9 @@ const Borrow = () => {
             .post(
                 `${BACKEND_ADDRESS}/api/dish/borrow`,
                 {},
-                {
-                    headers: { 'session-token': sessionToken },
-                    params: { qid: scanId },
-                },
+                { headers: { 'session-token': sessionToken }, params: { qid: scanId } },
             )
-            .then(function (response) {
-                //eslint-disable-line @typescript-eslint/no-unused-vars
+            .then(function () {
                 setBorrowDishResult({ show: true, success: true });
             })
             .catch(function (error) {
@@ -57,7 +49,7 @@ const Borrow = () => {
     const onCancel = () => {
         setScanId('');
         setConfirm(false);
-        setBorrowDishResult({ ...borrowDishResult, show: false });
+        setBorrowDishResult((prev) => ({ ...prev, show: false }));
     };
 
     return (
@@ -66,11 +58,11 @@ const Borrow = () => {
                 sx={{
                     height: '100vh',
                     flexDirection: 'column',
-                    backgroundColor: '#464646',
+                    bgcolor: 'grey.800',
                     color: 'common.white',
                     position: 'relative',
                 }}>
-                <AppHeader title={'Borrow Dishes'} />
+                <AppHeader title="Borrow Dishes" />
                 <Box
                     sx={{
                         px: 3,
@@ -83,9 +75,9 @@ const Borrow = () => {
                         textAlign: 'center',
                     }}>
                     <Box sx={{ mb: 3 }}>
-                        <FontAwesomeIcon icon={faLeaf} color="white" fontSize="2.5em" />
+                        <EnergySavingsLeaf sx={{ fontSize: 40, color: 'white' }} />
                     </Box>
-                    <Typography variant="h5" sx={{ maxWidth: 480, color: '#d6d6d6' }}>
+                    <Typography variant="h5" sx={{ maxWidth: 480, color: 'grey.400' }}>
                         Use phone camera to scan QR Code or type in the ID in the box below
                     </Typography>
                 </Box>
@@ -102,9 +94,7 @@ const Borrow = () => {
                         disabled={false}
                         value={scanId}
                         onChange={(e) => setScanId(e.target.value)}
-                        onSubmit={async () => {
-                            await onConfirm(scanId);
-                        }}
+                        onSubmit={async () => await onConfirm(scanId)}
                     />
                 </Box>
             </Box>
@@ -115,18 +105,18 @@ const Borrow = () => {
                     <Box sx={{ width: '100%', display: 'flex', gap: 2, alignItems: 'flex-start', py: 1 }}>
                         {borrowDishResult.success ? (
                             <>
-                                <FontAwesomeIcon icon={faCoffee} size="4x" />
+                                <Coffee sx={{ fontSize: 48, color: 'primary.main' }} />
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                                     <Typography>Successfully borrowed</Typography>
                                     <Typography>Dish # {scanId}</Typography>
-                                    <Typography variant="body2" sx={{ color: '#000000' }}>
+                                    <Typography variant="body2" color="text.secondary">
                                         Please return your dish within two days to the nearest DishZero Return Station
                                     </Typography>
                                 </Box>
                             </>
                         ) : (
                             <>
-                                <FontAwesomeIcon style={{ color: '#BF4949' }} icon={faExclamation} size="4x" />
+                                <ErrorIcon sx={{ fontSize: 48, color: 'error.main' }} />
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                                     <Typography>Failed to borrow</Typography>
                                     <Typography>Dish # {scanId}</Typography>
@@ -139,6 +129,4 @@ const Borrow = () => {
             </Dialog>
         </>
     );
-};
-
-export default Borrow;
+}

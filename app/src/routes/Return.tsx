@@ -432,10 +432,11 @@ const Return = ({ noTimer }) => {
                 height: '100vh',
                 display: 'flex',
                 flexDirection: 'column',
-                backgroundColor: '#464646',
+                bgcolor: 'grey.800',
+                color: 'common.white',
                 position: 'relative',
             }}>
-            <AppHeader title={'Return Dishes'} />
+            <AppHeader title="Return Dishes" />
             {reportPopUp ? (
                 <>
                     <ReportModal />
@@ -479,7 +480,12 @@ const Return = ({ noTimer }) => {
             </CustomDialogTitle>
 
             <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', px: 2, pb: 14 }}>
-                <CameraScanner isLoading={isLoading} style={{ height: 'calc(100vh - 220px)' }} onSubmit={onSubmit} />
+                <CameraScanner
+                    isLoading={isLoading}
+                    style={{ height: 'calc(100vh - 220px)' }}
+                    onSubmit={onSubmit}
+                    fullBleed
+                />
             </Box>
             <Box
                 sx={{

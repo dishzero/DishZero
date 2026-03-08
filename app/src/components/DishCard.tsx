@@ -47,13 +47,13 @@ function DishCard({ dish, token }) {
                 <img src={icon} alt={iconAltText}></img>
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
-                <Typography variant="caption" sx={{ color: '#000000' }}>
+                <Typography variant="caption" color="text.primary">
                     Return before {dishDue.toLocaleDateString('en-US')}
                 </Typography>
-                <Typography variant="body2" fontWeight={600} sx={{ color: '#000000' }}>
+                <Typography variant="body2" fontWeight={600} color="text.primary">
                     {dishTypeLabel}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#000000' }}>
+                <Typography variant="caption" color="text.primary">
                     Checked out on {dishCheckOut.toLocaleDateString('en-US')}
                 </Typography>
             </Box>

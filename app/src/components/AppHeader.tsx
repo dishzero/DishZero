@@ -16,7 +16,7 @@ const AppHeader = ({ title }: Props) => {
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 500, color: '#ffffff' }}>
+                <Typography variant="subtitle1" color="inherit">
                     {title}
                 </Typography>
             </AppBar>

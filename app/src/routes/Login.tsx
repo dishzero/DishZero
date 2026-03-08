@@ -186,8 +186,7 @@ export const styles = {
         borderRadius: '20px',
         borderWidth: '3px',
         borderColor: brandColors.primary,
-        textColor: brandColors.primary,
-        variant: 'outlined',
+        color: brandColors.primary,
         '&:hover': {
             borderWidth: '3px',
             borderColor: brandColors.primary,

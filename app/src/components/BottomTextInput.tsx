@@ -1,7 +1,4 @@
-/*eslint-disable*/
-
-import { faPaperPlane, faSearch } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Search, Send } from '@mui/icons-material';
 import { Box, IconButton, InputBase, Paper } from '@mui/material';
 import React from 'react';
 
@@ -12,7 +9,7 @@ interface BottomTextInputProps {
     onSubmit: (value: string) => Promise<void> | void;
 }
 
-const BottomTextInput = (props: BottomTextInputProps) => {
+export default function BottomTextInput(props: BottomTextInputProps) {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         await props.onSubmit(props.value);
@@ -20,13 +17,7 @@ const BottomTextInput = (props: BottomTextInputProps) => {
     };
 
     return (
-        <Box
-            sx={{
-                width: '95%',
-                maxWidth: 560,
-            }}
-            component="form"
-            onSubmit={handleSubmit}>
+        <Box sx={{ width: '95%', maxWidth: 560 }} component="form" onSubmit={handleSubmit}>
             <Paper
                 elevation={3}
                 sx={{
@@ -35,11 +26,9 @@ const BottomTextInput = (props: BottomTextInputProps) => {
                     borderRadius: 6,
                     px: 1.5,
                     py: 0.5,
-                    backgroundColor: '#f6f8f5',
+                    bgcolor: 'grey.100',
                 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', color: '#c2c2c2', mr: 1 }}>
-                    <FontAwesomeIcon icon={faSearch} />
-                </Box>
+                <Search sx={{ color: 'grey.500', mr: 1, fontSize: 22 }} />
                 <InputBase
                     value={props.value}
                     onChange={props.onChange}
@@ -47,19 +36,14 @@ const BottomTextInput = (props: BottomTextInputProps) => {
                     placeholder="Enter dish id #"
                     sx={{
                         flex: 1,
-                        color: '#000000',
-                        '& input::placeholder': {
-                            color: '#c2c2c2',
-                            opacity: 1,
-                        },
+                        color: 'text.primary',
+                        '& input::placeholder': { color: 'grey.500', opacity: 1 },
                     }}
                 />
-                <IconButton type="submit" disabled={props.disabled} data-testid="return-btn" sx={{ color: '#68b49a' }}>
-                    <FontAwesomeIcon icon={faPaperPlane} fontSize={'1.4em'} />
+                <IconButton type="submit" disabled={props.disabled} data-testid="return-btn" color="primary">
+                    <Send />
                 </IconButton>
             </Paper>
         </Box>
     );
-};
-
-export default BottomTextInput;
+}

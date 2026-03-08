@@ -1,6 +1,5 @@
-import { Chip } from '@mui/material';
+import { Box, Chip, CircularProgress } from '@mui/material';
 import { GridColDef, GridOverlay } from '@mui/x-data-grid';
-import { BallTriangle } from 'react-loader-spinner';
 
 import AdminDataGrid from '../components/AdminDataGrid';
 import CustomToolbar from '../DataGrid/CustomToolbar';
@@ -114,14 +113,9 @@ export default function AdminTransactionsTable({ filteredRows, loadingTransactio
                 slots={{
                     loadingOverlay: () => (
                         <GridOverlay style={{ flexDirection: 'column', paddingTop: 10, paddingBottom: 10 }}>
-                            <BallTriangle
-                                height={80}
-                                width={80}
-                                radius={5}
-                                color="#4fa94d"
-                                ariaLabel="ball-triangle-loading"
-                                visible={true}
-                            />
+                            <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+                                <CircularProgress size={40} color="primary" aria-label="Loading" />
+                            </Box>
                         </GridOverlay>
                     ),
                     noRowsOverlay: () => <NoResultsOverlay value={'Transactions'} />,

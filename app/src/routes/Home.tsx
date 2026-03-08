@@ -1,7 +1,6 @@
-import { Box, Button, Link as LinkMUI, Paper, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Link as LinkMUI, Paper, Typography } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { BallTriangle } from 'react-loader-spinner';
 import { Link as ReactRouterLink } from 'react-router-dom';
 
 import external_link from '../assets/external_link.svg';
@@ -227,6 +226,7 @@ function Home() {
     if (isLoading) {
         return (
             <Box
+                data-testid="ball-triangle-loading"
                 sx={{
                     width: '100%',
                     height: '100%',
@@ -236,15 +236,7 @@ function Home() {
                     alignItems: 'center',
                     overflow: 'hidden',
                 }}>
-                <BallTriangle
-                    data-testid="ball-triangle-loading"
-                    height={100}
-                    width={100}
-                    radius={5}
-                    color="#4fa94d"
-                    ariaLabel="ball-triangle-loading"
-                    visible={true}
-                />
+                <CircularProgress size={56} color="primary" aria-label="Loading" />
             </Box>
         );
     }

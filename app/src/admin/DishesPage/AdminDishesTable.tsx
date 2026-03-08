@@ -1,8 +1,7 @@
-import { Box, Button, Chip, Dialog, DialogContent, Tooltip, Typography } from '@mui/material';
+import { Box, Button, Chip, CircularProgress, Dialog, DialogContent, Tooltip, Typography } from '@mui/material';
 import { GridColDef, GridOverlay, GridRowId, GridRowModel } from '@mui/x-data-grid';
 import { useSnackbar } from 'notistack';
 import { useState } from 'react';
-import { BallTriangle } from 'react-loader-spinner';
 
 import { useAuth } from '../../contexts/AuthContext';
 import { Dish, DishStatus } from '../../types';
@@ -231,14 +230,9 @@ export default function AdminDishesTable({ filteredRows, dishTypes, dishVendors,
                 slots={{
                     loadingOverlay: () => (
                         <GridOverlay style={{ flexDirection: 'column', paddingTop: 10, paddingBottom: 10 }}>
-                            <BallTriangle
-                                height={80}
-                                width={80}
-                                radius={5}
-                                color="#4fa94d"
-                                ariaLabel="ball-triangle-loading"
-                                visible={true}
-                            />
+                            <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+                                <CircularProgress size={40} color="primary" aria-label="Loading" />
+                            </Box>
                         </GridOverlay>
                     ),
                     noRowsOverlay: () => <NoResultsOverlay value={'Dishes'} />,
