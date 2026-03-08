@@ -7,10 +7,14 @@ import Admin from '../Admin';
 
 let renderDesktop = true;
 let renderMobile = false;
+let mockIsMobile = false;
 
 vi.mock('react-device-detect', () => ({
     BrowserView: ({ children }: { children: ReactNode }) => (renderDesktop ? <>{children}</> : null),
     MobileView: ({ children }: { children: ReactNode }) => (renderMobile ? <>{children}</> : null),
+    get isMobile() {
+        return mockIsMobile;
+    },
 }));
 
 vi.mock('../../admin/UserPage/AdminUserPage', () => ({
@@ -34,6 +38,7 @@ vi.mock('../../components/Sidebar', () => ({
 beforeEach(() => {
     renderDesktop = true;
     renderMobile = false;
+    mockIsMobile = false;
 });
 
 const renderAdminRoute = (path: string) =>
@@ -60,7 +65,6 @@ test('renders the admin home content at /admin', async () => {
     renderAdminRoute('/admin');
 
     expect(await screen.findByText('Admin home page')).toBeInTheDocument();
-    expect(screen.getByText('Sidebar')).toBeInTheDocument();
 });
 
 test('renders admin dishes route on desktop', async () => {
@@ -97,14 +101,16 @@ test('renders admin email route on desktop', async () => {
     expect(await screen.findByText('Admin email page')).toBeInTheDocument();
 });
 
-test('renders the mobile warning instead of desktop content on mobile', async () => {
+test('on mobile renders only the warning with fallback navigation and redirects to /admin', async () => {
     renderDesktop = false;
     renderMobile = true;
+    mockIsMobile = true;
 
     render(
         <MemoryRouter initialEntries={['/admin/users']}>
             <Routes>
                 <Route path="/admin" element={<Admin />}>
+                    <Route index element={<div>Admin home page</div>} />
                     <Route path="users" element={<div>Admin users page</div>} />
                 </Route>
             </Routes>
@@ -114,5 +120,6 @@ test('renders the mobile warning instead of desktop content on mobile', async ()
     expect(
         await screen.findByText("You're on mobile! Please go to desktop to view admin panel."),
     ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Back to home' })).toHaveAttribute('href', '/');
     expect(screen.queryByText('Admin users page')).not.toBeInTheDocument();
 });

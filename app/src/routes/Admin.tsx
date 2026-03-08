@@ -1,22 +1,37 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import { SnackbarProvider } from 'notistack';
-import { BrowserView, MobileView } from 'react-device-detect';
-import { Outlet } from 'react-router-dom';
+import { BrowserView, isMobile, MobileView } from 'react-device-detect';
+import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import leaf_icon from '../assets/leaf-green.svg';
 
 export default function Admin() {
+    const { pathname } = useLocation();
+
+    if (isMobile && pathname !== '/admin') {
+        return <Navigate to="/admin" replace />;
+    }
+
     return (
         <SnackbarProvider>
             <MobileView>
-                <Box justifyContent="center" textAlign="center" margin="0.75rem">
-                    <Typography variant="h4" gutterBottom>
-                        Admin Panel
-                    </Typography>
+                <Box
+                    sx={{
+                        minHeight: '100vh',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        textAlign: 'center',
+                        px: 2,
+                    }}>
                     <img src={leaf_icon} alt="" />
-                    <Typography variant="h5" sx={{ mt: 2 }}>
+                    <Typography variant="h5">
                         You&apos;re on mobile! Please go to desktop to view admin panel.
                     </Typography>
+                    <Button component={Link} to="/" variant="contained" sx={{ mt: 2 }}>
+                        Back to home
+                    </Button>
                 </Box>
             </MobileView>
 
