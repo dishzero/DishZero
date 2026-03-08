@@ -226,7 +226,16 @@ function Home() {
     }
     if (isLoading) {
         return (
-            <Box sx={isMobile ? styles.rootMobileLoader : styles.rootDesktop}>
+            <Box
+                sx={{
+                    width: '100%',
+                    height: '100%',
+                    minHeight: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    overflow: 'hidden',
+                }}>
                 <BallTriangle
                     data-testid="ball-triangle-loading"
                     height={100}

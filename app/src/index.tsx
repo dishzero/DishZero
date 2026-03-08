@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom/client';
 
 import Router from './routes';
 import './styles/index.css';
-import './styles/sidebar.css';
 import theme from './theme';
 
 // Considering redux a service which provides a centralized state which can be accessed

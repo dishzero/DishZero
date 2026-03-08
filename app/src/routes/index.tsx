@@ -1,5 +1,10 @@
+import { Box } from '@mui/material';
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
 
+import AdminHomePage from '../admin/AdminHome/AdminHomePage';
+import AdminDishesPage from '../admin/DishesPage/AdminDishesPage';
+import Email from '../admin/EmailPage/Email';
+import AdminUserPage from '../admin/UserPage/AdminUserPage';
 import Sidebar from '../components/Sidebar';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import Admin from './Admin';
@@ -32,10 +37,12 @@ const UserRoute = () => {
 
     if (currentUser) {
         return (
-            <>
+            <Box sx={{ display: 'flex', minHeight: '100vh' }}>
                 <Sidebar />
-                <Outlet />
-            </>
+                <Box component="main" sx={{ flex: 1, minHeight: '100vh' }}>
+                    <Outlet />
+                </Box>
+            </Box>
         );
     }
 
@@ -106,23 +113,15 @@ const router = createBrowserRouter([
                 path: '/admin',
                 element: <PermissionsRoute validator={(r) => r === Role.admin} />,
                 errorElement: <Error404 />,
-
                 children: [
                     {
-                        path: '/admin',
-                        element: <Admin path={''} />,
-                    },
-                    {
-                        path: '/admin/dishes',
-                        element: <Admin path={'dishes'} />,
-                    },
-                    {
-                        path: '/admin/users',
-                        element: <Admin path={'users'} />,
-                    },
-                    {
-                        path: '/admin/email',
-                        element: <Admin path={'email'} />,
+                        element: <Admin />,
+                        children: [
+                            { index: true, element: <AdminHomePage /> },
+                            { path: 'dishes', element: <AdminDishesPage /> },
+                            { path: 'users', element: <AdminUserPage /> },
+                            { path: 'email', element: <Email /> },
+                        ],
                     },
                 ],
             },

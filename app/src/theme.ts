@@ -102,6 +102,7 @@ const theme = createTheme({
                 },
                 'html, body, #root': {
                     minHeight: '100%',
+                    width: '100%',
                 },
                 body: {
                     margin: 0,

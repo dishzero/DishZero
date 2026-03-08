@@ -429,30 +429,13 @@ const Return = ({ noTimer }) => {
     return (
         <Box
             sx={{
-                minHeight: '100vh',
+                height: '100vh',
+                display: 'flex',
+                flexDirection: 'column',
                 backgroundColor: '#464646',
+                position: 'relative',
             }}>
-            {/* {isLoading ? ( */}
-            {/* <></> */}
-            {/* // ) : ( */}
             <AppHeader title={'Return Dishes'} />
-            {/* // )} */}
-            {/* {isLoading ? (
-        <Box
-          sx={isMobile ? stylesConst.rootMobileLoader : stylesConst.rootDesktop}
-        >
-          <BallTriangle
-            height={100}
-            width={100}
-            radius={5}
-            color="#4fa94d"
-            ariaLabel="ball-triangle-loading"
-            visible={true}
-          />
-        </Box>
-      ) : (
-        <></>
-      )} */}
             {reportPopUp ? (
                 <>
                     <ReportModal />
@@ -495,15 +478,25 @@ const Return = ({ noTimer }) => {
                 </DialogContent>
             </CustomDialogTitle>
 
-            <Box sx={{ px: 2, pb: 14 }}>
+            <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', px: 2, pb: 14 }}>
                 <CameraScanner isLoading={isLoading} style={{ height: 'calc(100vh - 220px)' }} onSubmit={onSubmit} />
             </Box>
-            <BottomTextInput
-                disabled={isLoading}
-                value={scanId}
-                onChange={(e) => setScanId(e.target.value)}
-                onSubmit={onSubmit}
-            />
+            <Box
+                sx={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    position: 'absolute',
+                    left: 0,
+                    bottom: 32,
+                }}>
+                <BottomTextInput
+                    disabled={isLoading}
+                    value={scanId}
+                    onChange={(e) => setScanId(e.target.value)}
+                    onSubmit={onSubmit}
+                />
+            </Box>
         </Box>
     );
 };

@@ -1,19 +1,15 @@
 import { Box, Typography } from '@mui/material';
 import { SnackbarProvider } from 'notistack';
 import { BrowserView, MobileView } from 'react-device-detect';
+import { Outlet } from 'react-router-dom';
 
-import AdminHomePage from '../admin/AdminHome/AdminHomePage';
-import AdminSidebar, { SIDEBAR_WIDTH } from '../admin/AdminSidebar/AdminSidebar';
-import AdminDishesPage from '../admin/DishesPage/AdminDishesPage';
-import Email from '../admin/EmailPage/Email';
-import AdminUserPage from '../admin/UserPage/AdminUserPage';
+import Sidebar from '../components/Sidebar';
 import leaf_icon from '../assets/leaf-green.svg';
 import theme from '../theme';
 
-export default function Admin({ path }: { path?: string }) {
+export default function Admin() {
     return (
         <SnackbarProvider>
-            {/* on mobile */}
             <MobileView>
                 <Box justifyContent="center" textAlign="center" margin="0.75rem">
                     <Typography variant="h4" gutterBottom>
@@ -26,21 +22,17 @@ export default function Admin({ path }: { path?: string }) {
                 </Box>
             </MobileView>
 
-            {/* on desktop */}
             <BrowserView>
-                <Box display="flex" flexDirection={'column'} sx={{ height: 'fit-content' }}>
-                    <AdminSidebar />
+                <Box display="flex" sx={{ minHeight: '100vh' }}>
+                    <Sidebar />
                     <Box
-                        display={'flex'}
+                        component="main"
                         sx={{
-                            marginLeft: SIDEBAR_WIDTH,
+                            flex: 1,
                             backgroundColor: theme.palette.background.default,
                             minHeight: '100vh',
                         }}>
-                        {path == 'dishes' && <AdminDishesPage />}
-                        {path == 'users' && <AdminUserPage />}
-                        {path == 'email' && <Email />}
-                        {(path == '' || !path) && <AdminHomePage />}
+                        <Outlet />
                     </Box>
                 </Box>
             </BrowserView>

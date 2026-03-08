@@ -103,17 +103,6 @@ export const styles = {
         alignItems: 'center',
     },
 
-    rootMobileLoader: {
-        width: '100vw',
-        height: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundImage: `url(${MobileBackground})`,
-        backgroundSize: 'cover',
-    },
-
     rootMobile: {
         width: '100vw',
         height: '100vh',
