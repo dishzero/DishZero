@@ -10,6 +10,7 @@ import MobileBackground from '../assets/leaf-mobile-background.png';
 import leaf_white from '../assets/leaf-white.svg';
 import scan_icon from '../assets/scan.svg';
 import DishCard from '../components/DishCard';
+import { BACKEND_ADDRESS } from '../config/env';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/index.css';
 
@@ -244,7 +245,7 @@ function Home() {
             axios
                 .get(`/api/transactions`, {
                     headers: { 'session-token': sessionToken! },
-                    baseURL: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
+                    baseURL: BACKEND_ADDRESS,
                 })
                 .then(function (response) {
                     setDishesUsed(response.data.transactions);

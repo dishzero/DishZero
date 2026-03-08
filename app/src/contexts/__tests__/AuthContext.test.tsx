@@ -1,155 +1,239 @@
-import { act, renderHook, waitFor } from '@testing-library/react';
-import fetchMock from 'fetch-mock';
+import { fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
+import axios from 'axios';
+import { getIdToken, onAuthStateChanged, signInWithPopup } from 'firebase/auth';
+import Cookies from 'js-cookie';
+import { MemoryRouter } from 'react-router-dom';
+import { vi } from 'vitest';
 
-import { useAuth } from '../AuthContext';
+import { BACKEND_ADDRESS } from '../../config/env';
+import { AuthProvider, LoginLocation, useAuth } from '../AuthContext';
 
-const apiAddress = process.env.REACT_APP_BACKEND_ADDRESS;
-const user = {
-    id: '1234',
-    role: 'basic',
-    email: 'abc@xyz.com',
-};
-const sessionToken = 'test-test';
+const { mockNavigate, mockSignOut } = vi.hoisted(() => ({
+    mockNavigate: vi.fn(),
+    mockSignOut: vi.fn(),
+}));
 
-describe('AuthContext', () => {
-    describe('initial render', () => {
-        it('should initially return user as null', () => {
-            const { result } = renderHook(() => useAuth());
-            expect(result.current.currentUser).toBe(null);
-        });
+vi.mock('axios', () => ({
+    default: {
+        get: vi.fn(),
+        post: vi.fn(),
+    },
+}));
+vi.mock('js-cookie', () => ({
+    default: {
+        get: vi.fn(),
+        set: vi.fn(),
+        remove: vi.fn(),
+    },
+}));
+vi.mock('../../firebase', () => ({
+    auth: {
+        signOut: mockSignOut,
+    },
+    provider: { providerId: 'ualberta' },
+    googleAuthProvider: { providerId: 'google' },
+}));
+vi.mock('firebase/auth', () => ({
+    getIdToken: vi.fn(),
+    onAuthStateChanged: vi.fn(),
+    signInWithPopup: vi.fn(),
+}));
+vi.mock('react-router-dom', async () => {
+    const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
 
-        it('should initially return sessionToken as null', () => {
-            const { result } = renderHook(() => useAuth());
-            expect(result.current.sessionToken).toBe(null);
-        });
+    return {
+        ...actual,
+        useNavigate: () => mockNavigate,
+    };
+});
+
+const mockGet = vi.mocked(axios.get);
+const mockPost = vi.mocked(axios.post);
+const mockCookiesGet = vi.mocked(Cookies.get);
+const mockCookiesSet = vi.mocked(Cookies.set);
+const mockCookiesRemove = vi.mocked(Cookies.remove);
+const mockOnAuthStateChanged = vi.mocked(onAuthStateChanged);
+const mockSignInWithPopup = vi.mocked(signInWithPopup);
+const mockGetIdToken = vi.mocked(getIdToken);
+
+function AuthHarness() {
+    const { currentUser, sessionToken, login, logout } = useAuth();
+
+    return (
+        <div>
+            <div data-testid="current-user-email">{currentUser?.email ?? 'none'}</div>
+            <div data-testid="current-user-role">{currentUser?.role ?? 'none'}</div>
+            <div data-testid="session-token">{sessionToken ?? ''}</div>
+            <button onClick={() => login(LoginLocation.Other)}>login-other</button>
+            <button onClick={() => login(LoginLocation.UniversityOfAlberta)}>login-uofa</button>
+            <button onClick={() => logout()}>logout</button>
+        </div>
+    );
+}
+
+function renderAuthHarness() {
+    return render(
+        <MemoryRouter>
+            <AuthProvider>
+                <AuthHarness />
+            </AuthProvider>
+        </MemoryRouter>,
+    );
+}
+
+beforeEach(() => {
+    mockNavigate.mockReset();
+    mockSignOut.mockReset();
+    mockGet.mockReset();
+    mockPost.mockReset();
+    mockCookiesGet.mockReset();
+    mockCookiesSet.mockReset();
+    mockCookiesRemove.mockReset();
+    mockSignInWithPopup.mockReset();
+    mockGetIdToken.mockReset();
+    mockOnAuthStateChanged.mockReset();
+
+    mockCookiesGet.mockReturnValue(undefined);
+    mockOnAuthStateChanged.mockImplementation((_, nextOrObserver) => {
+        if (typeof nextOrObserver === 'function') {
+            nextOrObserver(null);
+        } else {
+            nextOrObserver.next?.(null);
+        }
+
+        return vi.fn();
+    });
+});
+
+test('returns the default auth context outside the provider', () => {
+    const { result } = renderHook(() => useAuth());
+
+    expect(result.current.currentUser).toBe(null);
+    expect(result.current.sessionToken).toBe('');
+});
+
+test('restores a stored session token on startup', async () => {
+    mockCookiesGet.mockReturnValue('stored-session-token');
+    mockGet.mockResolvedValueOnce({
+        status: 200,
+        data: {
+            user: {
+                id: 'user-1',
+                role: 'admin',
+                email: 'admin@dishzero.ca',
+            },
+        },
     });
 
-    describe('login', () => {
-        it('should call the correct endpoint when login is called', async () => {
-            // unit tests should not call the API for real, so we mock the response
-            fetchMock.sandbox().post(`${apiAddress}/api/auth/login`, {
-                status: 200,
-                body: {
-                    session: 'test',
-                },
-            });
-            const { result } = renderHook(() => useAuth());
+    renderAuthHarness();
 
-            act(() => {
-                // call the login function
-                result.current.login();
-            });
-            waitFor(() => {
-                // we need to wait for the next tick of the event loop.
-                // if you don't wait, this will fail as the API hasn't finished responding
-                expect(fetchMock.called()).toBe(true);
-            });
-        });
+    expect(await screen.findByTestId('session-token')).toHaveTextContent('stored-session-token');
+});
 
-        it('should set the sessionToken as returned from API when login is called', async () => {
-            fetchMock.sandbox().post(`${apiAddress}/api/auth/login`, {
-                status: 200,
-                body: {
-                    session: sessionToken,
-                },
-            });
-            const { result } = renderHook(() => useAuth());
-            act(() => {
-                result.current.login();
-            });
-            waitFor(() => {
-                expect(result.current.sessionToken).toEqual(sessionToken);
-            });
-        });
-
-        it('should set the current user as returned from API when login is called', async () => {
-            fetchMock.sandbox().post(`${apiAddress}/api/auth/login`, {
-                status: 200,
-                body: {
-                    user,
-                },
-            });
-            const { result } = renderHook(() => useAuth());
-            act(() => {
-                result.current.login();
-            });
-            waitFor(() => {
-                expect(result.current.currentUser).toEqual(user);
-            });
-        });
+test('logs in with the general Google provider and persists the session', async () => {
+    mockSignInWithPopup.mockResolvedValueOnce({
+        user: {
+            email: 'user@gmail.com',
+        },
+    } as never);
+    mockGetIdToken.mockResolvedValueOnce('firebase-id-token');
+    mockPost.mockResolvedValueOnce({
+        data: {
+            session: 'server-session-token',
+            user: {
+                id: 'user-1',
+                role: 'customer',
+                email: 'user@gmail.com',
+            },
+        },
     });
-    describe('logout', () => {
-        it('should call the correct endpoint when logout is called', async () => {
-            fetchMock.sandbox().post(`${apiAddress}/api/auth/logout`, {
-                status: 200,
-            });
-            const { result } = renderHook(() => useAuth());
-            act(() => {
-                result.current.logout();
-            });
-            waitFor(() => {
-                expect(fetchMock.called()).toBe(true);
-            });
-        });
 
-        it('should set the currentUser as null when logout is called', async () => {
-            fetchMock.sandbox().post(`${apiAddress}/api/auth/login`, {
-                status: 200,
-                body: {
-                    user,
-                },
-            });
-            const { result, rerender } = renderHook(() => useAuth());
-            act(() => {
-                result.current.login();
-            });
-            waitFor(() => {
-                expect(result.current.currentUser).toEqual(user);
-            });
+    renderAuthHarness();
 
-            rerender();
+    fireEvent.click(await screen.findByText('login-other'));
 
-            fetchMock.sandbox().post(`${apiAddress}/api/auth/logout`, {
-                status: 200,
-            });
-
-            act(() => {
-                result.current.logout();
-            });
-            waitFor(() => {
-                expect(result.current.currentUser).toBe(null);
-            });
-        });
-
-        it('should set the sessionToken as null when logout is called', async () => {
-            fetchMock.sandbox().post(`${apiAddress}/api/auth/login`, {
-                status: 200,
-                body: {
-                    session: sessionToken,
-                },
-            });
-            const { result, rerender } = renderHook(() => useAuth());
-            act(() => {
-                result.current.login();
-            });
-            // we need to make sure we actually have a session token first
-            // before we can test that it is set to null
-            waitFor(() => {
-                expect(result.current.sessionToken).toEqual(sessionToken);
-            });
-
-            rerender();
-
-            fetchMock.sandbox().post(`${apiAddress}/api/auth/logout`, {
-                status: 200,
-            });
-
-            act(() => {
-                result.current.logout();
-            });
-            waitFor(() => {
-                expect(result.current.sessionToken).toBe(null);
-            });
-        });
+    await waitFor(() => {
+        expect(mockPost).toHaveBeenCalledWith(
+            `/api/auth/login/`,
+            { idToken: 'firebase-id-token' },
+            {
+                headers: {},
+                baseURL: BACKEND_ADDRESS,
+            },
+        );
     });
+
+    expect(mockCookiesSet).toHaveBeenCalledWith('session-token', 'server-session-token', { expires: 90 });
+    expect(mockNavigate).toHaveBeenCalledWith('/home');
+    expect(screen.getByTestId('current-user-email')).toHaveTextContent('user@gmail.com');
+    expect(screen.getByTestId('session-token')).toHaveTextContent('server-session-token');
+});
+
+test('rejects non-UAlberta accounts for the university login flow', async () => {
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => undefined);
+    const deleteUser = vi.fn();
+
+    mockSignInWithPopup.mockResolvedValueOnce({
+        user: {
+            email: 'user@gmail.com',
+            delete: deleteUser,
+        },
+    } as never);
+    mockGetIdToken.mockResolvedValueOnce('firebase-id-token');
+
+    renderAuthHarness();
+
+    fireEvent.click(await screen.findByText('login-uofa'));
+
+    await waitFor(() => {
+        expect(deleteUser).toHaveBeenCalled();
+    });
+
+    expect(alertSpy).toHaveBeenCalledWith('Please login with your University of Alberta CCID');
+    expect(mockPost).not.toHaveBeenCalled();
+    expect(mockNavigate).toHaveBeenCalledWith('/login');
+
+    alertSpy.mockRestore();
+});
+
+test('logs out using the current session token and clears local state', async () => {
+    mockCookiesGet.mockReturnValue('stored-session-token');
+    mockGet.mockResolvedValueOnce({
+        status: 200,
+        data: {
+            user: {
+                id: 'user-1',
+                role: 'admin',
+                email: 'admin@dishzero.ca',
+            },
+        },
+    });
+    mockPost.mockResolvedValueOnce({
+        status: 200,
+        data: {},
+    });
+
+    renderAuthHarness();
+
+    expect(await screen.findByTestId('session-token')).toHaveTextContent('stored-session-token');
+
+    fireEvent.click(screen.getByText('logout'));
+
+    await waitFor(() => {
+        expect(mockPost).toHaveBeenCalledWith(
+            `/api/auth/logout/`,
+            {},
+            {
+                baseURL: BACKEND_ADDRESS,
+                headers: {
+                    'session-token': 'stored-session-token',
+                },
+            },
+        );
+    });
+
+    expect(mockSignOut).toHaveBeenCalled();
+    expect(mockCookiesRemove).toHaveBeenCalledWith('session-token');
+    expect(mockNavigate).toHaveBeenCalledWith('/login');
+    expect(screen.getByTestId('current-user-email')).toHaveTextContent('none');
 });

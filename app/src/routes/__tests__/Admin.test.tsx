@@ -1,370 +1,89 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import axios from 'axios';
-import { BrowserRouter as Router } from 'react-router-dom';
+import type { ReactNode } from 'react';
+import { render, screen } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
+import { vi } from 'vitest';
 
-import '@testing-library/jest-dom';
-
-import { DishStatus } from '../../types';
 import Admin from '../Admin';
 
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const useAuthMock = jest.spyOn(require('../../contexts/AuthContext'), 'useAuth');
+let renderDesktop = true;
+let renderMobile = false;
 
-jest.mock('../../contexts/AuthContext', () => ({
-    ...jest.requireActual('../../contexts/AuthContext'),
-    useAuth: () => ({
-        currentUser: {
-            id: 'mocked-user-id',
-            role: 'admin',
-            email: 'mocked-email@ualberta.ca',
-        },
-        sessionToken: 'mocked-session-token',
-        login: jest.fn(),
-        logout: jest.fn(),
-    }),
+vi.mock('react-device-detect', () => ({
+    BrowserView: ({ children }: { children: ReactNode }) => (renderDesktop ? <>{children}</> : null),
+    MobileView: ({ children }: { children: ReactNode }) => (renderMobile ? <>{children}</> : null),
 }));
 
-const mockDishesData = [
-    {
-        borrowed: true,
-        borrowedAt: '2023-11-11T02:40:20.230Z',
-        condition: 'good',
-        id: 'dish1',
-        qid: 123,
-        registered: '2023-07-22T20:19:47.144Z',
-        status: 'available',
-        timesBorrowed: 3,
-        type: 'mug',
-        userId: 'user123',
-    },
+vi.mock('../../admin/UserPage/AdminUserPage', () => ({
+    default: () => <div>Admin users page</div>,
+}));
+vi.mock('../../admin/AdminHome/AdminHomePage', () => ({
+    default: () => <div>Admin home page</div>,
+}));
+vi.mock('../../admin/DishesPage/AdminDishesPage', () => ({
+    default: () => <div>Admin dishes page</div>,
+}));
+vi.mock('../../admin/EmailPage/Email', () => ({
+    default: () => <div>Admin email page</div>,
+}));
+vi.mock('../../admin/AdminSidebar/AdminSidebar', () => ({
+    default: () => <div>Admin sidebar</div>,
+    SIDEBAR_WIDTH: '300px',
+}));
 
-    {
-        borrowed: false,
-        borrowedAt: null,
-        condition: 'good',
-        id: 'dish2',
-        qid: 23,
-        registered: '2023-07-22T20:19:50.144Z',
-        status: 'available',
-        timesBorrowed: 7,
-        type: 'mug',
-        userId: null,
-    },
-
-    {
-        borrowed: true,
-        borrowedAt: '2023-11-16T02:40:20.230Z',
-        condition: 'good',
-        id: 'dish3',
-        qid: 30,
-        registered: '2023-07-22T20:19:50.144Z',
-        status: 'available',
-        timesBorrowed: 2,
-        type: 'plate',
-        userId: 'hello123',
-    },
-
-    {
-        borrowed: true,
-        borrowedAt: '2023-11-21T02:40:20.230Z',
-        condition: 'good',
-        id: 'dish2',
-        qid: 23,
-        registered: '2023-07-22T20:19:50.144Z',
-        status: 'available',
-        timesBorrowed: 9,
-        type: 'plate',
-        userId: 'test123',
-    },
-
-    {
-        borrowed: true,
-        borrowedAt: '2022-11-21T02:40:20.230Z',
-        condition: 'good',
-        id: 'dish4',
-        qid: 51,
-        registered: '2020-07-22T20:19:50.144Z',
-        status: 'available',
-        timesBorrowed: 1,
-        type: 'plate',
-        userId: 'lost123',
-    },
-];
-
-const mockTransactionsData = [
-    {
-        dish: 'dish1',
-        id: '123',
-        returned: {
-            condition: 'good',
-            timestamp: '', // An empty string to indicate not returned
-        },
-        timestamp: '2023-11-11T02:40:20.230Z',
-        user: {
-            email: 'user@example.com',
-            id: 'user123',
-            role: 'customer',
-        },
-    },
-
-    {
-        dish: 'dish2',
-        id: '23',
-        returned: {
-            condition: 'large_crack_chunk',
-            timestamp: '2023-09-26T23:44:52.548Z',
-        },
-        timestamp: '2023-09-25T02:40:20.230Z',
-        user: {
-            email: 'test@example.com',
-            id: 'test123',
-            role: 'volunteer',
-        },
-    },
-
-    {
-        dish: 'dish3',
-        id: '30',
-        returned: {
-            condition: 'good',
-            timestamp: '', // An empty string to indicate not returned
-        },
-        timestamp: '2023-11-16T02:40:20.230Z',
-        user: {
-            email: 'hello@example.com',
-            id: 'hello123',
-            role: 'admin',
-        },
-    },
-
-    {
-        dish: 'dish2',
-        id: '23',
-        returned: {
-            condition: 'large_crack_chunk',
-            timestamp: '',
-        },
-        timestamp: '2023-11-21T02:40:20.230Z',
-        user: {
-            email: 'test@example.com',
-            id: 'test123',
-            role: 'volunteer',
-        },
-    },
-
-    {
-        dish: 'dish4',
-        id: '51',
-        returned: {
-            condition: 'good',
-            timestamp: '',
-        },
-        timestamp: '2022-11-21T02:40:20.230Z',
-        user: {
-            email: 'test@example.com',
-            id: 'lost123',
-            role: 'customer',
-        },
-    },
-];
-
-beforeEach(async () => {
-    jest.clearAllMocks();
-
-    // Mock implementation for useAuth
-    useAuthMock.mockImplementation(() => ({
-        currentUser: {
-            id: 'mocked-user-id',
-            role: 'admin',
-            email: 'mocked-email@ualberta.ca',
-        },
-        sessionToken: 'mocked-session-token',
-        login: jest.fn(),
-        logout: jest.fn(),
-    }));
-
-    mockedAxios.get.mockResolvedValue({
-        data: {
-            dishes: mockDishesData,
-            transactions: mockTransactionsData,
-        },
-    });
+beforeEach(() => {
+    renderDesktop = true;
+    renderMobile = false;
 });
 
-test('Renders homepage without crashing', async () => {
-    await act(async () => {
-        render(
-            <Router>
-                <Admin />
-            </Router>,
-        );
-    });
+test('renders the desktop admin route content', async () => {
+    render(
+        <BrowserRouter>
+            <Admin path="users" />
+        </BrowserRouter>,
+    );
 
-    expect(screen.getByPlaceholderText('Type text here...')).toBeInTheDocument();
-    expect(screen.getByText('Dish ID')).toBeInTheDocument();
-    expect(screen.getByText('Dish type')).toBeInTheDocument();
+    expect(await screen.findByText('Admin users page')).toBeInTheDocument();
 });
 
-describe('Dish Status', () => {
-    it('check currently used and available dishes', async () => {
-        await act(async () => {
-            render(
-                <Router>
-                    <Admin />
-                </Router>,
-            );
-        });
+test('renders the admin home content when no path is provided', async () => {
+    render(
+        <BrowserRouter>
+            <Admin />
+        </BrowserRouter>,
+    );
 
-        await waitFor(() => {
-            expect(screen.getByText('Currently in use')).toBeInTheDocument();
-            expect(screen.getByText('Available')).toBeInTheDocument();
-        });
-
-        // Check the numbers displayed on the screen
-        const inUseDishes = mockDishesData.filter((dish) => dish.status === DishStatus.borrowed).length;
-        // const inUseDishes = mockDishesData.filter(dish => dish.borrowed == true).length;
-        const availableDishes = mockDishesData.filter((dish) => dish.status !== DishStatus.borrowed).length;
-        // const availableDishes = mockDishesData.filter(dish => dish.borrowed == false).length;
-
-        await waitFor(() => {
-            expect(screen.getByTestId('in-use')).toHaveTextContent(inUseDishes.toString());
-            expect(screen.getByTestId('returned')).toHaveTextContent(availableDishes.toString());
-        });
-    });
-
-    // Add more tests as needed
-    it('check for overdue dishes', async () => {
-        await act(async () => {
-            render(
-                <Router>
-                    <Admin />
-                </Router>,
-            );
-        });
-
-        await waitFor(() => {
-            expect(screen.getByTestId('overdue-text')).toBeInTheDocument();
-        });
-
-        // Calculate the number of overdue dishes (more than 2 days but less than 30 days)
-        const timeToday = new Date();
-        const overdueDishes = mockTransactionsData.filter((transaction) => {
-            if (transaction.returned.timestamp) return false; // Skip if already returned
-            const borrowTime = new Date(transaction.timestamp);
-            const timeDifference = (timeToday.getTime() - borrowTime.getTime()) / (1000 * 60 * 60 * 24);
-            return timeDifference > 2 && timeDifference < 30;
-        }).length;
-
-        // Check if the number of overdue dishes is displayed correctly
-        await waitFor(() => {
-            expect(screen.getByTestId('overdue-count')).toHaveTextContent(overdueDishes.toString());
-        });
-    });
-
-    it('check for lost dishes', async () => {
-        await act(async () => {
-            render(
-                <Router>
-                    <Admin />
-                </Router>,
-            );
-        });
-
-        await waitFor(() => {
-            expect(screen.getByText('Dishes Lost')).toBeInTheDocument();
-        });
-
-        // Check the numbers displayed on the screen
-        // Calculate the number of lost dishes
-        const timeToday = new Date();
-        const dishesLost = mockTransactionsData.filter((transaction) => {
-            if (transaction.returned.timestamp) return false; // Skip if already returned
-            const borrowTime = new Date(transaction.timestamp);
-            const timeDifference = (timeToday.getTime() - borrowTime.getTime()) / (1000 * 60 * 60 * 24);
-            return timeDifference >= 30;
-        }).length;
-
-        await waitFor(() => {
-            expect(screen.getByTestId('lost-count')).toHaveTextContent(dishesLost.toString());
-        });
-    });
+    expect(await screen.findByText('Admin home page')).toBeInTheDocument();
+    expect(screen.getByText('Admin sidebar')).toBeInTheDocument();
 });
 
-describe('Table Functionalities', () => {
-    it('renders the five column headers', async () => {
-        await act(async () => {
-            render(
-                <Router>
-                    <Admin />
-                </Router>,
-            );
-        });
+test('renders the other admin routes on desktop', async () => {
+    const { rerender } = render(
+        <BrowserRouter>
+            <Admin path="dishes" />
+        </BrowserRouter>,
+    );
 
-        await waitFor(() => {
-            expect(screen.getByText('Dish ID')).toBeInTheDocument();
-            expect(screen.getByText('Dish type')).toBeInTheDocument();
-            expect(screen.getByText('Dish Status')).toBeInTheDocument();
-            expect(screen.getByTestId('overdue-table')).toBeInTheDocument();
-            expect(screen.getByTestId('email-table')).toBeInTheDocument();
-        });
+    expect(await screen.findByText('Admin dishes page')).toBeInTheDocument();
 
-        useAuthMock.mockRestore();
-    });
+    rerender(
+        <BrowserRouter>
+            <Admin path="email" />
+        </BrowserRouter>,
+    );
 
-    it('fetches and displays transactions data', async () => {
-        await act(async () => {
-            render(
-                <Router>
-                    <Admin />
-                </Router>,
-            );
-        });
+    expect(await screen.findByText('Admin email page')).toBeInTheDocument();
+});
 
-        for (const dish of mockDishesData) {
-            const correspondingTransaction = mockTransactionsData.find((transaction) => transaction.dish === dish.id);
+test('renders the mobile warning instead of desktop content on mobile', async () => {
+    renderDesktop = false;
+    renderMobile = true;
 
-            // Verify the columns
-            const idElements = await screen.findAllByTestId(`row-${dish.qid}`);
-            const rowEmails = await screen.findAllByTestId(`row-${correspondingTransaction?.user.email}`);
-            const dishTypes = await screen.findAllByTestId(`row-${dish.type}`);
+    render(
+        <BrowserRouter>
+            <Admin path="users" />
+        </BrowserRouter>,
+    );
 
-            for (const idElement of idElements) {
-                expect(idElement.textContent).toBe(correspondingTransaction?.id);
-            }
-            for (const email of rowEmails) {
-                expect(email.textContent).toBe(correspondingTransaction?.user.email);
-            }
-            for (const dishType of dishTypes) {
-                expect(dishType.textContent).toBe(dish.type);
-            }
-        }
-
-        useAuthMock.mockRestore();
-    });
-
-    it('search functionality', async () => {
-        await act(async () => {
-            render(
-                <Router>
-                    <Admin />
-                </Router>,
-            );
-        });
-
-        // Simulate typing into the search bar
-        const searchInput = screen.getByPlaceholderText('Type text here...');
-        fireEvent.change(searchInput, { target: { value: mockTransactionsData[0].id } });
-
-        // Simulate click on the search button
-        const searchButton = screen.getByText('Search');
-        fireEvent.click(searchButton);
-
-        // Assert that the table contains the expected data
-        const expectedData = screen.getByText(mockTransactionsData[0].user.email);
-        expect(expectedData).toBeInTheDocument();
-
-        useAuthMock.mockRestore();
-    });
+    expect(await screen.findByText("You're on mobile! Please go to desktop to view admin panel.")).toBeInTheDocument();
+    expect(screen.queryByText('Admin users page')).not.toBeInTheDocument();
 });

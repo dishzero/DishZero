@@ -7,6 +7,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import LoadingSpinner from '../components/LoadingSpinner';
+import { BACKEND_ADDRESS } from '../config/env';
 import { auth, googleAuthProvider, provider } from '../firebase';
 
 type User = {
@@ -90,7 +91,7 @@ export function AuthProvider({ children }) {
         if (sessionToken) {
             try {
                 const response = await axios.get(`/api/users/session`, {
-                    baseURL: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
+                    baseURL: BACKEND_ADDRESS,
                     headers: {
                         'session-token': sessionToken!,
                     },
@@ -144,7 +145,7 @@ export function AuthProvider({ children }) {
                 { idToken: idToken },
                 {
                     headers: {},
-                    baseURL: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
+                    baseURL: BACKEND_ADDRESS,
                 },
             );
 
@@ -171,7 +172,7 @@ export function AuthProvider({ children }) {
                 `/api/auth/logout/`,
                 {},
                 {
-                    baseURL: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
+                    baseURL: BACKEND_ADDRESS,
                     headers: {
                         'session-token': sessionToken!,
                     },

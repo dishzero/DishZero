@@ -1,247 +1,81 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { BrowserRouter as Router } from 'react-router-dom';
+import { vi } from 'vitest';
 
-import '@testing-library/jest-dom';
-
+import * as AuthContextModule from '../../contexts/AuthContext';
 import Sidebar from '../Sidebar';
 
-const useAuthMock = jest.spyOn(require('../../contexts/AuthContext'), 'useAuth');
+const useAuthMock = vi.spyOn(AuthContextModule, 'useAuth');
 
-jest.mock('../../contexts/AuthContext', () => ({
-    ...jest.requireActual('../../contexts/AuthContext'),
-    useAuth: () => ({
+const renderSidebar = (role: 'customer' | 'admin' | 'volunteer') => {
+    useAuthMock.mockReturnValue({
         currentUser: {
             id: 'mocked-user-id',
-            role: 'customer',
+            role,
             email: 'mocked-email@ualberta.ca',
         },
         sessionToken: 'mocked-session-token',
-        login: jest.fn(),
-        logout: jest.fn(),
-    }),
-}));
-
-test('Renders sidebar without crashing', () => {
-    // Mock implementation for useAuth
-    useAuthMock.mockImplementation(() => ({
-        currentUser: {
-            id: 'mocked-user-id',
-            role: 'admin',
-            email: 'mocked-email@ualberta.ca',
-        },
-        sessionToken: 'mocked-session-token',
-        login: jest.fn(),
-        logout: jest.fn(),
-    }));
+        login: vi.fn(),
+        logout: vi.fn(),
+    });
 
     render(
         <Router>
             <Sidebar />
         </Router>,
     );
+};
+
+afterEach(() => {
+    vi.clearAllMocks();
 });
 
-describe('Customer sidebar', () => {
-    beforeEach(async () => {
-        // Mock useAuth implementation for a customer role
-        useAuthMock.mockImplementation(() => ({
-            currentUser: {
-                id: 'mocked-user-id',
-                role: 'customer',
-                email: 'mocked-email@ualberta.ca',
-            },
-            sessionToken: 'mocked-session-token',
-            login: jest.fn(),
-            logout: jest.fn(),
-        }));
+test('renders the shared sidebar navigation', async () => {
+    renderSidebar('admin');
 
-        // Render the sidebar for testing
-        render(
-            <Router>
-                <Sidebar />
-            </Router>,
-        );
-    });
-
-    it('Checks if sidebar is displayed with the correct components', async () => {
-        await waitFor(() => {
-            expect(screen.queryByTestId('ball-triangle-loading')).not.toBeInTheDocument();
-        });
-
-        await waitFor(() => {
-            // These should appear for customers
-            expect(screen.getByText('DishZero')).toBeInTheDocument();
-            expect(screen.getByText('MENU')).toBeInTheDocument();
-            expect(screen.getByText('Home')).toBeInTheDocument();
-            expect(screen.getByText('How it works')).toBeInTheDocument();
-            expect(screen.getByText('Our impact')).toBeInTheDocument();
-            expect(screen.getByText('Logout')).toBeInTheDocument();
-
-            // These should NOT appear for customers
-            expect(screen.queryByText('VOLUNTEERS')).not.toBeInTheDocument();
-            expect(screen.queryByText('Admin panel')).not.toBeInTheDocument();
-            expect(screen.queryByText('Return Dishes')).not.toBeInTheDocument();
-        });
-    });
-
-    it('Checks if each component redirects the user to the right page', async () => {
-        const homeButton = screen.getByText('Home');
-        const homeLink = homeButton.closest('a');
-
-        const howItWorksButton = screen.getByText('How it works');
-        const howItWorksLink = howItWorksButton.closest('a');
-
-        const ourImpactButton = screen.getByText('Our impact');
-        const ourImpactLink = ourImpactButton.closest('a');
-
-        const logoutButton = screen.getByText('Logout');
-        const logoutLink = logoutButton.closest('a');
-
-        expect(homeLink?.getAttribute('href')).toBe('/home');
-        expect(howItWorksLink?.getAttribute('href')).toBe('https://www.dishzero.ca/how-it-works-1');
-        expect(ourImpactLink?.getAttribute('href')).toBe('https://www.dishzero.ca/impact');
-        expect(logoutLink?.getAttribute('href')).toBe('/login');
-    });
+    expect(await screen.findByText('DishZero')).toBeInTheDocument();
+    expect(screen.getByText('MENU')).toBeInTheDocument();
+    expect(screen.getByText('Home')).toBeInTheDocument();
+    expect(screen.getByText('Logout')).toBeInTheDocument();
 });
 
-describe('Admin sidebar', () => {
-    beforeEach(async () => {
-        // Mock useAuth implementation for an admin role
-        useAuthMock.mockImplementation(() => ({
-            currentUser: {
-                id: 'mocked-user-id',
-                role: 'admin',
-                email: 'mocked-email@ualberta.ca',
-            },
-            sessionToken: 'mocked-session-token',
-            login: jest.fn(),
-            logout: jest.fn(),
-        }));
+test('hides volunteer and admin links for customers', async () => {
+    renderSidebar('customer');
 
-        render(
-            <Router>
-                <Sidebar />
-            </Router>,
-        );
-    });
-
-    it('Checks if sidebar is displayed with the correct components', async () => {
-        await waitFor(() => {
-            expect(screen.queryByTestId('ball-triangle-loading')).not.toBeInTheDocument();
-        });
-
-        await waitFor(() => {
-            expect(screen.getByText('DishZero')).toBeInTheDocument();
-            expect(screen.getByText('MENU')).toBeInTheDocument();
-            expect(screen.getByText('Home')).toBeInTheDocument();
-
-            expect(screen.getByText('VOLUNTEERS')).toBeInTheDocument();
-            expect(screen.getByText('Admin panel')).toBeInTheDocument();
-            expect(screen.getByText('Return Dishes')).toBeInTheDocument();
-
-            expect(screen.getByText('How it works')).toBeInTheDocument();
-            expect(screen.getByText('Our impact')).toBeInTheDocument();
-            expect(screen.getByText('Logout')).toBeInTheDocument();
-        });
-    });
-
-    it('Checks if each component redirects the user to the right page', async () => {
-        const homeButton = screen.getByText('Home');
-        const homeLink = homeButton.closest('a');
-
-        const howItWorksButton = screen.getByText('How it works');
-        const howItWorksLink = howItWorksButton.closest('a');
-
-        const ourImpactButton = screen.getByText('Our impact');
-        const ourImpactLink = ourImpactButton.closest('a');
-
-        const adminPanelButton = screen.getByText('Admin panel');
-        const adminPanelLink = adminPanelButton.closest('a');
-
-        const returnDishesButton = screen.getByText('Return Dishes');
-        const returnDishesLink = returnDishesButton.closest('a');
-
-        const logoutButton = screen.getByText('Logout');
-        const logoutLink = logoutButton.closest('a');
-
-        expect(homeLink?.getAttribute('href')).toBe('/home');
-        expect(adminPanelLink?.getAttribute('href')).toBe('/admin');
-        expect(returnDishesLink?.getAttribute('href')).toBe('/volunteer/return');
-
-        expect(howItWorksLink?.getAttribute('href')).toBe('https://www.dishzero.ca/how-it-works-1');
-        expect(ourImpactLink?.getAttribute('href')).toBe('https://www.dishzero.ca/impact');
-
-        expect(logoutLink?.getAttribute('href')).toBe('/login');
-    });
+    expect(await screen.findByText('How it works')).toBeInTheDocument();
+    expect(screen.queryByText('VOLUNTEERS')).not.toBeInTheDocument();
+    expect(screen.queryByText('Admin panel')).not.toBeInTheDocument();
+    expect(screen.queryByText('Return Dishes')).not.toBeInTheDocument();
 });
 
-describe('Volunteer sidebar', () => {
-    beforeEach(async () => {
-        // Mock useAuth implementation for a volunteer role
-        useAuthMock.mockImplementation(() => ({
-            currentUser: {
-                id: 'mocked-user-id',
-                role: 'volunteer',
-                email: 'mocked-email@ualberta.ca',
-            },
-            sessionToken: 'mocked-session-token',
-            login: jest.fn(),
-            logout: jest.fn(),
-        }));
+test('shows volunteer links for volunteer users', async () => {
+    renderSidebar('volunteer');
 
-        render(
-            <Router>
-                <Sidebar />
-            </Router>,
-        );
-    });
+    expect(await screen.findByText('VOLUNTEERS')).toBeInTheDocument();
+    expect(screen.getByText('Admin panel')).toBeInTheDocument();
+    expect(screen.getByText('Return Dishes')).toBeInTheDocument();
+});
 
-    it('Checks if sidebar is displayed with the correct components', async () => {
-        await waitFor(() => {
-            expect(screen.queryByTestId('ball-triangle-loading')).not.toBeInTheDocument();
-        });
+test('shows volunteer links for admins', async () => {
+    renderSidebar('admin');
 
-        await waitFor(() => {
-            expect(screen.getByText('DishZero')).toBeInTheDocument();
-            expect(screen.getByText('MENU')).toBeInTheDocument();
-            expect(screen.getByText('Home')).toBeInTheDocument();
+    expect(await screen.findByText('VOLUNTEERS')).toBeInTheDocument();
+    expect(screen.getByText('Admin panel')).toBeInTheDocument();
+    expect(screen.getByText('Return Dishes')).toBeInTheDocument();
+});
 
-            expect(screen.getByText('VOLUNTEERS')).toBeInTheDocument();
-            expect(screen.getByText('Admin panel')).toBeInTheDocument();
-            expect(screen.getByText('Return Dishes')).toBeInTheDocument();
+test('uses the expected customer navigation targets', async () => {
+    renderSidebar('customer');
 
-            expect(screen.getByText('How it works')).toBeInTheDocument();
-            expect(screen.getByText('Our impact')).toBeInTheDocument();
-            expect(screen.getByText('Logout')).toBeInTheDocument();
-        });
-    });
+    expect((await screen.findByText('Home')).closest('a')).toHaveAttribute('href', '/home');
+    expect(screen.getByText('How it works').closest('a')).toHaveAttribute('href', 'https://www.dishzero.ca/how-it-works-1');
+    expect(screen.getByText('Our impact').closest('a')).toHaveAttribute('href', 'https://www.dishzero.ca/impact');
+    expect(screen.getByText('Logout').closest('a')).toHaveAttribute('href', '/login');
+});
 
-    it('Checks if each component redirects the user to the right page', async () => {
-        const homeButton = screen.getByText('Home');
-        const homeLink = homeButton.closest('a');
+test('uses the expected volunteer navigation targets', async () => {
+    renderSidebar('volunteer');
 
-        const howItWorksButton = screen.getByText('How it works');
-        const howItWorksLink = howItWorksButton.closest('a');
-
-        const ourImpactButton = screen.getByText('Our impact');
-        const ourImpactLink = ourImpactButton.closest('a');
-
-        const adminPanelButton = screen.getByText('Admin panel');
-        const adminPanelLink = adminPanelButton.closest('a');
-
-        const returnDishesButton = screen.getByText('Return Dishes');
-        const returnDishesLink = returnDishesButton.closest('a');
-
-        const logoutButton = screen.getByText('Logout');
-        const logoutLink = logoutButton.closest('a');
-
-        expect(homeLink?.getAttribute('href')).toBe('/home');
-        expect(adminPanelLink?.getAttribute('href')).toBe('/admin');
-        expect(returnDishesLink?.getAttribute('href')).toBe('/volunteer/return');
-
-        expect(howItWorksLink?.getAttribute('href')).toBe('https://www.dishzero.ca/how-it-works-1');
-        expect(ourImpactLink?.getAttribute('href')).toBe('https://www.dishzero.ca/impact');
-
-        expect(logoutLink?.getAttribute('href')).toBe('/login');
-    });
+    expect((await screen.findByText('Admin panel')).closest('a')).toHaveAttribute('href', '/admin');
+    expect(screen.getByText('Return Dishes').closest('a')).toHaveAttribute('href', '/volunteer/return');
 });

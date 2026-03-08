@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 import container from '../assets/dish_icon_contained.svg';
 import mug from '../assets/mug_icon_contained.svg';
+import { BACKEND_ADDRESS } from '../config/env';
 import '../styles/index.css';
 
 function DishCard({ dish, token }) {
@@ -12,7 +13,7 @@ function DishCard({ dish, token }) {
         axios
             .get(`/api/dish`, {
                 headers: { 'session-token': token },
-                baseURL: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
+                baseURL: BACKEND_ADDRESS,
                 params: { id: dish.dish },
             })
             .then(function (response) {

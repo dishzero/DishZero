@@ -27,6 +27,7 @@ import CloseIcon from '../assets/X_icon.svg';
 import AppHeader from '../components/AppHeader';
 import BottomTextInput from '../components/BottomTextInput';
 import CameraScanner from '../components/CameraScanner';
+import { BACKEND_ADDRESS } from '../config/env';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/QRScanner.css';
 import { Dish, DishStatus } from '../types';
@@ -294,7 +295,7 @@ const Return = ({ noTimer }) => {
                             'Content-Type': 'application/json',
                         },
                         params: { qid: condition },
-                        baseURL: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
+                        baseURL: BACKEND_ADDRESS,
                     },
                 )
                 .then(function (response) {
@@ -329,7 +330,7 @@ const Return = ({ noTimer }) => {
         setForceLoading(true);
         const response = (await axios
             .post(
-                `${process.env.REACT_APP_BACKEND_ADDRESS}/api/dish/borrow`,
+                `${BACKEND_ADDRESS}/api/dish/borrow`,
                 {},
                 {
                     headers: { 'session-token': sessionToken },
@@ -368,7 +369,7 @@ const Return = ({ noTimer }) => {
                             'Content-Type': 'application/json',
                         },
                         params: { qid: qid },
-                        baseURL: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
+                        baseURL: BACKEND_ADDRESS,
                     },
                 )
                 .then(function (response) {
@@ -406,7 +407,7 @@ const Return = ({ noTimer }) => {
                             'session-token': sessionToken,
                             'Content-Type': 'application/json',
                         },
-                        baseURL: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
+                        baseURL: BACKEND_ADDRESS,
                         params: {
                             id: dishID,
                         },

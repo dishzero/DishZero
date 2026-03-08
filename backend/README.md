@@ -6,49 +6,50 @@ For the server to connect to firebase where the users are stored, you need to sa
 [contents of a private key file](https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments)
 to `credentials.json`.
 
-Then to install dependencies, run
+Then install dependencies:
 
-```
-yarn
-```
-
-Then, to start the local development server, run:
-
-```
-yarn dev
+```bash
+pnpm install
 ```
 
-this will start the server on port 8080.
+Then start the local development server:
 
-## Test
-
-To run the tests, run:
-
-```
-yarn test
+```bash
+pnpm dev
 ```
 
-the test are still under development and will be updated soon.
+This starts the server on port 8080 and automatically restarts when backend files change.
+
+## Quality checks
+
+```bash
+pnpm run typecheck
+pnpm run format:check
+```
+
+## Test scripts
+
+There are no unit tests in the project yet. Manual backend verification scripts live in `test-scripts/`.
 
 ## Build
 
-To build the project, run:
+To build the project:
 
-```
-yarn build
-```
-
-this will create a `build` directory with all the compiled files. Now to run the server, run:
-
-```
-yarn start
+```bash
+pnpm run build
 ```
 
-this will start the server in production mode.
+This creates a `build` directory with the compiled files. To run the built server:
+
+```bash
+pnpm start
+```
+
+This starts the server in production mode.
 
 ## Routes
 
-all the available routes are defined in the `src/routes` directory. The routes are defined using the `express` router.
+All the available routes are defined in the `src/routes` directory. The routes are defined using the `express` router.
 The routes are then imported in the `src/app.ts` file and are mounted on the `/api` path.
 
 ### Auth
