@@ -1,23 +1,18 @@
-import { Box } from '@mui/material';
-import { BallTriangle } from 'react-loader-spinner';
+import { Box, CircularProgress } from '@mui/material';
 
-import { styles } from '../routes/Login';
-
-interface Props {
-    isMobile: boolean;
-}
-
-export default function LoadingSpinner({ isMobile }: Props) {
+export default function LoadingSpinner() {
     return (
-        <Box sx={isMobile ? styles.rootMobileLoader : styles.rootDesktop}>
-            <BallTriangle
-                height={100}
-                width={100}
-                radius={5}
-                color="#4fa94d"
-                ariaLabel="ball-triangle-loading"
-                visible={true}
-            />
+        <Box
+            sx={{
+                width: '100%',
+                height: '100%',
+                minHeight: '100vh',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                overflow: 'hidden',
+            }}>
+            <CircularProgress size={56} color="primary" aria-label="Loading" />
         </Box>
     );
 }

@@ -1,12 +1,12 @@
-import { styled } from '@mui/material';
+import { SxProps, Theme } from '@mui/material';
 import { DataGrid, DataGridProps } from '@mui/x-data-grid';
 
-const StyledDataGrid = styled(DataGrid)<DataGridProps>(({ theme }) => ({
+const adminDataGridSx: SxProps<Theme> = {
     '& .MuiDataGrid-columnHeaders': {
         '& svg': {
             fill: 'white',
         },
-        backgroundColor: theme.palette.grey[800],
+        backgroundColor: 'grey.800',
         color: 'white',
     },
     '& .MuiDataGrid-columnHeaderTitleContainerContent span': {
@@ -21,6 +21,10 @@ const StyledDataGrid = styled(DataGrid)<DataGridProps>(({ theme }) => ({
     '& .MuiDataGrid-row': {
         cursor: 'pointer',
     },
-}));
+};
 
-export default StyledDataGrid;
+export default function AdminDataGrid({ sx, ...props }: DataGridProps) {
+    const mergedSx = Array.isArray(sx) ? [adminDataGridSx, ...sx] : [adminDataGridSx, sx];
+
+    return <DataGrid {...props} sx={mergedSx} />;
+}

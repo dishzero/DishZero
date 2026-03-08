@@ -17,7 +17,7 @@ vi.mock('notistack', () => ({
         enqueueSnackbar,
     }),
 }));
-vi.mock('../../components/StyledDataGrid', () => ({
+vi.mock('../../components/AdminDataGrid', () => ({
     default: ({
         rows,
         columns,

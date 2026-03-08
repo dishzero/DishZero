@@ -1,12 +1,11 @@
 import EditIcon from '@mui/icons-material/ArrowDropDown';
-import { Box, IconButton } from '@mui/material';
+import { Box, CircularProgress, IconButton } from '@mui/material';
 import { GridColDef, GridOverlay, GridRowModel, useGridApiContext } from '@mui/x-data-grid';
 import { useSnackbar } from 'notistack';
-import { BallTriangle } from 'react-loader-spinner';
 
 import { useAuth } from '../../contexts/AuthContext';
 import adminApi from '../adminApi';
-import StyledDataGrid from '../components/StyledDataGrid';
+import AdminDataGrid from '../components/AdminDataGrid';
 import CustomToolbar from '../DataGrid/CustomToolbar';
 import NoResultsOverlay from '../DataGrid/NoResultsOverlay';
 import { User, UserRole } from '../types';
@@ -115,7 +114,7 @@ export default function AdminUserTable({ filteredRows, loadingUsers }: Props) {
 
     return (
         <>
-            <StyledDataGrid
+            <AdminDataGrid
                 loading={loadingUsers}
                 rows={filteredRows}
                 columns={userColumns}
@@ -128,14 +127,9 @@ export default function AdminUserTable({ filteredRows, loadingUsers }: Props) {
                 slots={{
                     loadingOverlay: () => (
                         <GridOverlay style={{ flexDirection: 'column', paddingTop: 10, paddingBottom: 10 }}>
-                            <BallTriangle
-                                height={80}
-                                width={80}
-                                radius={5}
-                                color="#4fa94d"
-                                ariaLabel="ball-triangle-loading"
-                                visible={true}
-                            />
+                            <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+                                <CircularProgress size={40} color="primary" aria-label="Loading" />
+                            </Box>
                         </GridOverlay>
                     ),
                     noRowsOverlay: () => <NoResultsOverlay value={'Users'} />,

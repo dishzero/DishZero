@@ -15,8 +15,9 @@ export default function CustomDialogTitle({ open, setOpen, dialogTitle, loading,
     return (
         <Dialog
             open={open}
-            sx={{
-                '& .MuiDialog-paper': {
+            PaperProps={{
+                sx: {
+                    bgcolor: 'background.paper',
                     borderRadius: '20px',
                 },
             }}>

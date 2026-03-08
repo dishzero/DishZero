@@ -3,7 +3,7 @@ import { Box, Typography } from '@mui/material';
 import { useState } from 'react';
 
 import { Dish } from '../../types';
-import { StyledContainedButton } from '../components/StyledButtons';
+import { AdminContainedButton } from '../components/AdminButtons';
 import StyledSearchBox from '../DataGrid/StyledSearchBox';
 import { searchGrid } from '../utils';
 import AddNewDishDialog from './AddNewDishDialog';
@@ -34,9 +34,9 @@ export default function AdminDishesHeader({ allRows, setFilteredRows, fetchDishe
             <Box display="flex" flexDirection="row" sx={{ mb: '1rem', justifyContent: 'space-between' }}>
                 <StyledSearchBox searchQuery={searchQuery} handleSearch={handleSearch} />
                 <Box display="flex" alignItems={'center'}>
-                    <StyledContainedButton variant="contained" startIcon={<Add />} onClick={() => setOpen(true)}>
+                    <AdminContainedButton variant="contained" startIcon={<Add />} onClick={() => setOpen(true)}>
                         Add new dishes
-                    </StyledContainedButton>
+                    </AdminContainedButton>
                 </Box>
             </Box>
             <AddNewDishDialog

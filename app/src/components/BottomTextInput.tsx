@@ -1,54 +1,49 @@
-/*eslint-disable*/
+import { Search, Send } from '@mui/icons-material';
+import { Box, IconButton, InputBase, Paper } from '@mui/material';
+import React from 'react';
 
-import { faPaperPlane, faSearch } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import axios from 'axios';
-import Cookies from 'js-cookie';
-import React, { useState } from 'react';
-import { Button, Container, InputGroup } from 'react-bootstrap';
-import Form from 'react-bootstrap/Form';
-import { useLocation } from 'react-router-dom';
+interface BottomTextInputProps {
+    disabled?: boolean;
+    value: string;
+    onChange: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+    onSubmit: (value: string) => Promise<void> | void;
+}
 
-const BottomTextInput = (props) => {
-    const [input, setInput] = useState('');
-
-    const handleSubmit = async (e) => {
+export default function BottomTextInput(props: BottomTextInputProps) {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         await props.onSubmit(props.value);
         return false;
     };
+
     return (
-        <div className="start-50 position-fixed bottom-0 p-2 translate-middle" style={{ width: '95%' }}>
-            <div>
-                <Form onSubmit={handleSubmit}>
-                    <InputGroup className="mb-1 qr-search-container shadow-sm">
-                        <InputGroup.Text className="search-icon">
-                            <FontAwesomeIcon icon={faSearch} />
-                        </InputGroup.Text>
-
-                        <Form.Control
-                            className="search-bar"
-                            value={props.value}
-                            onChange={props.onChange}
-                            type="text"
-                            placeholder="Enter dish id #"
-                        />
-
-                        <Button
-                            variant="outline-secondary"
-                            id="button-addon2"
-                            onSubmit={handleSubmit}
-                            type="submit"
-                            disabled={props.disabled}
-                            className="search-button"
-                            data-testid="return-btn">
-                            <FontAwesomeIcon icon={faPaperPlane} fontSize={'1.4em'} />
-                        </Button>
-                    </InputGroup>
-                </Form>
-            </div>
-        </div>
+        <Box sx={{ width: '95%', maxWidth: 560 }} component="form" onSubmit={handleSubmit}>
+            <Paper
+                elevation={3}
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    borderRadius: 6,
+                    px: 1.5,
+                    py: 0.5,
+                    bgcolor: 'grey.100',
+                }}>
+                <Search sx={{ color: 'grey.500', mr: 1, fontSize: 22 }} />
+                <InputBase
+                    value={props.value}
+                    onChange={props.onChange}
+                    type="text"
+                    placeholder="Enter dish id #"
+                    sx={{
+                        flex: 1,
+                        color: 'text.primary',
+                        '& input::placeholder': { color: 'grey.500', opacity: 1 },
+                    }}
+                />
+                <IconButton type="submit" disabled={props.disabled} data-testid="return-btn" color="primary">
+                    <Send />
+                </IconButton>
+            </Paper>
+        </Box>
     );
-};
-
-export default BottomTextInput;
+}

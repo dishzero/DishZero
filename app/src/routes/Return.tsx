@@ -29,7 +29,6 @@ import BottomTextInput from '../components/BottomTextInput';
 import CameraScanner from '../components/CameraScanner';
 import { BACKEND_ADDRESS } from '../config/env';
 import { useAuth } from '../contexts/AuthContext';
-import '../styles/QRScanner.css';
 import { Dish, DishStatus } from '../types';
 
 interface Props {
@@ -51,7 +50,7 @@ const PopUpModal = memo(({ dishType, error, message, reportToggle, qid, isMobile
         avatarIcon = mugIcon;
     }
     return (
-        <Box sx={stylesConst.boxContainer} className="position-fixed translate-middle slide-in-popup animate">
+        <Box sx={stylesConst.boxContainer}>
             <Avatar
                 src={avatarIcon}
                 variant="square"
@@ -59,22 +58,16 @@ const PopUpModal = memo(({ dishType, error, message, reportToggle, qid, isMobile
                 // sx={{ marginRight: 2.5 }}
                 alt="Sign In Button Logo"
             />
-            <div style={stylesConst.divContainer}>
+            <Box sx={stylesConst.divContainer}>
                 {error ? (
-                    <div>
+                    <Box>
                         <Typography sx={stylesConst.errorText}>Failed to return</Typography>
                         <Typography sx={stylesConst.errorText}>{error}</Typography>
-                    </div>
+                    </Box>
                 ) : (
-                    <div style={{ flex: 1, flexDirection: 'row' }}>
+                    <Box sx={{ flex: 1 }}>
                         <Typography sx={stylesConst.successText}>Successfully returned</Typography>
-                        {/* <img
-              style={{ paddingRight: 16 }}
-              src={ReportIcon}
-              alt=""
-              onClick={reportToggle}
-            /> */}
-                    </div>
+                    </Box>
                 )}
                 <Typography variant="h6" sx={stylesConst.text} data-testid="plate-id-and-condition">
                     {message ? message.charAt(0).toUpperCase() + message.slice(1) : ''}
@@ -87,11 +80,11 @@ const PopUpModal = memo(({ dishType, error, message, reportToggle, qid, isMobile
                 </Typography>
 
                 {error ? <Typography sx={stylesConst.errorCaption}>Please scan and try again</Typography> : <></>}
-            </div>
+            </Box>
             {error ? (
                 <></>
             ) : (
-                <div style={{ marginLeft: 'auto' }}>
+                <Box sx={{ marginLeft: 'auto' }}>
                     <Button
                         onClick={reportToggle}
                         variant="contained"
@@ -104,7 +97,7 @@ const PopUpModal = memo(({ dishType, error, message, reportToggle, qid, isMobile
                         data-testid="open-report-modal-btn">
                         <Avatar src={ReportIcon} sx={{ width: 25, height: 25, margin: '0' }} variant="square"></Avatar>
                     </Button>
-                </div>
+                </Box>
             )}
         </Box>
     );
@@ -172,17 +165,20 @@ const Return = ({ noTimer }) => {
             setReportValue((event.target as HTMLInputElement).value);
         };
         return (
-            <div
-                className="position-absolute top-50 start-50 translate-middle shadow-lg"
-                style={{
+            <Box
+                sx={{
                     ...stylesConst.boxContainer,
+                    position: 'fixed',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
                     zIndex: 10000,
                     height: 500,
-                    maxWidth: '300px',
+                    maxWidth: 320,
                     flexDirection: 'column',
                     borderColor: 'black',
-                    color: 'white',
                     justifyContent: 'space-evenly',
+                    boxShadow: 10,
                 }}>
                 <IconButton
                     aria-label="delete"
@@ -253,7 +249,7 @@ const Return = ({ noTimer }) => {
                     data-testid="end-report-btn">
                     Report
                 </Button>
-            </div>
+            </Box>
         );
     };
     const onSubmit = async (condition: string) => {
@@ -431,36 +427,15 @@ const Return = ({ noTimer }) => {
     };
 
     return (
-        <div
-            style={{
-                height: '100%',
-                width: '100%',
-                flex: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: '#464646',
-            }}>
-            {/* {isLoading ? ( */}
-            {/* <></> */}
-            {/* // ) : ( */}
-            <AppHeader title={'Return Dishes'} />
-            {/* // )} */}
-            {/* {isLoading ? (
         <Box
-          sx={isMobile ? stylesConst.rootMobileLoader : stylesConst.rootDesktop}
-        >
-          <BallTriangle
-            height={100}
-            width={100}
-            radius={5}
-            color="#4fa94d"
-            ariaLabel="ball-triangle-loading"
-            visible={true}
-          />
-        </Box>
-      ) : (
-        <></>
-      )} */}
+            sx={{
+                height: '100vh',
+                display: 'flex',
+                flexDirection: 'column',
+                bgcolor: 'background.paper',
+                position: 'relative',
+            }}>
+            <AppHeader title="Return Dishes" />
             {reportPopUp ? (
                 <>
                     <ReportModal />
@@ -503,20 +478,26 @@ const Return = ({ noTimer }) => {
                 </DialogContent>
             </CustomDialogTitle>
 
-            <CameraScanner
-                setLoading={setIsLoading}
-                isMobile={isMobile}
-                isLoading={isLoading}
-                style={{ height: '100%' }}
-                onSubmit={onSubmit}
-            />
-            <BottomTextInput
-                disabled={isLoading}
-                value={scanId}
-                onChange={(e) => setScanId(e.target.value)}
-                onSubmit={onSubmit}
-            />
-        </div>
+            <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', px: 2, pb: 14 }}>
+                <CameraScanner isLoading={isLoading} style={{ height: 'calc(100vh - 220px)' }} onSubmit={onSubmit} />
+            </Box>
+            <Box
+                sx={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    position: 'absolute',
+                    left: 0,
+                    bottom: 32,
+                }}>
+                <BottomTextInput
+                    disabled={isLoading}
+                    value={scanId}
+                    onChange={(e) => setScanId(e.target.value)}
+                    onSubmit={onSubmit}
+                />
+            </Box>
+        </Box>
     );
 };
 
@@ -526,15 +507,17 @@ const stylesConst = {
     boxContainer: {
         width: '90%',
         maxWidth: '350px',
-        height: '5%',
         display: 'flex',
         position: 'fixed',
         bottom: '100px',
-        left: '20%',
+        left: '50%',
+        transform: 'translateX(-50%)',
         alignItems: 'center',
         borderRadius: 5,
         borderWidth: 1,
-        backgroundColor: 'white',
+        borderStyle: 'solid',
+        borderColor: '#d9d9d9',
+        bgcolor: 'background.paper',
         flexDirection: 'row',
         paddingLeft: 3,
         paddingTop: 6,
@@ -542,16 +525,26 @@ const stylesConst = {
         paddingRight: 3,
         justifyContent: 'start',
         zIndex: 999,
+        animation: 'popupSlide 225ms cubic-bezier(0, 0, 0.2, 1)',
+        '@keyframes popupSlide': {
+            from: {
+                opacity: 0,
+                transform: 'translate(-50%, 32px)',
+            },
+            to: {
+                opacity: 1,
+                transform: 'translate(-50%, 0)',
+            },
+        },
     },
 
     divContainer: {
-        fontFamily: '"Roboto","Helvetica","Arial",sans-serif !important',
+        display: 'flex',
         flexDirection: 'column',
     },
 
     errorText: {
         fontSize: '10px',
-        fontFamily: 'Poppins, sans-serif',
         color: 'red',
     },
     errorCaption: {
@@ -561,13 +554,11 @@ const stylesConst = {
     },
     successText: {
         fontSize: '10px',
-        fontFamily: 'Poppins, sans-serif',
         color: 'green',
     },
 
     text: {
         fontSize: '15px',
-        fontFamily: 'Poppins, sans-serif',
         color: '#4c4242',
     },
 
@@ -590,7 +581,7 @@ const stylesConst = {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'white',
+        bgcolor: 'background.paper',
         zIndex: 1000,
     },
 } as const;

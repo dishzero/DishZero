@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import { useAuth } from '../../contexts/AuthContext';
 import adminApi from '../adminApi';
-import { StyledContainedButton } from '../components/StyledButtons';
+import { AdminContainedButton } from '../components/AdminButtons';
 import { usePreventReload } from './AddNewDishDialog';
 import CustomDialogTitle from './CustomDialogTitle';
 
@@ -77,13 +77,13 @@ export default function AddNewDishTypeDialog({ open, setOpen, fetchDishTypes }: 
                         error={error}
                         helperText={error ? 'Cannot be empty or contain numbers & special characters' : ' '}
                     />
-                    <StyledContainedButton
+                    <AdminContainedButton
                         variant="contained"
                         onClick={() => addNewDishType()}
                         sx={{ width: '90%', mt: '1rem' }}
                         disabled={loading || error || newDishTypeValue == ''}>
                         Add new dish type
-                    </StyledContainedButton>
+                    </AdminContainedButton>
                 </Box>
                 {loading && (
                     <LinearProgress

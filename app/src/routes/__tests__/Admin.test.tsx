@@ -1,16 +1,20 @@
 import type { ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { vi } from 'vitest';
 
 import Admin from '../Admin';
 
 let renderDesktop = true;
 let renderMobile = false;
+let mockIsMobile = false;
 
 vi.mock('react-device-detect', () => ({
     BrowserView: ({ children }: { children: ReactNode }) => (renderDesktop ? <>{children}</> : null),
     MobileView: ({ children }: { children: ReactNode }) => (renderMobile ? <>{children}</> : null),
+    get isMobile() {
+        return mockIsMobile;
+    },
 }));
 
 vi.mock('../../admin/UserPage/AdminUserPage', () => ({
@@ -25,65 +29,97 @@ vi.mock('../../admin/DishesPage/AdminDishesPage', () => ({
 vi.mock('../../admin/EmailPage/Email', () => ({
     default: () => <div>Admin email page</div>,
 }));
-vi.mock('../../admin/AdminSidebar/AdminSidebar', () => ({
-    default: () => <div>Admin sidebar</div>,
-    SIDEBAR_WIDTH: '300px',
+vi.mock('../../components/Sidebar', () => ({
+    __esModule: true,
+    default: () => <div>Sidebar</div>,
+    SIDEBAR_WIDTH: 300,
 }));
 
 beforeEach(() => {
     renderDesktop = true;
     renderMobile = false;
+    mockIsMobile = false;
 });
 
-test('renders the desktop admin route content', async () => {
+const renderAdminRoute = (path: string) =>
     render(
-        <BrowserRouter>
-            <Admin path="users" />
-        </BrowserRouter>,
+        <MemoryRouter initialEntries={[path]}>
+            <Routes>
+                <Route path="/admin" element={<Admin />}>
+                    <Route index element={<div>Admin home page</div>} />
+                    <Route path="dishes" element={<div>Admin dishes page</div>} />
+                    <Route path="users" element={<div>Admin users page</div>} />
+                    <Route path="email" element={<div>Admin email page</div>} />
+                </Route>
+            </Routes>
+        </MemoryRouter>,
     );
+
+test('renders the desktop admin route content', async () => {
+    renderAdminRoute('/admin/users');
 
     expect(await screen.findByText('Admin users page')).toBeInTheDocument();
 });
 
-test('renders the admin home content when no path is provided', async () => {
-    render(
-        <BrowserRouter>
-            <Admin />
-        </BrowserRouter>,
-    );
+test('renders the admin home content at /admin', async () => {
+    renderAdminRoute('/admin');
 
     expect(await screen.findByText('Admin home page')).toBeInTheDocument();
-    expect(screen.getByText('Admin sidebar')).toBeInTheDocument();
 });
 
-test('renders the other admin routes on desktop', async () => {
-    const { rerender } = render(
-        <BrowserRouter>
-            <Admin path="dishes" />
-        </BrowserRouter>,
+test('renders admin dishes route on desktop', async () => {
+    render(
+        <MemoryRouter initialEntries={['/admin/dishes']}>
+            <Routes>
+                <Route path="/admin" element={<Admin />}>
+                    <Route index element={<div>Admin home page</div>} />
+                    <Route path="dishes" element={<div>Admin dishes page</div>} />
+                    <Route path="users" element={<div>Admin users page</div>} />
+                    <Route path="email" element={<div>Admin email page</div>} />
+                </Route>
+            </Routes>
+        </MemoryRouter>,
     );
 
     expect(await screen.findByText('Admin dishes page')).toBeInTheDocument();
+});
 
-    rerender(
-        <BrowserRouter>
-            <Admin path="email" />
-        </BrowserRouter>,
+test('renders admin email route on desktop', async () => {
+    render(
+        <MemoryRouter initialEntries={['/admin/email']}>
+            <Routes>
+                <Route path="/admin" element={<Admin />}>
+                    <Route index element={<div>Admin home page</div>} />
+                    <Route path="dishes" element={<div>Admin dishes page</div>} />
+                    <Route path="users" element={<div>Admin users page</div>} />
+                    <Route path="email" element={<div>Admin email page</div>} />
+                </Route>
+            </Routes>
+        </MemoryRouter>,
     );
 
     expect(await screen.findByText('Admin email page')).toBeInTheDocument();
 });
 
-test('renders the mobile warning instead of desktop content on mobile', async () => {
+test('on mobile renders only the warning with fallback navigation and redirects to /admin', async () => {
     renderDesktop = false;
     renderMobile = true;
+    mockIsMobile = true;
 
     render(
-        <BrowserRouter>
-            <Admin path="users" />
-        </BrowserRouter>,
+        <MemoryRouter initialEntries={['/admin/users']}>
+            <Routes>
+                <Route path="/admin" element={<Admin />}>
+                    <Route index element={<div>Admin home page</div>} />
+                    <Route path="users" element={<div>Admin users page</div>} />
+                </Route>
+            </Routes>
+        </MemoryRouter>,
     );
 
-    expect(await screen.findByText("You're on mobile! Please go to desktop to view admin panel.")).toBeInTheDocument();
+    expect(
+        await screen.findByText("You're on mobile! Please go to desktop to view admin panel."),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Back to home' })).toHaveAttribute('href', '/');
     expect(screen.queryByText('Admin users page')).not.toBeInTheDocument();
 });

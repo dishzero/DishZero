@@ -1,34 +1,21 @@
-/*eslint-disable*/
-
-import {
-    faCamera,
-    faCameraRotate,
-    faClose,
-    faExclamation,
-    faExclamationCircle,
-    faExclamationTriangle,
-    faSearch,
-    faVideoCamera,
-} from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Box } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import { Button, Container, InputGroup } from 'react-bootstrap';
-import { BallTriangle, TailSpin } from 'react-loader-spinner';
+import { CameraAlt, Cameraswitch, Warning } from '@mui/icons-material';
+import { Box, CircularProgress, IconButton, Typography } from '@mui/material';
+import React, { useState } from 'react';
 
 import { QrReader } from './QrScanner/index';
 
-const CameraScanner = (props) => {
+interface CameraScannerProps {
+    isLoading: boolean;
+    onSubmit: (value: string) => void;
+    style?: React.CSSProperties;
+}
+
+const CameraScanner = (props: CameraScannerProps) => {
     const [errorMessage, setErrorMessage] = useState('');
     const [showQr, setShowQr] = useState(false);
     const [frontCamera, setFrontCamera] = useState(0);
-    const style = { height: '100%' };
 
-    /*useEffect(() => {
-        console.log(showQr)
-    },[showQr])*/
-
-    const handleError = (err: any) => {
+    const handleError = (err: Error) => {
         console.error(err.message);
         if (err.message === 'Permission denied') {
             setErrorMessage('Camera Permission Denied');
@@ -37,110 +24,79 @@ const CameraScanner = (props) => {
         }
         setShowQr(false);
     };
-    const handleScan = (data: any) => {
-        if (data == null) {
-            return;
-        }
-        props.onSubmit(data.text);
-        console.log(data);
+
+    const handleScan = (text?: string) => {
+        if (!text) return;
+        props.onSubmit(text);
     };
+
     return (
-        <>
-            <div className="qr-body-wrapper"></div>
-            <div className="qr-scanner-wrapper" style={props.style}>
-                <div
-                    style={{
-                        width: '100%',
-                        display: 'flex',
-                    }}>
-                    {/* TODO: Disable setFacingMode when only one camera is available */}
-                </div>
-                <div className="qr-scanner-placeholder" style={style}>
-                    <div
-                        className="qr-scanner-tag"
-                        onClick={() => {
-                            console.log(showQr);
-                            setShowQr(!showQr);
+        <Box
+            sx={{
+                position: 'relative',
+                width: '100%',
+                minHeight: { xs: 320, sm: 420 },
+                height: props.style?.height ?? '100%',
+                overflow: 'hidden',
+            }}>
+            <Box
+                onClick={() => setShowQr(!showQr)}
+                sx={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    textAlign: 'center',
+                    px: 3,
+                    cursor: 'pointer',
+                }}>
+                {props.isLoading ? (
+                    <CircularProgress size={56} sx={{ color: 'secondary.main' }} aria-label="Scanning" />
+                ) : showQr ? (
+                    <QrReader
+                        scanDelay={1000}
+                        videoContainerStyle={{ height: '100%', width: '100%' }}
+                        onResult={(result) => {
+                            if (result != null) {
+                                setShowQr(false);
+                                handleScan(result.getText());
+                            }
+                        }}
+                        onError={handleError}
+                        videoId="123"
+                        deviceIndex={frontCamera}
+                    />
+                ) : errorMessage ? (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: 'error.main' }}>
+                        <Warning sx={{ fontSize: 48 }} />
+                        <Typography sx={{ fontSize: '1.4em', mt: 1 }}>{errorMessage}</Typography>
+                    </Box>
+                ) : (
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
                         }}>
-                        {/* <div className="crosshair"/> */}
-                        {props.isLoading ? (
-                            <Box>
-                                <TailSpin
-                                    height={100}
-                                    width={100}
-                                    color="#B0D1D8"
-                                    ariaLabel="tail-spin-loading"
-                                    radius="1"
-                                    wrapperStyle={{}}
-                                    wrapperClass=""
-                                    visible={true}
-                                />
-                                {/* <BallTriangle
-              height={100}
-              width={100}
-              radius={5}
-              color="#4fa94d"
-              ariaLabel="ball-triangle-loading"
-              visible={true}
-            /> */}
-                            </Box>
-                        ) : (
-                            <>
-                                {showQr ? (
-                                    <QrReader
-                                        scanDelay={1000} //should we keep this
-                                        videoContainerStyle={{ height: '100%', width: '200px' }}
-                                        onResult={(result, error, codeReader) => {
-                                            if (result != null) {
-                                                setShowQr(false);
-                                                handleScan(result);
-                                            }
-                                        }}
-                                        onError={handleError}
-                                        videoId="123"
-                                        deviceIndex={frontCamera}
-                                        // key="environment"
-                                        // constraints={{ facingMode: 'environment' }}
-                                    />
-                                ) : (
-                                    <div>
-                                        {' '}
-                                        {errorMessage ? (
-                                            <div
-                                                className="d-flex align-items-center justify-content-center flex-column"
-                                                style={{ color: '#BF4949' }}>
-                                                <FontAwesomeIcon icon={faExclamationTriangle} fontSize={'3em'} /> <br />
-                                                <p style={{ fontSize: '1.4em' }}>{errorMessage}</p>
-                                            </div>
-                                        ) : (
-                                            <div
-                                                className="d-flex align-items-center justify-content-center flex-column"
-                                                style={{ color: 'white' }}>
-                                                <FontAwesomeIcon icon={faCamera} color="white" fontSize={'3em'} />{' '}
-                                                <br />
-                                                Camera Disabled <br />{' '}
-                                                <p style={{ fontSize: '0.8em', color: 'white' }}>Tap to Enable</p>
-                                                {errorMessage}
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                            </>
-                        )}
-                    </div>
-                    <div style={{ zIndex: '100000', position: 'absolute', right: 20, top: 0 }}>
-                        <Button
-                            variant="secondary"
-                            onClick={() => {
-                                setFrontCamera(frontCamera + 1);
-                                console.log(frontCamera);
-                            }}>
-                            <FontAwesomeIcon icon={faCameraRotate} size="lg" />
-                        </Button>
-                    </div>
-                </div>
-            </div>
-        </>
+                        <CameraAlt sx={{ fontSize: 48 }} />
+                        <Typography sx={{ mt: 2, fontWeight: 600 }}>Camera Disabled</Typography>
+                        <Typography variant="body2">Tap to Enable</Typography>
+                    </Box>
+                )}
+            </Box>
+            <IconButton
+                onClick={() => setFrontCamera(frontCamera + 1)}
+                sx={{
+                    position: 'absolute',
+                    right: 20,
+                    top: 20,
+                    zIndex: 2,
+                }}
+                aria-label="Switch camera">
+                <Cameraswitch />
+            </IconButton>
+        </Box>
     );
 };
 

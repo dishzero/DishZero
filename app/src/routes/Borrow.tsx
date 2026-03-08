@@ -1,43 +1,20 @@
-/*eslint-disable*/
-import { faCoffee, faExclamation, faLeaf } from '@fortawesome/free-solid-svg-icons';
-//import { Button, Modal } from 'react-bootstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// import '@fortawesome/fontawesome-free/css/all.css';
-
+import { Coffee, Error as ErrorIcon } from '@mui/icons-material';
+import { Box, Dialog, DialogContent, DialogTitle, Typography } from '@mui/material';
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import Modal from 'react-bootstrap/Modal';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
+import leaf_green from '../assets/leaf-green.svg';
 import AppHeader from '../components/AppHeader';
 import BottomTextInput from '../components/BottomTextInput';
 import { BACKEND_ADDRESS } from '../config/env';
 import { useAuth } from '../contexts/AuthContext';
-//import Scanner from "../widgets/scanner"
-//import DishAPI from "../features/api"
-import '../styles/QRScanner.css';
 
-const Borrow = () => {
+export default function Borrow() {
     const [scanId, setScanId] = useState('');
-    const [showNotif, setShowNotif] = useState(false);
-    const [popUp, setPopUp] = useState(false);
-    const [dishType, setDishType] = useState('');
-    const [qid, setQid] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const [dishIcon, setDishIcon] = useState();
-    const [notifType, setNotifType] = useState('returned');
-    const [error, setError] = useState('');
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-    const [reportPopUp, setReportPopUp] = useState(false);
-    const [reportValue, setReportValue] = useState('good');
-    const [dishID, setDishID] = useState('');
     const { currentUser, sessionToken } = useAuth();
     const [confirm, setConfirm] = useState(false);
-    const [dishNotFound, setDishNotFound] = useState(false);
-    const [borrowDishResult, setBorrowDishResult] = useState({
-        show: false,
-        success: false,
-    });
+    const [borrowDishResult, setBorrowDishResult] = useState({ show: false, success: false });
+
     useEffect(() => {
         const queryParams = new URLSearchParams(window.location.search);
         const previousURL = queryParams.get('previousURL');
@@ -48,75 +25,7 @@ const Borrow = () => {
         }
     }, []);
 
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (popUp) {
-                setPopUp(false);
-            }
-        }, 5000);
-        return () => clearTimeout(timer);
-    }, [popUp]);
-
-    // const onCancel = popUp
-    //   ? () => {
-    //       setPopUp(false);
-    //     }
-    //   : null;
-
-    const onClick = () => {
-        setPopUp(true);
-    };
-
-    const DishNotFound = ({ show, onCancel, id }) => {
-        return (
-            <Modal onHide={onCancel} show={show} className="modal-dialog-centered modal-sm" centered>
-                <Modal.Header closeButton></Modal.Header>
-                <Modal.Body className="text-center">
-                    <FontAwesomeIcon style={{ color: '#BF4949', margin: '16 0 16 0' }} icon={faExclamation} size="4x" />
-                    <p style={{ textAlign: 'center' }}>Dish ID: {id} does not exist. Please try again.</p>
-                </Modal.Body>
-            </Modal>
-        );
-    };
-
-    const BorrowDishSuccess = ({ show, success, onCancel, id }) => {
-        return (
-            <Modal onHide={onCancel} show={show} className="modal-dialog-bottom modal-sm" centered>
-                <Modal.Header closeButton></Modal.Header>
-                <Modal.Body style={{ width: '100%', display: 'flex', gap: '0.5rem' }}>
-                    {success ? (
-                        <>
-                            <FontAwesomeIcon icon={faCoffee} size="4x" />
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <div>Successfully borrowed</div>
-                                <div>Dish # {id} </div>
-                                <div> </div>
-                                <div>
-                                    Please return your dish within two days to the nearest DishZero Return Station
-                                </div>
-                            </div>
-                        </>
-                    ) : (
-                        <>
-                            <FontAwesomeIcon style={{ color: '#BF4949' }} icon={faExclamation} size="4x" />
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <div>Failed to borrow</div>
-                                <div>Dish # {id} </div>
-                                <div>Please scan and try again</div>
-                            </div>
-                        </>
-                    )}
-                </Modal.Body>
-            </Modal>
-        );
-    };
-
     const onConfirm = async (scanId: string) => {
-        // if (!confirm) {
-        //   return false;
-        // }
         setConfirm(false);
         setScanId(scanId);
         const user = currentUser?.id || null;
@@ -127,13 +36,9 @@ const Borrow = () => {
             .post(
                 `${BACKEND_ADDRESS}/api/dish/borrow`,
                 {},
-                {
-                    headers: { 'session-token': sessionToken },
-                    params: { qid: scanId },
-                },
+                { headers: { 'session-token': sessionToken }, params: { qid: scanId } },
             )
-            .then(function (response) {
-                //eslint-disable-line @typescript-eslint/no-unused-vars
+            .then(function () {
                 setBorrowDishResult({ show: true, success: true });
             })
             .catch(function (error) {
@@ -145,49 +50,87 @@ const Borrow = () => {
     const onCancel = () => {
         setScanId('');
         setConfirm(false);
-        setDishNotFound(false);
-        setBorrowDishResult({ ...borrowDishResult, show: false });
+        setBorrowDishResult((prev) => ({ ...prev, show: false }));
     };
+
     return (
-        <div
-            style={{
-                height: '100%',
-                width: '100%',
-                flex: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: '#464646',
-            }}>
-            <AppHeader title={'Borrow Dishes'} />
-
-            <div className="qr-body-wrapper">
-                <div className="b-text-wrapper">
-                    <div className="borrow-icon">
-                        <FontAwesomeIcon icon={faLeaf} color="white" fontSize="2.5em" />
-                    </div>
-                    <h1 className="borrow-header">
+        <>
+            <Box
+                sx={{
+                    height: '100vh',
+                    bgcolor: 'background.paper',
+                    position: 'relative',
+                }}>
+                <AppHeader title="Borrow Dishes" />
+                <Box
+                    sx={{
+                        px: 3,
+                        pt: 8,
+                        pb: 16,
+                        display: 'flex',
+                        flexGrow: 1,
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        textAlign: 'center',
+                    }}>
+                    <Box sx={{ mb: 3 }}>
+                        <Box component="img" src={leaf_green} alt="" sx={{ width: 40, height: 40 }} />
+                    </Box>
+                    <Typography variant="h5" sx={{ maxWidth: 480, color: 'text.secondary' }}>
                         Use phone camera to scan QR Code or type in the ID in the box below
-                    </h1>
-                </div>
-                <BottomTextInput
-                    disabled={false}
-                    value={scanId}
-                    onChange={(e) => setScanId(e.target.value)}
-                    onSubmit={async () => {
-                        await onConfirm(scanId);
-                    }}
-                />
+                    </Typography>
+                </Box>
+                <Box
+                    sx={{
+                        width: '100%',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        position: 'absolute',
+                        left: 0,
+                        bottom: 32,
+                    }}>
+                    <BottomTextInput
+                        disabled={false}
+                        value={scanId}
+                        onChange={(e) => setScanId(e.target.value)}
+                        onSubmit={async () => await onConfirm(scanId)}
+                    />
+                </Box>
+            </Box>
 
-                <DishNotFound show={dishNotFound} id={scanId} onCancel={onCancel} />
-                <BorrowDishSuccess
-                    show={borrowDishResult.show}
-                    success={borrowDishResult.success}
-                    onCancel={onCancel}
-                    id={scanId}
-                />
-            </div>
-        </div>
+            <Dialog
+                open={borrowDishResult.show}
+                onClose={onCancel}
+                maxWidth="xs"
+                fullWidth
+                PaperProps={{ sx: { bgcolor: 'background.paper' } }}>
+                <DialogTitle>{borrowDishResult.success ? 'Borrow Complete' : 'Borrow Failed'}</DialogTitle>
+                <DialogContent>
+                    <Box sx={{ width: '100%', display: 'flex', gap: 2, alignItems: 'flex-start', py: 1 }}>
+                        {borrowDishResult.success ? (
+                            <>
+                                <Coffee sx={{ fontSize: 48, color: 'primary.main' }} />
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                    <Typography>Successfully borrowed</Typography>
+                                    <Typography>Dish # {scanId}</Typography>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Please return your dish within two days to the nearest DishZero Return Station
+                                    </Typography>
+                                </Box>
+                            </>
+                        ) : (
+                            <>
+                                <ErrorIcon sx={{ fontSize: 48, color: 'error.main' }} />
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                    <Typography>Failed to borrow</Typography>
+                                    <Typography>Dish # {scanId}</Typography>
+                                    <Typography>Please scan and try again</Typography>
+                                </Box>
+                            </>
+                        )}
+                    </Box>
+                </DialogContent>
+            </Dialog>
+        </>
     );
-};
-
-export default Borrow;
+}

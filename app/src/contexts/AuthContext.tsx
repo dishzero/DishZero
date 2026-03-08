@@ -194,9 +194,5 @@ export function AuthProvider({ children }) {
         login,
         logout,
     };
-    return (
-        <AuthContext.Provider value={value}>
-            {loading ? <LoadingSpinner isMobile={isMobile} /> : children}
-        </AuthContext.Provider>
-    );
+    return <AuthContext.Provider value={value}>{loading ? <LoadingSpinner /> : children}</AuthContext.Provider>;
 }

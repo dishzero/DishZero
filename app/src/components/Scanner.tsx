@@ -1,166 +1,126 @@
-/*eslint-disable*/
-
-import { faCameraRotate, faClose, faSearch, faVideoCamera } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { Cameraswitch, Close, Search, Videocam } from '@mui/icons-material';
+import { AppBar, Box, IconButton, InputBase, Paper, Typography } from '@mui/material';
 import { useState } from 'react';
-import { Button, Container, InputGroup } from 'react-bootstrap';
-import Form from 'react-bootstrap/Form';
-import Navbar from 'react-bootstrap/Navbar';
 import QrReader from 'react-qr-scanner';
 
-import '../styles/QRScanner.css';
+const Header = ({ handleClose, title, style }: { handleClose: () => void; title: string; style?: object }) => (
+    <AppBar
+        position="static"
+        sx={{
+            ...style,
+            backgroundColor: 'background.paper',
+            color: 'text.primary',
+            boxShadow: 'none',
+            px: 2,
+            py: 1.5,
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+        }}>
+        <Box />
+        <Typography variant="subtitle1">{title}</Typography>
+        <IconButton onClick={handleClose} aria-label="Close" size="small">
+            <Close />
+        </IconButton>
+    </AppBar>
+);
 
-const Header = ({ handleClose, title, style }) => {
-    return (
-        <Navbar
-            className="justify-content-space-between qr-scan-nav"
-            style={style}
-            bg="light"
-            expand="lg"
-            variant="light">
-            <Container>
-                <div />
-                <Navbar.Brand style={{ marginRight: '0px' }}> {title}</Navbar.Brand>
-                <Navbar.Text style={{ cursor: 'pointer' }} onClick={handleClose}>
-                    <FontAwesomeIcon icon={faClose} />
-                </Navbar.Text>
-            </Container>
-        </Navbar>
-    );
-};
-
-const BottomTextInput = ({ onSubmit }) => {
+const BottomTextInput = ({ onSubmit }: { onSubmit: (value: string) => void }) => {
     const [input, setInput] = useState('');
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         onSubmit(input);
         return false;
     };
     return (
-        <div>
-            <div className="start-0 position-fixed bottom-0 w-100 px-5">
-                <div>
-                    <Form onSubmit={handleSubmit}>
-                        <InputGroup className="mb-3">
-                            <InputGroup.Text className="search-bar">
-                                <FontAwesomeIcon icon={faSearch} />
-                            </InputGroup.Text>
-                            <Form.Text className="text-muted"></Form.Text>
-
-                            <Form.Control
-                                className="search-bar"
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                type="text"
-                                placeholder="Enter dish id #"
-                            />
-
-                            <Button
-                                onSubmit={handleSubmit}
-                                type="submit"
-                                className="search-button"
-                                data-testid="enter-btn">
-                                Enter
-                            </Button>
-                        </InputGroup>
-                    </Form>
-                </div>
-            </div>
-        </div>
+        <Box
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{ position: 'fixed', left: 0, right: 0, bottom: 16, px: 4 }}>
+            <Paper elevation={3} sx={{ display: 'flex', alignItems: 'center', maxWidth: 640, mx: 'auto', borderRadius: 6, px: 2, py: 1 }}>
+                <Search sx={{ color: 'text.secondary', mr: 1 }} />
+                <InputBase
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    type="text"
+                    placeholder="Enter dish id #"
+                    sx={{ flex: 1 }}
+                />
+                <IconButton type="submit" data-testid="enter-btn" color="primary">
+                    Enter
+                </IconButton>
+            </Paper>
+        </Box>
     );
 };
 
-const CameraInput = ({ onSubmit }) => {
+const CameraInput = ({ onSubmit }: { onSubmit: (value: string) => void }) => {
     const [errorMessage, setErrorMessage] = useState('');
     const [showQr, setShowQr] = useState(false);
     const [frontCamera, setFrontCamera] = useState(false);
-
     const style = { height: '100%' };
-    const handleError = (err: any) => {
+
+    const handleError = (err: Error) => {
         console.error(err.message);
-        if (err.message === 'Permission denied') {
-            setErrorMessage('Camera Permission Denied');
-        }
+        if (err.message === 'Permission denied') setErrorMessage('Camera Permission Denied');
         setShowQr(false);
     };
-    const handleScan = (data: any) => {
-        if (data === null) {
-            return;
-        }
-        onSubmit(data.text);
-        console.log(data);
+    const handleScan = (data: { text?: string } | null) => {
+        if (data?.text) onSubmit(data.text);
     };
+
     return (
-        <div className="qr-scanner-wrapper">
-            <br />
-            <div
-                style={{
-                    width: '100%',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                }}>
-                {/* TODO: Disable setFacingMode when only one camera is available */}
-            </div>
-            <div className="qr-scanner-placeholder" style={style}>
-                <div className="position-absolute">
-                    <Button variant="secondary" onClick={() => setFrontCamera(!frontCamera)}>
-                        <FontAwesomeIcon icon={faCameraRotate} />
-                    </Button>
-                </div>
-
-                <div className="qr-scanner-tag" onClick={() => setShowQr(!showQr)}>
-                    {/* <div className="crosshair"/> */}
-
+        <Box sx={{ position: 'relative', minHeight: 420, mt: 2, borderRadius: 4, bgcolor: 'grey.800', overflow: 'hidden' }}>
+            <Box sx={style}>
+                <Box sx={{ position: 'absolute', top: 16, left: 16, zIndex: 2 }}>
+                    <IconButton
+                        sx={{ color: 'common.white', bgcolor: 'rgba(255,255,255,0.16)', '&:hover': { bgcolor: 'rgba(255,255,255,0.24)' } }}
+                        onClick={() => setFrontCamera(!frontCamera)}
+                        aria-label="Switch camera">
+                        <Cameraswitch />
+                    </IconButton>
+                </Box>
+                <Box
+                    sx={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'common.white' }}
+                    onClick={() => setShowQr(!showQr)}>
                     {showQr ? (
                         <QrReader
                             delay={100}
                             style={style}
                             onError={handleError}
                             onScan={handleScan}
-                            // TODO: determine based off https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints/facingMode
                             facingMode={frontCamera ? 'user' : 'environment'}
                         />
+                    ) : errorMessage ? (
+                        <Typography>{errorMessage}</Typography>
                     ) : (
-                        <div>
-                            {' '}
-                            {errorMessage ? (
-                                errorMessage
-                            ) : (
-                                <>
-                                    <FontAwesomeIcon icon={faVideoCamera} /> Camera Disabled <br />{' '}
-                                    <p style={{ fontSize: '0.8em' }}>Tap to Enable</p>
-                                    {errorMessage}
-                                </>
-                            )}
-                        </div>
+                        <Box sx={{ textAlign: 'center' }}>
+                            <Videocam sx={{ fontSize: 48 }} />
+                            <Typography variant="body2" sx={{ mt: 1 }}>Camera Disabled</Typography>
+                            <Typography variant="body2">Tap to Enable</Typography>
+                        </Box>
                     )}
-                </div>
-            </div>
-        </div>
+                </Box>
+            </Box>
+        </Box>
     );
 };
 
-function Scanner({ mode, onScan, onClose }) {
-    const onSubmit = (id: string) => onScan(id);
-
-    return (
-        <div className={`scanner-main`}>
-            <div className="scanner-wrapper">
-                {/* ScanQRCode */}
-                <div style={{ height: '100vh', width: '80%', display: 'block' }}>
-                    <Header
-                        title={mode}
-                        style={{ top: 0, left: 0, position: 'fixed', width: '100%' }}
-                        handleClose={onClose}
-                    />
-                    <CameraInput onSubmit={onSubmit} />
-                    <BottomTextInput onSubmit={onSubmit} />
-                </div>
-            </div>
-        </div>
-    );
+interface ScannerProps {
+    mode: string;
+    onScan: (id: string) => void;
+    onClose: () => void;
 }
 
-export default Scanner;
+export default function Scanner({ mode, onScan, onClose }: ScannerProps) {
+    return (
+        <Box sx={{ position: 'fixed', inset: 0, width: '100%', height: '100%', bgcolor: 'background.default' }}>
+            <Box sx={{ height: '100vh', width: '80%', maxWidth: 720, mx: 'auto', display: 'block' }}>
+                <Header title={mode} style={{ width: '100%' }} handleClose={onClose} />
+                <CameraInput onSubmit={onScan} />
+                <BottomTextInput onSubmit={onScan} />
+            </Box>
+        </Box>
+    );
+}

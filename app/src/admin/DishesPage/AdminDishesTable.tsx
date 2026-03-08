@@ -1,14 +1,13 @@
-import { Box, Button, Chip, Dialog, DialogContent, Tooltip, Typography } from '@mui/material';
+import { Box, Button, Chip, CircularProgress, Dialog, DialogContent, Tooltip, Typography } from '@mui/material';
 import { GridColDef, GridOverlay, GridRowId, GridRowModel } from '@mui/x-data-grid';
 import { useSnackbar } from 'notistack';
 import { useState } from 'react';
-import { BallTriangle } from 'react-loader-spinner';
 
 import { useAuth } from '../../contexts/AuthContext';
 import { Dish, DishStatus } from '../../types';
 import adminApi from '../adminApi';
-import { StyledContainedButton, StyledOutlinedButton } from '../components/StyledButtons';
-import StyledDataGrid from '../components/StyledDataGrid';
+import { AdminContainedButton, AdminOutlinedButton } from '../components/AdminButtons';
+import AdminDataGrid from '../components/AdminDataGrid';
 import CustomToolbar from '../DataGrid/CustomToolbar';
 import NoResultsOverlay from '../DataGrid/NoResultsOverlay';
 import { capitalizeFirstLetter, tagColor } from '../utils';
@@ -218,7 +217,7 @@ export default function AdminDishesTable({ filteredRows, dishTypes, dishVendors,
 
     return (
         <>
-            <StyledDataGrid
+            <AdminDataGrid
                 loading={loadingDishes}
                 rows={filteredRows}
                 columns={generateColumns(dishTypes, dishVendors)}
@@ -231,14 +230,9 @@ export default function AdminDishesTable({ filteredRows, dishTypes, dishVendors,
                 slots={{
                     loadingOverlay: () => (
                         <GridOverlay style={{ flexDirection: 'column', paddingTop: 10, paddingBottom: 10 }}>
-                            <BallTriangle
-                                height={80}
-                                width={80}
-                                radius={5}
-                                color="#4fa94d"
-                                ariaLabel="ball-triangle-loading"
-                                visible={true}
-                            />
+                            <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+                                <CircularProgress size={40} color="primary" aria-label="Loading" />
+                            </Box>
                         </GridOverlay>
                     ),
                     noRowsOverlay: () => <NoResultsOverlay value={'Dishes'} />,
@@ -285,16 +279,16 @@ export default function AdminDishesTable({ filteredRows, dishTypes, dishVendors,
                             <Typography variant="body1" sx={{ color: (theme) => theme.palette.warning.main }}>
                                 This cannot be undone!
                             </Typography>
-                            <StyledContainedButton
+                            <AdminContainedButton
                                 variant="contained"
                                 onClick={() => handleDishDelete()}
                                 sx={{ width: '90%' }}
                                 disabled={deleting}>
                                 Delete
-                            </StyledContainedButton>
-                            <StyledOutlinedButton sx={{ width: '90%' }} onClick={() => setOpen(false)}>
+                            </AdminContainedButton>
+                            <AdminOutlinedButton sx={{ width: '90%' }} onClick={() => setOpen(false)}>
                                 Exit
-                            </StyledOutlinedButton>
+                            </AdminOutlinedButton>
                         </Box>
                     </DialogContent>
                 </CustomDialogTitle>
