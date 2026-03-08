@@ -6,7 +6,6 @@ import { Link as ReactRouterLink } from 'react-router-dom';
 import external_link from '../assets/external_link.svg';
 import leaf_green from '../assets/leaf-green.svg';
 import MobileBackground from '../assets/leaf-mobile-background.png';
-import leaf_white from '../assets/leaf-white.svg';
 import scan_icon from '../assets/scan.svg';
 import AppHeader from '../components/AppHeader';
 import DishCard from '../components/DishCard';
@@ -113,7 +112,7 @@ const ImpactCard = ({
             position: 'relative',
         }}
         elevation={0}>
-        <Box component="img" src={leaf_white} alt="leaf" sx={{ position: 'absolute', top: 16, right: 16 }} />
+        <Box component="img" src={leaf_green} alt="leaf" sx={{ position: 'absolute', top: 16, right: 16 }} />
         <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1 }}>
             <Typography variant="h4" data-testid={testId}>
                 {value}

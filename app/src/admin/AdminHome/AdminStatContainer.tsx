@@ -1,6 +1,6 @@
 import { Box, Typography } from '@mui/material';
 
-import leaf_white from '../../assets/leaf-white.svg';
+import leaf_green from '../../assets/leaf-green.svg';
 
 interface Props {
     statTitle: string;
@@ -26,7 +26,7 @@ export default function AdminStatContainer({ statTitle, statValue }: Props) {
                 cursor: 'pointer',
                 boxSizing: 'border-box',
             }}>
-            <img src={leaf_white} style={{ position: 'absolute', top: '16px', right: '16px' }} />
+            <img src={leaf_green} style={{ position: 'absolute', top: '16px', right: '16px' }} alt="" />
             <Typography
                 variant="h4"
                 sx={{

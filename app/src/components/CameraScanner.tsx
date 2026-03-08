@@ -8,8 +8,6 @@ interface CameraScannerProps {
     isLoading: boolean;
     onSubmit: (value: string) => void;
     style?: React.CSSProperties;
-    /** When true, no rounded corners or own background so it blends with the page (e.g. Return page). */
-    fullBleed?: boolean;
 }
 
 const CameraScanner = (props: CameraScannerProps) => {
@@ -32,7 +30,6 @@ const CameraScanner = (props: CameraScannerProps) => {
         props.onSubmit(text);
     };
 
-    const fullBleed = props.fullBleed ?? false;
     return (
         <Box
             sx={{
@@ -40,9 +37,7 @@ const CameraScanner = (props: CameraScannerProps) => {
                 width: '100%',
                 minHeight: { xs: 320, sm: 420 },
                 height: props.style?.height ?? '100%',
-                borderRadius: fullBleed ? 0 : 4,
                 overflow: 'hidden',
-                bgcolor: fullBleed ? 'transparent' : 'grey.800',
             }}>
             <Box
                 onClick={() => setShowQr(!showQr)}
@@ -52,7 +47,6 @@ const CameraScanner = (props: CameraScannerProps) => {
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    color: 'common.white',
                     textAlign: 'center',
                     px: 3,
                     cursor: 'pointer',
@@ -79,7 +73,12 @@ const CameraScanner = (props: CameraScannerProps) => {
                         <Typography sx={{ fontSize: '1.4em', mt: 1 }}>{errorMessage}</Typography>
                     </Box>
                 ) : (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: 'common.white' }}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                        }}>
                         <CameraAlt sx={{ fontSize: 48 }} />
                         <Typography sx={{ mt: 2, fontWeight: 600 }}>Camera Disabled</Typography>
                         <Typography variant="body2">Tap to Enable</Typography>
@@ -93,9 +92,6 @@ const CameraScanner = (props: CameraScannerProps) => {
                     right: 20,
                     top: 20,
                     zIndex: 2,
-                    bgcolor: 'rgba(255, 255, 255, 0.16)',
-                    color: 'common.white',
-                    '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.24)' },
                 }}
                 aria-label="Switch camera">
                 <Cameraswitch />

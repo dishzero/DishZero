@@ -432,8 +432,7 @@ const Return = ({ noTimer }) => {
                 height: '100vh',
                 display: 'flex',
                 flexDirection: 'column',
-                bgcolor: 'grey.800',
-                color: 'common.white',
+                bgcolor: 'background.paper',
                 position: 'relative',
             }}>
             <AppHeader title="Return Dishes" />
@@ -480,12 +479,7 @@ const Return = ({ noTimer }) => {
             </CustomDialogTitle>
 
             <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', px: 2, pb: 14 }}>
-                <CameraScanner
-                    isLoading={isLoading}
-                    style={{ height: 'calc(100vh - 220px)' }}
-                    onSubmit={onSubmit}
-                    fullBleed
-                />
+                <CameraScanner isLoading={isLoading} style={{ height: 'calc(100vh - 220px)' }} onSubmit={onSubmit} />
             </Box>
             <Box
                 sx={{
@@ -523,7 +517,7 @@ const stylesConst = {
         borderWidth: 1,
         borderStyle: 'solid',
         borderColor: '#d9d9d9',
-        backgroundColor: 'white',
+        bgcolor: 'background.paper',
         flexDirection: 'row',
         paddingLeft: 3,
         paddingTop: 6,
@@ -587,7 +581,7 @@ const stylesConst = {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'white',
+        bgcolor: 'background.paper',
         zIndex: 1000,
     },
 } as const;

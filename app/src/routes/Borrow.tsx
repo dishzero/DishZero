@@ -1,8 +1,9 @@
-import { Coffee, EnergySavingsLeaf, Error as ErrorIcon } from '@mui/icons-material';
+import { Coffee, Error as ErrorIcon } from '@mui/icons-material';
 import { Box, Dialog, DialogContent, DialogTitle, Typography } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
+import leaf_green from '../assets/leaf-green.svg';
 import AppHeader from '../components/AppHeader';
 import BottomTextInput from '../components/BottomTextInput';
 import { BACKEND_ADDRESS } from '../config/env';
@@ -57,8 +58,7 @@ export default function Borrow() {
             <Box
                 sx={{
                     height: '100vh',
-                    bgcolor: 'grey.800',
-                    color: 'common.white',
+                    bgcolor: 'background.paper',
                     position: 'relative',
                 }}>
                 <AppHeader title="Borrow Dishes" />
@@ -74,9 +74,9 @@ export default function Borrow() {
                         textAlign: 'center',
                     }}>
                     <Box sx={{ mb: 3 }}>
-                        <EnergySavingsLeaf sx={{ fontSize: 40, color: 'white' }} />
+                        <Box component="img" src={leaf_green} alt="" sx={{ width: 40, height: 40 }} />
                     </Box>
-                    <Typography variant="h5" sx={{ maxWidth: 480, color: 'grey.400' }}>
+                    <Typography variant="h5" sx={{ maxWidth: 480, color: 'text.secondary' }}>
                         Use phone camera to scan QR Code or type in the ID in the box below
                     </Typography>
                 </Box>
@@ -98,7 +98,12 @@ export default function Borrow() {
                 </Box>
             </Box>
 
-            <Dialog open={borrowDishResult.show} onClose={onCancel} maxWidth="xs" fullWidth>
+            <Dialog
+                open={borrowDishResult.show}
+                onClose={onCancel}
+                maxWidth="xs"
+                fullWidth
+                PaperProps={{ sx: { bgcolor: 'background.paper' } }}>
                 <DialogTitle>{borrowDishResult.success ? 'Borrow Complete' : 'Borrow Failed'}</DialogTitle>
                 <DialogContent>
                     <Box sx={{ width: '100%', display: 'flex', gap: 2, alignItems: 'flex-start', py: 1 }}>
