@@ -2,7 +2,7 @@ import { Chip } from '@mui/material';
 import { GridColDef, GridOverlay } from '@mui/x-data-grid';
 import { BallTriangle } from 'react-loader-spinner';
 
-import StyledDataGrid from '../components/StyledDataGrid';
+import AdminDataGrid from '../components/AdminDataGrid';
 import CustomToolbar from '../DataGrid/CustomToolbar';
 import NoResultsOverlay from '../DataGrid/NoResultsOverlay';
 import { Transaction, TransactionType } from '../types';
@@ -93,7 +93,7 @@ export function generateTransactionColumns(dishTypes: string[]): GridColDef[] {
 export default function AdminTransactionsTable({ filteredRows, loadingTransactions, dishTypes }: Props) {
     return (
         <>
-            <StyledDataGrid
+            <AdminDataGrid
                 loading={loadingTransactions}
                 rows={filteredRows}
                 columns={generateTransactionColumns(dishTypes)}

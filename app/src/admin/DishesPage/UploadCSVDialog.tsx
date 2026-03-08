@@ -17,7 +17,7 @@ import { useState } from 'react';
 
 import { useAuth } from '../../contexts/AuthContext';
 import adminApi from '../adminApi';
-import { StyledContainedButton } from '../components/StyledButtons';
+import { AdminContainedButton } from '../components/AdminButtons';
 import { usePreventReload } from './AddNewDishDialog';
 import CustomDialogTitle from './CustomDialogTitle';
 
@@ -176,13 +176,13 @@ export default function UploadCSVDialog({ open, setOpen, fetchDishes }: Props) {
                             }}
                             disabled={loading}
                         />
-                        <StyledContainedButton
+                        <AdminContainedButton
                             variant="contained"
                             onClick={() => handleFile()}
                             sx={{ width: '90%', mt: '1.5rem' }}
                             disabled={loading || error || !file}>
                             Add dishes from CSV
-                        </StyledContainedButton>
+                        </AdminContainedButton>
                     </Box>
                     {loading && (
                         <LinearProgress
@@ -278,7 +278,7 @@ export default function UploadCSVDialog({ open, setOpen, fetchDishes }: Props) {
                                 </Tooltip>
                             </AccordionDetails>
                         </Accordion>
-                        <StyledContainedButton
+                        <AdminContainedButton
                             variant="contained"
                             onClick={() => {
                                 setSummaryDialogOpen(false);
@@ -287,7 +287,7 @@ export default function UploadCSVDialog({ open, setOpen, fetchDishes }: Props) {
                             sx={{ width: '90%', mt: '1.5em' }}
                             disabled={loading}>
                             Done
-                        </StyledContainedButton>
+                        </AdminContainedButton>
                     </Box>
                 </DialogContent>
             </Dialog>

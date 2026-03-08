@@ -6,7 +6,7 @@ import { BallTriangle } from 'react-loader-spinner';
 
 import { useAuth } from '../../contexts/AuthContext';
 import adminApi from '../adminApi';
-import StyledDataGrid from '../components/StyledDataGrid';
+import AdminDataGrid from '../components/AdminDataGrid';
 import CustomToolbar from '../DataGrid/CustomToolbar';
 import NoResultsOverlay from '../DataGrid/NoResultsOverlay';
 import { User, UserRole } from '../types';
@@ -115,7 +115,7 @@ export default function AdminUserTable({ filteredRows, loadingUsers }: Props) {
 
     return (
         <>
-            <StyledDataGrid
+            <AdminDataGrid
                 loading={loadingUsers}
                 rows={filteredRows}
                 columns={userColumns}

@@ -1,4 +1,4 @@
-import { Box, styled, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 import leaf_white from '../../assets/leaf-white.svg';
 
@@ -7,26 +7,25 @@ interface Props {
     statValue: number;
 }
 
-const StyledStatBox = styled(Box)(({ theme }) => ({
-    borderRadius: '10px',
-    backgroundColor: theme.palette.primary.light,
-    width: '170px',
-    height: '118px',
-    marginRight: '40px',
-    padding: '16px',
-    color: 'black',
-    position: 'relative',
-    border: '2px solid transparent',
-    '&:hover': {
-        borderColor: theme.palette.primary.main,
-    },
-    cursor: 'pointer',
-    boxSizing: 'border-box',
-}));
-
 export default function AdminStatContainer({ statTitle, statValue }: Props) {
     return (
-        <StyledStatBox>
+        <Box
+            sx={{
+                borderRadius: '10px',
+                backgroundColor: 'primary.light',
+                width: '170px',
+                height: '118px',
+                marginRight: '40px',
+                padding: '16px',
+                color: 'black',
+                position: 'relative',
+                border: '2px solid transparent',
+                '&:hover': {
+                    borderColor: 'primary.main',
+                },
+                cursor: 'pointer',
+                boxSizing: 'border-box',
+            }}>
             <img src={leaf_white} style={{ position: 'absolute', top: '16px', right: '16px' }} />
             <Typography
                 variant="h4"
@@ -48,6 +47,6 @@ export default function AdminStatContainer({ statTitle, statValue }: Props) {
                 }}>
                 {statTitle}
             </Typography>
-        </StyledStatBox>
+        </Box>
     );
 }

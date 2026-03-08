@@ -17,7 +17,7 @@ import { useEffect, useState } from 'react';
 
 import { useAuth } from '../../contexts/AuthContext';
 import adminApi from '../adminApi';
-import { StyledContainedButton, StyledOutlinedButton } from '../components/StyledButtons';
+import { AdminContainedButton, AdminOutlinedButton } from '../components/AdminButtons';
 import { capitalizeFirstLetter } from '../utils';
 import AddNewDishTypeDialog from './AddNewDishTypeDialog';
 import CustomDialogTitle from './CustomDialogTitle';
@@ -217,13 +217,13 @@ export default function AddNewDishDialog({ open, setOpen, dishTypes, fetchDishTy
                             </Tooltip>
                         </Box>
 
-                        <StyledContainedButton
+                        <AdminContainedButton
                             variant="contained"
                             onClick={() => addDish()}
                             sx={{ width: '90%', mt: '1rem' }}
                             disabled={loading || error || dishTypeValue === '' || dishIdValue === ''}>
                             Add new dishes
-                        </StyledContainedButton>
+                        </AdminContainedButton>
                     </Box>
                     <Divider>
                         <Typography variant="overline" sx={{ mb: '0.25rem' }}>
@@ -234,12 +234,12 @@ export default function AddNewDishDialog({ open, setOpen, dishTypes, fetchDishTy
                         Add from file
                     </Typography>
                     <Box width="100%" sx={{ textAlign: 'center' }}>
-                        <StyledOutlinedButton
+                        <AdminOutlinedButton
                             sx={{ width: '90%' }}
                             disabled={loading}
                             onClick={() => setUploadCSVDialogOpen(true)}>
                             Upload a CSV file
-                        </StyledOutlinedButton>
+                        </AdminOutlinedButton>
                     </Box>
                     {loading && (
                         <LinearProgress

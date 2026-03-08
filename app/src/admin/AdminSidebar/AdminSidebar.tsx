@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Email, Home, Person2, RoomService, Settings } from '@mui/icons-material';
-import { Drawer, List, ListItemButton, styled, Typography } from '@mui/material';
+import { Drawer, List, ListItemButton, Typography } from '@mui/material';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -8,20 +8,6 @@ import DishzeroSidebarLogo from '../../assets/dishzero-sidebar-logo.png';
 import AdminSidebarItem from './AdminSidebarItem';
 
 export const SIDEBAR_WIDTH = '300px';
-
-const StyledDrawer = styled(Drawer)(({ theme }) => ({
-    whiteSpace: 'nowrap',
-    overflowY: 'scroll',
-    overflowX: 'hidden',
-    height: '100%',
-    width: SIDEBAR_WIDTH,
-    '& .MuiDrawer-paper': {
-        backgroundColor: theme.palette.grey[800],
-        width: SIDEBAR_WIDTH,
-        overflowX: 'hidden',
-        height: '100%',
-    },
-}));
 
 export default function AdminSidebar() {
     const [open, setOpen] = useState(true);
@@ -31,7 +17,23 @@ export default function AdminSidebar() {
     };
     // TODO create a JSON for this then loop through
     return (
-        <StyledDrawer variant="permanent" open={open} onClose={handleDrawerChange}>
+        <Drawer
+            variant="permanent"
+            open={open}
+            onClose={handleDrawerChange}
+            sx={{
+                whiteSpace: 'nowrap',
+                overflowY: 'scroll',
+                overflowX: 'hidden',
+                height: '100%',
+                width: SIDEBAR_WIDTH,
+                '& .MuiDrawer-paper': {
+                    backgroundColor: 'grey.800',
+                    width: SIDEBAR_WIDTH,
+                    overflowX: 'hidden',
+                    height: '100%',
+                },
+            }}>
             <List>
                 <ListItemButton component={Link} to="/" sx={{ m: '0.75rem' }}>
                     <img alt="logo" src={DishzeroSidebarLogo} width="43px" height="43px" />
@@ -60,6 +62,6 @@ export default function AdminSidebar() {
                 <AdminSidebarItem url="/admin/email" icon={<Email />} text="Email" />
                 {/* <AdminSidebarItem url="/admin/settings" icon={<Settings />} text="Settings" /> */}
             </List>
-        </StyledDrawer>
+        </Drawer>
     );
 }

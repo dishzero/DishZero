@@ -7,8 +7,8 @@ import { BallTriangle } from 'react-loader-spinner';
 import { useAuth } from '../../contexts/AuthContext';
 import { Dish, DishStatus } from '../../types';
 import adminApi from '../adminApi';
-import { StyledContainedButton, StyledOutlinedButton } from '../components/StyledButtons';
-import StyledDataGrid from '../components/StyledDataGrid';
+import { AdminContainedButton, AdminOutlinedButton } from '../components/AdminButtons';
+import AdminDataGrid from '../components/AdminDataGrid';
 import CustomToolbar from '../DataGrid/CustomToolbar';
 import NoResultsOverlay from '../DataGrid/NoResultsOverlay';
 import { capitalizeFirstLetter, tagColor } from '../utils';
@@ -218,7 +218,7 @@ export default function AdminDishesTable({ filteredRows, dishTypes, dishVendors,
 
     return (
         <>
-            <StyledDataGrid
+            <AdminDataGrid
                 loading={loadingDishes}
                 rows={filteredRows}
                 columns={generateColumns(dishTypes, dishVendors)}
@@ -285,16 +285,16 @@ export default function AdminDishesTable({ filteredRows, dishTypes, dishVendors,
                             <Typography variant="body1" sx={{ color: (theme) => theme.palette.warning.main }}>
                                 This cannot be undone!
                             </Typography>
-                            <StyledContainedButton
+                            <AdminContainedButton
                                 variant="contained"
                                 onClick={() => handleDishDelete()}
                                 sx={{ width: '90%' }}
                                 disabled={deleting}>
                                 Delete
-                            </StyledContainedButton>
-                            <StyledOutlinedButton sx={{ width: '90%' }} onClick={() => setOpen(false)}>
+                            </AdminContainedButton>
+                            <AdminOutlinedButton sx={{ width: '90%' }} onClick={() => setOpen(false)}>
                                 Exit
-                            </StyledOutlinedButton>
+                            </AdminOutlinedButton>
                         </Box>
                     </DialogContent>
                 </CustomDialogTitle>
