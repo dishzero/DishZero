@@ -4,7 +4,6 @@ import { BrowserView, MobileView } from 'react-device-detect';
 import { Outlet } from 'react-router-dom';
 
 import leaf_icon from '../assets/leaf-green.svg';
-import theme from '../theme';
 
 export default function Admin() {
     return (
@@ -24,9 +23,9 @@ export default function Admin() {
             <BrowserView>
                 <Box
                     component="main"
+                    bgcolor="background.default"
                     sx={{
                         flex: 1,
-                        backgroundColor: theme.palette.background.default,
                         minHeight: '100vh',
                     }}>
                     <Outlet />

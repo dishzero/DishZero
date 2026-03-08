@@ -57,7 +57,6 @@ export default function Borrow() {
             <Box
                 sx={{
                     height: '100vh',
-                    flexDirection: 'column',
                     bgcolor: 'grey.800',
                     color: 'common.white',
                     position: 'relative',

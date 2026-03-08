@@ -90,14 +90,6 @@ const theme = createTheme({
     components: {
         MuiCssBaseline: {
             styleOverrides: {
-                ':root': {
-                    '--light-blue': brandColors.primaryLight,
-                    '--turquoise': brandColors.primary,
-                    '--green': brandColors.primaryDark,
-                    '--dark-grey': brandColors.surfaceDark,
-                    '--secondary-blue': brandColors.accentBlue,
-                    '--secondary-green': brandColors.primaryDark,
-                },
                 'html, body, #root': {
                     minHeight: '100%',
                     width: '100%',

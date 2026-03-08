@@ -12,7 +12,7 @@ export default function Error404() {
             sx={{
                 minHeight: '100vh',
                 px: 4,
-                color: '#000000',
+                color: 'text.primary',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -37,7 +37,8 @@ export default function Error404() {
                         component={Link}
                         to="/"
                         variant="contained"
-                        sx={{ mt: 4, px: 6, backgroundColor: '#68b49a', color: '#f6f8f5' }}>
+                        color="primary"
+                        sx={{ mt: 4, px: 6 }}>
                         Home
                     </Button>
                 </>
@@ -51,7 +52,8 @@ export default function Error404() {
                         component={Link}
                         to="/"
                         variant="contained"
-                        sx={{ mt: 4, px: 6, backgroundColor: '#68b49a', color: '#f6f8f5' }}>
+                        color="primary"
+                        sx={{ mt: 4, px: 6 }}>
                         Login
                     </Button>
                 </>
