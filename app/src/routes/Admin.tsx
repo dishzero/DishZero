@@ -3,7 +3,6 @@ import { SnackbarProvider } from 'notistack';
 import { BrowserView, MobileView } from 'react-device-detect';
 import { Outlet } from 'react-router-dom';
 
-import Sidebar from '../components/Sidebar';
 import leaf_icon from '../assets/leaf-green.svg';
 import theme from '../theme';
 
@@ -23,17 +22,14 @@ export default function Admin() {
             </MobileView>
 
             <BrowserView>
-                <Box display="flex" sx={{ minHeight: '100vh' }}>
-                    <Sidebar />
-                    <Box
-                        component="main"
-                        sx={{
-                            flex: 1,
-                            backgroundColor: theme.palette.background.default,
-                            minHeight: '100vh',
-                        }}>
-                        <Outlet />
-                    </Box>
+                <Box
+                    component="main"
+                    sx={{
+                        flex: 1,
+                        backgroundColor: theme.palette.background.default,
+                        minHeight: '100vh',
+                    }}>
+                    <Outlet />
                 </Box>
             </BrowserView>
         </SnackbarProvider>

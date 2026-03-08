@@ -107,20 +107,20 @@ const router = createBrowserRouter([
                             },
                         ],
                     },
-                ],
-            },
-            {
-                path: '/admin',
-                element: <PermissionsRoute validator={(r) => r === Role.admin} />,
-                errorElement: <Error404 />,
-                children: [
                     {
-                        element: <Admin />,
+                        path: '/admin',
+                        element: <PermissionsRoute validator={(r) => r === Role.admin} />,
+                        errorElement: <Error404 />,
                         children: [
-                            { index: true, element: <AdminHomePage /> },
-                            { path: 'dishes', element: <AdminDishesPage /> },
-                            { path: 'users', element: <AdminUserPage /> },
-                            { path: 'email', element: <Email /> },
+                            {
+                                element: <Admin />,
+                                children: [
+                                    { index: true, element: <AdminHomePage /> },
+                                    { path: 'dishes', element: <AdminDishesPage /> },
+                                    { path: 'users', element: <AdminUserPage /> },
+                                    { path: 'email', element: <Email /> },
+                                ],
+                            },
                         ],
                     },
                 ],
