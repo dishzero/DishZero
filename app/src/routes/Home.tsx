@@ -5,7 +5,6 @@ import { Link as ReactRouterLink } from 'react-router-dom';
 
 import external_link from '../assets/external_link.svg';
 import leaf_green from '../assets/leaf-green.svg';
-import MobileBackground from '../assets/leaf-mobile-background.png';
 import scan_icon from '../assets/scan.svg';
 import AppHeader from '../components/AppHeader';
 import DishCard from '../components/DishCard';
@@ -236,23 +235,3 @@ function Home() {
 }
 
 export default Home;
-
-const styles = {
-    rootDesktop: {
-        width: '100vw',
-        height: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    rootMobileLoader: {
-        width: '100vw',
-        height: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundImage: `url(${MobileBackground})`,
-        backgroundSize: 'cover',
-    },
-};
