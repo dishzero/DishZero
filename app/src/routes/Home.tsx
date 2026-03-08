@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, Link as LinkMUI, Paper, Typography } from '@mui/material';
+import { Box, Button, Link as LinkMUI, Paper, Typography } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Link as ReactRouterLink } from 'react-router-dom';
@@ -9,6 +9,7 @@ import MobileBackground from '../assets/leaf-mobile-background.png';
 import scan_icon from '../assets/scan.svg';
 import AppHeader from '../components/AppHeader';
 import DishCard from '../components/DishCard';
+import LoadingSpinner from '../components/LoadingSpinner';
 import { BACKEND_ADDRESS } from '../config/env';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -223,21 +224,7 @@ function Home() {
         }
     }
     if (isLoading) {
-        return (
-            <Box
-                data-testid="ball-triangle-loading"
-                sx={{
-                    width: '100%',
-                    height: '100%',
-                    minHeight: '100%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    overflow: 'hidden',
-                }}>
-                <CircularProgress size={56} color="primary" aria-label="Loading" />
-            </Box>
-        );
+        return <LoadingSpinner />;
     }
     return (
         <Box>

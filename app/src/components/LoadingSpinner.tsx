@@ -1,10 +1,6 @@
 import { Box, CircularProgress } from '@mui/material';
 
-interface Props {
-    isMobile?: boolean;
-}
-
-export default function LoadingSpinner({ isMobile }: Props) {
+export default function LoadingSpinner() {
     return (
         <Box
             sx={{

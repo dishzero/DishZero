@@ -47,7 +47,7 @@ export default function Login() {
 
     //As auth state is being read, display loader spinner
     if (isLoading) {
-        return <LoadingSpinner isMobile={isMobile} />;
+        return <LoadingSpinner />;
     }
     return (
         <Box sx={isMobile ? styles.rootMobile : styles.rootDesktop}>
