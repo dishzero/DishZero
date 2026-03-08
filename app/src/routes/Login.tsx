@@ -1,3 +1,4 @@
+import { HelpOutline } from '@mui/icons-material';
 import { Avatar, Box, Button, Tooltip, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 
@@ -5,13 +6,9 @@ import desktopLogo from '../assets/dishzero-logo-desktop.png';
 import mobileLogo from '../assets/dishzero-logo-mobile.png';
 import MobileBackground from '../assets/leaf-mobile-background.png';
 import signInButtonLogo from '../assets/sign-in-button-logo.png';
-
-import 'typeface-poppins';
-
-import { HelpOutline } from '@mui/icons-material';
-
 import LoadingSpinner from '../components/LoadingSpinner';
 import { LoginLocation, useAuth } from '../contexts/AuthContext';
+import { brandColors } from '../theme';
 
 export default function Login() {
     const { login } = useAuth();
@@ -89,7 +86,7 @@ export default function Login() {
                         placement="top"
                         arrow
                         enterTouchDelay={0}>
-                        <HelpOutline sx={{ color: '#68B49A' }} />
+                        <HelpOutline sx={{ color: 'primary.main' }} />
                     </Tooltip>
                 </Box>
             </Box>
@@ -163,14 +160,12 @@ export const styles = {
     dishZeroHeading: {
         fontSize: '3.5rem',
         fontWeight: 'bold',
-        fontFamily: 'Poppins, sans-serif',
-        color: '#4c4242',
+        color: brandColors.textPrimary,
     },
 
     subheading: {
         fontSize: '1.25rem',
-        fontFamily: 'Poppins, sans-serif',
-        color: '#4c4242',
+        color: brandColors.textPrimary,
         marginTop: '7px',
         paddingLeft: 0.5,
         paddingRight: 2.5,
@@ -184,11 +179,11 @@ export const styles = {
         width: '300px',
         height: '50px',
         borderRadius: '20px',
-        backgroundColor: '#68B49A',
+        backgroundColor: brandColors.primary,
         borderWidth: '0',
         marginTop: '50px',
         '&:hover': {
-            backgroundColor: '#68B49A',
+            backgroundColor: brandColors.primary,
         },
     },
 
@@ -201,12 +196,12 @@ export const styles = {
         height: '40px',
         borderRadius: '20px',
         borderWidth: '3px',
-        borderColor: '#68B49A',
-        textColor: '#68B49A',
+        borderColor: brandColors.primary,
+        textColor: brandColors.primary,
         variant: 'outlined',
         '&:hover': {
             borderWidth: '3px',
-            borderColor: '#68B49A',
+            borderColor: brandColors.primary,
             backgroundColor: '#68B49A22',
         },
     },
@@ -219,15 +214,13 @@ export const styles = {
 
     signInButtonTextGmail: {
         fontSize: '1.025rem',
-        fontFamily: 'Poppins, sans-serif',
         color: 'white',
         marginLeft: '7px',
     },
 
     signInButtonTextUofA: {
         fontSize: '1.025rem',
-        fontFamily: 'Poppins, sans-serif',
-        color: '#68B49A',
+        color: brandColors.primary,
         marginLeft: '7px',
     },
 };

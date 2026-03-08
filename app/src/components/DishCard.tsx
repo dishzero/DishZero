@@ -1,10 +1,10 @@
+import { Box, Paper, Typography } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
 import container from '../assets/dish_icon_contained.svg';
 import mug from '../assets/mug_icon_contained.svg';
 import { BACKEND_ADDRESS } from '../config/env';
-import '../styles/index.css';
 
 function DishCard({ dish, token }) {
     const [dishAPI, setDishAPI] = useState([]);
@@ -27,26 +27,37 @@ function DishCard({ dish, token }) {
     // const icon = dishAPI['type'] == 'mug' ? mug : container
     const icon = dishAPI && dishAPI['type'] === 'mug' ? mug : container;
     const iconAltText = dishAPI && dishAPI['type'] === 'mug' ? 'Mug Icon' : 'Container Icon';
+    const dishTypeLabel = dishAPI?.['type'] ? `${dishAPI['type']} # ${dishAPI['qid']}` : '';
 
     const dishCheckOut = new Date(dish.timestamp);
     const dishDue = new Date(dishCheckOut.getTime() + twoDaysInMs);
     return (
-        <div className="dish-card mb-3" data-testid="dish-card">
-            <div className="type-icon">
+        <Paper
+            data-testid="dish-card"
+            elevation={3}
+            sx={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 2,
+                p: 2,
+                mb: 2,
+                borderRadius: 2.5,
+            }}>
+            <Box>
                 <img src={icon} alt={iconAltText}></img>
-            </div>
-            <div className="flex-column">
-                <p className="details-1" style={{ marginLeft: '17px' }}>
+            </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+                <Typography variant="caption" sx={{ color: '#000000' }}>
                     Return before {dishDue.toLocaleDateString('en-US')}
-                </p>
-                <p className="first-letter small-text-1" style={{ marginLeft: '17px', marginTop: '-16px' }}>
-                    {dishAPI['type']} # {dishAPI['qid']}
-                </p>
-                <p className="details-1" style={{ marginLeft: '17px', marginTop: '-16px' }}>
+                </Typography>
+                <Typography variant="body2" fontWeight={600} sx={{ color: '#000000' }}>
+                    {dishTypeLabel}
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#000000' }}>
                     Checked out on {dishCheckOut.toLocaleDateString('en-US')}
-                </p>
-            </div>
-        </div>
+                </Typography>
+            </Box>
+        </Paper>
     );
 }
 

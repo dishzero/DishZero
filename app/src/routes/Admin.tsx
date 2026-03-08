@@ -1,4 +1,4 @@
-import { Box, createTheme, ThemeProvider } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { SnackbarProvider } from 'notistack';
 import { BrowserView, MobileView } from 'react-device-detect';
 
@@ -8,49 +8,42 @@ import AdminDishesPage from '../admin/DishesPage/AdminDishesPage';
 import Email from '../admin/EmailPage/Email';
 import AdminUserPage from '../admin/UserPage/AdminUserPage';
 import leaf_icon from '../assets/leaf-green.svg';
-import '../styles/admin.css';
+import theme from '../theme';
 
 export default function Admin({ path }: { path?: string }) {
-    const theme = createTheme({
-        palette: {
-            primary: {
-                dark: '#006049', // DISHZERO_COLOR_DARK
-                main: '#48b697', // DISHZERO_COLOR
-                light: '#a7ffe9', // DISHZERO_COLOR_LIGHT
-            },
-            secondary: {
-                dark: '#964A65', // SECONDARY_DARK,
-                main: '#B56983', // SECONDARY
-                light: '#C5899E', // SECONDARY_LIGHT
-            },
-        },
-    });
-
     return (
-        <ThemeProvider theme={theme}>
-            <SnackbarProvider>
-                {/* on mobile */}
-                <MobileView>
-                    <Box justifyContent="center" textAlign="center" margin="0.75rem">
-                        <h1>Admin Panel</h1>
-                        <img src={leaf_icon} alt="" />
-                        <h2>You're on mobile! Please go to desktop to view admin panel.</h2>
-                    </Box>
-                </MobileView>
+        <SnackbarProvider>
+            {/* on mobile */}
+            <MobileView>
+                <Box justifyContent="center" textAlign="center" margin="0.75rem">
+                    <Typography variant="h4" gutterBottom>
+                        Admin Panel
+                    </Typography>
+                    <img src={leaf_icon} alt="" />
+                    <Typography variant="h5" sx={{ mt: 2 }}>
+                        You&apos;re on mobile! Please go to desktop to view admin panel.
+                    </Typography>
+                </Box>
+            </MobileView>
 
-                {/* on desktop */}
-                <BrowserView>
-                    <Box display="flex" flexDirection={'column'} sx={{ height: 'fit-content' }}>
-                        <AdminSidebar />
-                        <Box display={'flex'} sx={{ marginLeft: SIDEBAR_WIDTH }}>
-                            {path == 'dishes' && <AdminDishesPage />}
-                            {path == 'users' && <AdminUserPage />}
-                            {path == 'email' && <Email />}
-                            {(path == '' || !path) && <AdminHomePage />}
-                        </Box>
+            {/* on desktop */}
+            <BrowserView>
+                <Box display="flex" flexDirection={'column'} sx={{ height: 'fit-content' }}>
+                    <AdminSidebar />
+                    <Box
+                        display={'flex'}
+                        sx={{
+                            marginLeft: SIDEBAR_WIDTH,
+                            backgroundColor: theme.palette.background.default,
+                            minHeight: '100vh',
+                        }}>
+                        {path == 'dishes' && <AdminDishesPage />}
+                        {path == 'users' && <AdminUserPage />}
+                        {path == 'email' && <Email />}
+                        {(path == '' || !path) && <AdminHomePage />}
                     </Box>
-                </BrowserView>
-            </SnackbarProvider>
-        </ThemeProvider>
+                </Box>
+            </BrowserView>
+        </SnackbarProvider>
     );
 }

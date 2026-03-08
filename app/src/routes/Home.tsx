@@ -1,4 +1,4 @@
-import { AppBar, Box, Link as LinkMUI, Typography } from '@mui/material';
+import { Box, Button, Link as LinkMUI, Paper, Typography } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { BallTriangle } from 'react-loader-spinner';
@@ -9,10 +9,10 @@ import leaf_green from '../assets/leaf-green.svg';
 import MobileBackground from '../assets/leaf-mobile-background.png';
 import leaf_white from '../assets/leaf-white.svg';
 import scan_icon from '../assets/scan.svg';
+import AppHeader from '../components/AppHeader';
 import DishCard from '../components/DishCard';
 import { BACKEND_ADDRESS } from '../config/env';
 import { useAuth } from '../contexts/AuthContext';
-import '../styles/index.css';
 
 // Display DishCard for unreturned dishes
 const DishLog = ({ dishes }) => {
@@ -21,13 +21,13 @@ const DishLog = ({ dishes }) => {
         dishes = [];
     }
     return (
-        <div id="dish-log" className="mt-3">
+        <Box id="dish-log" sx={{ mt: 3 }}>
             {dishes.map((dish) => {
                 if (dish.returned.timestamp == '') {
                     return <DishCard dish={dish} token={sessionToken} key={dish.id} />;
                 }
             })}
-        </div>
+        </Box>
     );
 };
 
@@ -35,116 +35,117 @@ const DishLog = ({ dishes }) => {
 const GetDishes = (dishesUsed) => {
     const checkedOutDishes = dishesUsed?.filter((dish) => dish.returned.timestamp == '').length;
     return (
-        <div id="dishes" style={{ marginTop: '24px' }}>
-            <div className="d-flex justify-content-between">
-                <p className="sub-header-3">My Dishes</p>
-                <p className="details-2 mt-1">{checkedOutDishes} in use</p>
-            </div>
+        <Box id="dishes" sx={{ mt: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+                <Typography variant="subtitle2">My Dishes</Typography>
+                <Typography variant="caption" sx={{ mt: 0.5 }}>
+                    {checkedOutDishes} in use
+                </Typography>
+            </Box>
 
             {checkedOutDishes != 0 ? (
                 <DishLog dishes={dishesUsed} />
             ) : (
-                <div className="d-flex flex-column">
-                    <div className="mt-5 d-flex justify-content-center">
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <Box sx={{ mt: 5, display: 'flex', justifyContent: 'center' }}>
                         <img src={leaf_green} style={{ transform: 'rotate(-90deg)' }} />
                         <img src={leaf_green} style={{ transform: 'rotate(-45deg)', marginTop: '-16px' }} />
                         <img src={leaf_green} />
-                    </div>
-                    <div className="d-flex justify-content-center mt-3">
-                        <p className="details-1 text-center" style={{ maxWidth: '244px' }}>
+                    </Box>
+                    <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
+                        <Typography variant="caption" align="center" sx={{ maxWidth: 244 }}>
                             You don't have any dishes borrowed at the moment. Start borrowing to make an impact!
-                        </p>
-                    </div>
-                    <ReactRouterLink
+                        </Typography>
+                    </Box>
+                    <Button
+                        component={ReactRouterLink}
                         to="/borrow"
-                        className="btn-primary align-self-center mt-2 link"
-                        style={{ textDecoration: 'none', color: '#FFF' }}>
-                        <p className="sub-header-3 text-center m-2">Borrow</p>
-                    </ReactRouterLink>
-                </div>
+                        variant="contained"
+                        sx={{ alignSelf: 'center', mt: 2, minWidth: 150, height: 40 }}>
+                        Borrow
+                    </Button>
+                </Box>
             )}
-        </div>
+        </Box>
     );
 };
+
+const InfoCard = ({ title, description, href }: { title: string; description: string; href: string }) => (
+    <Box sx={{ mt: 3 }}>
+        <Typography variant="subtitle2">{title}</Typography>
+        <Paper
+            sx={{
+                mt: 2,
+                p: 3,
+                display: 'flex',
+                alignItems: 'flex-start',
+                justifyContent: 'space-between',
+                gap: 2,
+                borderRadius: 2.5,
+                backgroundColor: 'primary.light',
+            }}>
+            <Typography variant="caption" sx={{ maxWidth: 198 }}>
+                {description}
+            </Typography>
+            <LinkMUI href={href} sx={{ display: 'flex', alignItems: 'center' }}>
+                <img src={external_link} alt="External Link" />
+            </LinkMUI>
+        </Paper>
+    </Box>
+);
+
+const ImpactCard = ({
+    value,
+    suffix,
+    label,
+    testId,
+}: {
+    value: number;
+    suffix?: string;
+    label: string;
+    testId?: string;
+}) => (
+    <Paper
+        sx={{
+            flex: 1,
+            p: 2,
+            borderRadius: 2.5,
+            backgroundColor: 'primary.light',
+            position: 'relative',
+        }}
+        elevation={0}>
+        <Box component="img" src={leaf_white} alt="leaf" sx={{ position: 'absolute', top: 16, right: 16 }} />
+        <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1 }}>
+            <Typography variant="h4" data-testid={testId}>
+                {value}
+            </Typography>
+            {suffix ? (
+                <Typography variant="subtitle1" sx={{ mb: 0.5 }}>
+                    {suffix}
+                </Typography>
+            ) : null}
+        </Box>
+        <Typography variant="subtitle2">{label}</Typography>
+    </Paper>
+);
 
 // Display homepage for new users
 const NewUser = (dishesUsed) => {
     const content = GetDishes(dishesUsed);
     return (
-        <div style={{ padding: '24px' }}>
-            <div className="sub-header-3">
-                How It Works
-                <div
-                    className="light-blue d-flex flex-column justify-content-end"
-                    style={{
-                        height: '80px',
-                        width: '100%',
-                        borderRadius: '10px',
-                        marginTop: '16px',
-                        position: 'relative',
-                    }}>
-                    <p
-                        className="details-1"
-                        style={{
-                            height: '60px',
-                            width: '198px',
-                            marginTop: '-32px',
-                            marginBottom: '16px',
-                            marginLeft: '24px',
-                            marginRight: '40px',
-                        }}>
-                        {' '}
-                        More details about the process behind borrowing and returning dishes.
-                    </p>
-                    <LinkMUI href="https://www.dishzero.ca/how-it-works-1">
-                        <img
-                            src={external_link}
-                            alt="External Link"
-                            style={{ position: 'absolute', top: '19px', bottom: '20px', right: '24px' }}
-                        />
-                    </LinkMUI>
-                </div>
-            </div>
-            <div className="sub-header-3" style={{ marginTop: '24px' }}>
-                Our Impact
-                <div
-                    className="light-blue d-flex flex-column justify-content-end"
-                    style={{
-                        height: '80px',
-                        width: '100%',
-                        borderRadius: '10px',
-                        marginTop: '16px',
-                        position: 'relative',
-                    }}>
-                    <p
-                        className="details-1"
-                        style={{
-                            height: '48px',
-                            width: '198px',
-                            marginTop: '-32px',
-                            marginBottom: '16px',
-                            marginLeft: '24px',
-                            marginRight: '40px',
-                        }}>
-                        {' '}
-                        Learn more about the impact we are leaving on the environment.
-                    </p>
-                    <LinkMUI href="https://www.dishzero.ca/impact">
-                        <img
-                            src={external_link}
-                            alt="External Link"
-                            style={{
-                                position: 'absolute',
-                                top: '19px',
-                                bottom: '20px',
-                                right: '24px',
-                            }}
-                        />
-                    </LinkMUI>
-                </div>
-            </div>
+        <Box sx={{ px: 3, py: 3 }}>
+            <InfoCard
+                title="How It Works"
+                description="More details about the process behind borrowing and returning dishes."
+                href="https://www.dishzero.ca/how-it-works-1"
+            />
+            <InfoCard
+                title="Our Impact"
+                description="Learn more about the impact we are leaving on the environment."
+                href="https://www.dishzero.ca/impact"
+            />
             {content}
-        </div>
+        </Box>
     );
 };
 
@@ -153,78 +154,31 @@ const ExistingUser = (dishesUsed) => {
     const content = GetDishes(dishesUsed);
     const returnedDishes = dishesUsed?.filter((dish) => dish.returned.timestamp != '').length;
     return (
-        <div style={{ padding: '24px' }}>
-            <div id="impact" className="sub-header-3">
+        <Box sx={{ px: 3, py: 3 }}>
+            <Typography id="impact" variant="subtitle2">
                 My Impact
-                <div className="d-flex justify-content-between" style={{ marginTop: '16px' }}>
-                    <div
-                        className="light-blue d-flex flex-column justify-content-end"
-                        style={{
-                            height: '118px',
-                            width: '48%',
-                            borderRadius: '10px',
-                            padding: '16px',
-                            position: 'relative',
-                        }}>
-                        <img src={leaf_white} alt="leaf" style={{ position: 'absolute', top: '16px', right: '16px' }} />
-                        <p className="header mb-0" data-testid="returned-dishes-count">
-                            {returnedDishes}
-                        </p>
-                        <p className="sub-header-3 mb-1">Dishes Used</p>
-                    </div>
-                    <div
-                        className="light-blue d-flex flex-column justify-content-end"
-                        style={{
-                            height: '118px',
-                            width: '48%',
-                            borderRadius: '10px',
-                            padding: '16px',
-                            position: 'relative',
-                        }}>
-                        <img src={leaf_white} alt="leaf" style={{ position: 'absolute', top: '16px', right: '16px' }} />
-                        <div className="d-flex">
-                            <p className="header mb-0" data-testid="waste-diverted-amt">
-                                {returnedDishes * 0.5}
-                            </p>
-                            <p className="sub-header-2 mb-1" style={{ alignSelf: 'end', marginLeft: '7px' }}>
-                                Lbs
-                            </p>
-                        </div>
-                        <p className="sub-header-3 mb-1">Waste Diverted</p>
-                    </div>
-                </div>
-            </div>
-            {content}
-        </div>
-    );
-};
-
-const Header = () => {
-    return (
-        <div>
-            <Box sx={{ flexGrow: 1, position: 'relative', height: '14vh' }}>
-                <AppBar
-                    position="relative"
-                    sx={{
-                        backgroundColor: '#68B49A',
-                        height: '100%',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}>
-                    <Typography sx={{ fontWeight: '500', fontSize: '20px', mb: '-24px' }}> Home </Typography>
-                </AppBar>
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                <ImpactCard value={returnedDishes} label="Dishes Used" testId="returned-dishes-count" />
+                <ImpactCard
+                    value={returnedDishes * 0.5}
+                    suffix="Lbs"
+                    label="Waste Diverted"
+                    testId="waste-diverted-amt"
+                />
             </Box>
-        </div>
+            {content}
+        </Box>
     );
 };
 
 const Footer = () => {
     return (
-        <div style={{ padding: '24px', position: 'fixed', bottom: '0px', right: '0px' }}>
-            <ReactRouterLink to={'/borrow'}>
+        <Box sx={{ p: 3, position: 'fixed', bottom: 0, right: 0 }}>
+            <Box component={ReactRouterLink} to="/borrow" sx={{ display: 'inline-flex' }}>
                 <img src={scan_icon} alt="scan icon" />
-            </ReactRouterLink>
-        </div>
+            </Box>
+        </Box>
     );
 };
 
@@ -286,11 +240,11 @@ function Home() {
         );
     }
     return (
-        <div>
-            <Header />
+        <Box>
+            <AppHeader title="Home" />
             {content}
             <Footer />
-        </div>
+        </Box>
     );
 }
 

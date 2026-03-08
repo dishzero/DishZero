@@ -1,6 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import axios from 'axios';
-import type { ReactNode } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { vi } from 'vitest';
 
@@ -9,16 +8,6 @@ import * as AuthContextModule from '../../contexts/AuthContext';
 import Borrow from '../Borrow';
 
 vi.mock('axios');
-vi.mock('react-bootstrap/Modal', () => {
-    const Modal = ({ show, children }: { show: boolean; children: ReactNode }) => (show ? <div>{children}</div> : null);
-
-    Modal.Header = ({ children }: { children?: ReactNode }) => <div>{children}</div>;
-    Modal.Body = ({ children }: { children?: ReactNode }) => <div>{children}</div>;
-
-    return {
-        default: Modal,
-    };
-});
 
 const mockPost = vi.mocked(axios.post);
 const useAuthMock = vi.spyOn(AuthContextModule, 'useAuth');

@@ -11,7 +11,6 @@ import logout_icon from '../assets/logout.svg';
 import our_impact_icon from '../assets/our_impact.png';
 import task_icon from '../assets/task_icon.png';
 import { useAuth } from '../contexts/AuthContext';
-import '../styles/sidebar.css';
 
 const Sidebar = () => {
     const { currentUser, logout } = useAuth();
@@ -42,7 +41,7 @@ const Sidebar = () => {
     return (
         <Menu isOpen={isSidebarOpen} onStateChange={handleSidebarStateChange}>
             <p
-                className="memu-title"
+                className="menu-title"
                 style={{
                     textAlign: 'left',
                 }}>
@@ -56,18 +55,13 @@ const Sidebar = () => {
                 Home
             </ReactRouterLink>
             {(admin || volunteer) && (
-                <div style={{ flex: 1, flexDirection: 'column' }}>
+                <div style={{ flex: 1, flexDirection: 'column', marginTop: 30 }}>
                     <p>VOLUNTEERS</p>
                     <ReactRouterLink className="menu-item" to="/admin">
                         <img style={{ paddingRight: 16 }} src={admin_panel_icon} alt="" />
                         Admin panel
                     </ReactRouterLink>
-                    <br></br>
-                    <ReactRouterLink
-                        className="menu-item"
-                        to="/volunteer/return"
-                        style={{ paddingTop: 10 }}
-                        onClick={closeSidebar}>
+                    <ReactRouterLink className="menu-item" to="/volunteer/return" onClick={closeSidebar}>
                         <img style={{ paddingRight: 16 }} src={task_icon} alt="" />
                         Return Dishes
                     </ReactRouterLink>

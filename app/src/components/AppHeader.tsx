@@ -7,15 +7,20 @@ interface Props {
 
 const AppHeader = ({ title }: Props) => {
     return (
-        <div style={{ height: '25%' }}>
-            <Box sx={{ flexGrow: 1, position: 'relative', height: '14vh' }}>
-                <AppBar
-                    position="static"
-                    sx={{ backgroundColor: '#68B49A', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                    <Typography sx={{ fontWeight: '500', fontSize: '20px', mb: '-24px' }}> {title} </Typography>
-                </AppBar>
-            </Box>
-        </div>
+        <Box sx={{ height: { xs: 88, sm: 104 } }}>
+            <AppBar
+                position="static"
+                sx={{
+                    backgroundColor: 'primary.main',
+                    height: '100%',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 500, color: '#ffffff' }}>
+                    {title}
+                </Typography>
+            </AppBar>
+        </Box>
     );
 };
 

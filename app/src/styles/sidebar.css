@@ -64,9 +64,11 @@ Note: Beware of modifying this element as it can break the animations - you shou
 
 /* ============= additional ================ */
 .menu-item {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
     font-size: 20px;
     color: white;
-    margin-bottom: 30px;
     text-align: left;
     text-decoration: none;
     transition: color 0.2s;
@@ -76,7 +78,10 @@ Note: Beware of modifying this element as it can break the animations - you shou
     color: #50a3a2;
 }
 
-.memu-title {
+.menu-title {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
     color: white;
     font-size: 30px;
     font-weight: bold;
@@ -84,6 +89,12 @@ Note: Beware of modifying this element as it can break the animations - you shou
     text-align: center;
     /* text-decoration: underline;
   text-underline-offset: 0.5em; */
+}
+
+.menu-item img,
+.menu-title img {
+    display: inline-block;
+    flex-shrink: 0;
 }
 
 .logout {

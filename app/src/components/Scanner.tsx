@@ -2,32 +2,32 @@
 
 import { faCameraRotate, faClose, faSearch, faVideoCamera } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { AppBar, Box, IconButton, InputBase, Paper, Typography } from '@mui/material';
 import { useState } from 'react';
-import { Button, Container, InputGroup } from 'react-bootstrap';
-import Form from 'react-bootstrap/Form';
-import Navbar from 'react-bootstrap/Navbar';
 import QrReader from 'react-qr-scanner';
-
-import '../styles/QRScanner.css';
 
 const Header = ({ handleClose, title, style }) => {
     return (
-        <Navbar
-            className="justify-content-space-between qr-scan-nav"
-            style={style}
-            bg="light"
-            expand="lg"
-            variant="light">
-            <Container>
-                <div />
-                <Navbar.Brand style={{ marginRight: '0px' }}> {title}</Navbar.Brand>
-                <Navbar.Text style={{ cursor: 'pointer' }} onClick={handleClose}>
-                    <FontAwesomeIcon icon={faClose} />
-                </Navbar.Text>
-            </Container>
-        </Navbar>
+        <AppBar
+            position="static"
+            sx={{
+                ...style,
+                backgroundColor: 'background.paper',
+                color: 'text.primary',
+                boxShadow: 'none',
+                px: 2,
+                py: 1.5,
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+            }}>
+            <Box />
+            <Typography variant="subtitle1">{title}</Typography>
+            <Box sx={{ cursor: 'pointer' }} onClick={handleClose}>
+                <FontAwesomeIcon icon={faClose} />
+            </Box>
+        </AppBar>
     );
 };
 
@@ -39,36 +39,42 @@ const BottomTextInput = ({ onSubmit }) => {
         return false;
     };
     return (
-        <div>
-            <div className="start-0 position-fixed bottom-0 w-100 px-5">
-                <div>
-                    <Form onSubmit={handleSubmit}>
-                        <InputGroup className="mb-3">
-                            <InputGroup.Text className="search-bar">
-                                <FontAwesomeIcon icon={faSearch} />
-                            </InputGroup.Text>
-                            <Form.Text className="text-muted"></Form.Text>
-
-                            <Form.Control
-                                className="search-bar"
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                type="text"
-                                placeholder="Enter dish id #"
-                            />
-
-                            <Button
-                                onSubmit={handleSubmit}
-                                type="submit"
-                                className="search-button"
-                                data-testid="enter-btn">
-                                Enter
-                            </Button>
-                        </InputGroup>
-                    </Form>
-                </div>
-            </div>
-        </div>
+        <Box
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{
+                position: 'fixed',
+                left: 0,
+                right: 0,
+                bottom: 16,
+                px: 4,
+            }}>
+            <Paper
+                elevation={3}
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    maxWidth: 640,
+                    mx: 'auto',
+                    borderRadius: 6,
+                    px: 2,
+                    py: 1,
+                }}>
+                <Box sx={{ color: 'text.secondary', mr: 1 }}>
+                    <FontAwesomeIcon icon={faSearch} />
+                </Box>
+                <InputBase
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    type="text"
+                    placeholder="Enter dish id #"
+                    sx={{ flex: 1 }}
+                />
+                <IconButton type="submit" data-testid="enter-btn" sx={{ color: 'primary.main' }}>
+                    Enter
+                </IconButton>
+            </Paper>
+        </Box>
     );
 };
 
@@ -93,26 +99,38 @@ const CameraInput = ({ onSubmit }) => {
         console.log(data);
     };
     return (
-        <div className="qr-scanner-wrapper">
-            <br />
-            <div
-                style={{
-                    width: '100%',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                }}>
-                {/* TODO: Disable setFacingMode when only one camera is available */}
-            </div>
-            <div className="qr-scanner-placeholder" style={style}>
-                <div className="position-absolute">
-                    <Button variant="secondary" onClick={() => setFrontCamera(!frontCamera)}>
+        <Box
+            sx={{
+                position: 'relative',
+                minHeight: 420,
+                mt: 2,
+                borderRadius: 4,
+                backgroundColor: 'grey.800',
+                overflow: 'hidden',
+            }}>
+            <Box sx={style}>
+                <Box sx={{ position: 'absolute', top: 16, left: 16, zIndex: 2 }}>
+                    <IconButton
+                        sx={{
+                            color: 'common.white',
+                            backgroundColor: 'rgba(255,255,255,0.16)',
+                            '&:hover': { backgroundColor: 'rgba(255,255,255,0.24)' },
+                        }}
+                        onClick={() => setFrontCamera(!frontCamera)}>
                         <FontAwesomeIcon icon={faCameraRotate} />
-                    </Button>
-                </div>
+                    </IconButton>
+                </Box>
 
-                <div className="qr-scanner-tag" onClick={() => setShowQr(!showQr)}>
-                    {/* <div className="crosshair"/> */}
-
+                <Box
+                    sx={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        color: 'common.white',
+                    }}
+                    onClick={() => setShowQr(!showQr)}>
                     {showQr ? (
                         <QrReader
                             delay={100}
@@ -123,22 +141,24 @@ const CameraInput = ({ onSubmit }) => {
                             facingMode={frontCamera ? 'user' : 'environment'}
                         />
                     ) : (
-                        <div>
+                        <Box>
                             {' '}
                             {errorMessage ? (
                                 errorMessage
                             ) : (
                                 <>
                                     <FontAwesomeIcon icon={faVideoCamera} /> Camera Disabled <br />{' '}
-                                    <p style={{ fontSize: '0.8em' }}>Tap to Enable</p>
+                                    <Typography variant="body2" sx={{ mt: 1 }}>
+                                        Tap to Enable
+                                    </Typography>
                                     {errorMessage}
                                 </>
                             )}
-                        </div>
+                        </Box>
                     )}
-                </div>
-            </div>
-        </div>
+                </Box>
+            </Box>
+        </Box>
     );
 };
 
@@ -146,20 +166,20 @@ function Scanner({ mode, onScan, onClose }) {
     const onSubmit = (id: string) => onScan(id);
 
     return (
-        <div className={`scanner-main`}>
-            <div className="scanner-wrapper">
-                {/* ScanQRCode */}
-                <div style={{ height: '100vh', width: '80%', display: 'block' }}>
-                    <Header
-                        title={mode}
-                        style={{ top: 0, left: 0, position: 'fixed', width: '100%' }}
-                        handleClose={onClose}
-                    />
-                    <CameraInput onSubmit={onSubmit} />
-                    <BottomTextInput onSubmit={onSubmit} />
-                </div>
-            </div>
-        </div>
+        <Box
+            sx={{
+                position: 'fixed',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                backgroundColor: 'background.default',
+            }}>
+            <Box sx={{ height: '100vh', width: '80%', maxWidth: 720, mx: 'auto', display: 'block' }}>
+                <Header title={mode} style={{ width: '100%' }} handleClose={onClose} />
+                <CameraInput onSubmit={onSubmit} />
+                <BottomTextInput onSubmit={onSubmit} />
+            </Box>
+        </Box>
     );
 }
 

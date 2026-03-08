@@ -1,4 +1,4 @@
-import { alpha, Box, styled, Typography } from '@mui/material';
+import { Box, styled, Typography } from '@mui/material';
 
 import leaf_white from '../../assets/leaf-white.svg';
 
@@ -9,7 +9,7 @@ interface Props {
 
 const StyledStatBox = styled(Box)(({ theme }) => ({
     borderRadius: '10px',
-    backgroundColor: alpha(theme.palette.primary.main, 0.4),
+    backgroundColor: theme.palette.primary.light,
     width: '170px',
     height: '118px',
     marginRight: '40px',
