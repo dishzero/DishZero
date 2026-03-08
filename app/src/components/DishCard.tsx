@@ -2,8 +2,8 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 
 import container from '../assets/dish_icon_contained.svg';
-import { backendAddress } from '../config/env';
 import mug from '../assets/mug_icon_contained.svg';
+import { BACKEND_ADDRESS } from '../config/env';
 import '../styles/index.css';
 
 function DishCard({ dish, token }) {
@@ -13,7 +13,7 @@ function DishCard({ dish, token }) {
         axios
             .get(`/api/dish`, {
                 headers: { 'session-token': token },
-                baseURL: backendAddress,
+                baseURL: BACKEND_ADDRESS,
                 params: { id: dish.dish },
             })
             .then(function (response) {

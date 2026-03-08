@@ -11,7 +11,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import AppHeader from '../components/AppHeader';
 import BottomTextInput from '../components/BottomTextInput';
-import { backendAddress } from '../config/env';
+import { BACKEND_ADDRESS } from '../config/env';
 import { useAuth } from '../contexts/AuthContext';
 //import Scanner from "../widgets/scanner"
 //import DishAPI from "../features/api"
@@ -125,7 +125,7 @@ const Borrow = () => {
 
         axios
             .post(
-                `${backendAddress}/api/dish/borrow`,
+                `${BACKEND_ADDRESS}/api/dish/borrow`,
                 {},
                 {
                     headers: { 'session-token': sessionToken },

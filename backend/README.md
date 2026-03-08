@@ -18,19 +18,18 @@ Then start the local development server:
 pnpm dev
 ```
 
-This starts the server on port 8080 and automatically restarts it when backend files change.
+This starts the server on port 8080 and automatically restarts when backend files change.
 
 ## Quality checks
 
 ```bash
 pnpm run typecheck
-pnpm run build
 pnpm run format:check
 ```
 
 ## Test scripts
 
-There is no first-class backend `pnpm test` command yet. Manual backend verification scripts live in `test-scripts/`.
+There are no unit tests in the project yet. Manual backend verification scripts live in `test-scripts/`.
 
 ## Build
 
@@ -50,7 +49,7 @@ This starts the server in production mode.
 
 ## Routes
 
-all the available routes are defined in the `src/routes` directory. The routes are defined using the `express` router.
+All the available routes are defined in the `src/routes` directory. The routes are defined using the `express` router.
 The routes are then imported in the `src/app.ts` file and are mounted on the `/api` path.
 
 ### Auth

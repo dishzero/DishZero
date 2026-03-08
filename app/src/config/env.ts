@@ -1,3 +1,1 @@
-const defaultBackendAddress = 'http://localhost:8080';
-
-export const backendAddress = import.meta.env.VITE_BACKEND_ADDRESS ?? defaultBackendAddress;
+export const BACKEND_ADDRESS = import.meta.env.VITE_BACKEND_ADDRESS ?? 'https://api.dishzero.ca';

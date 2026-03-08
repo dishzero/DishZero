@@ -1,12 +1,12 @@
-import type { ReactNode } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import axios from 'axios';
+import type { ReactNode } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { vi } from 'vitest';
 
 import adminApi from '../../admin/adminApi';
+import { BACKEND_ADDRESS } from '../../config/env';
 import * as AuthContextModule from '../../contexts/AuthContext';
-import { backendAddress } from '../../config/env';
 import { DishStatus } from '../../types';
 import Return from '../Return';
 
@@ -29,15 +29,7 @@ vi.mock('../../components/CameraScanner', () => ({
     ),
 }));
 vi.mock('../../admin/DishesPage/CustomDialogTitle', () => ({
-    default: ({
-        open,
-        dialogTitle,
-        children,
-    }: {
-        open: boolean;
-        dialogTitle: string;
-        children: ReactNode;
-    }) =>
+    default: ({ open, dialogTitle, children }: { open: boolean; dialogTitle: string; children: ReactNode }) =>
         open ? (
             <div>
                 <div>{dialogTitle}</div>
@@ -112,7 +104,7 @@ test('returns a borrowed dish and opens the success popup', async () => {
                     'Content-Type': 'application/json',
                 },
                 params: { qid: '6' },
-                baseURL: backendAddress,
+                baseURL: BACKEND_ADDRESS,
             },
         );
     });
@@ -151,7 +143,7 @@ test('allows reporting a returned dish condition', async () => {
                     'session-token': 'mocked-session-token',
                     'Content-Type': 'application/json',
                 },
-                baseURL: backendAddress,
+                baseURL: BACKEND_ADDRESS,
                 params: {
                     id: 'dish-1',
                 },
@@ -224,10 +216,15 @@ test('can force sign in a dish and then return it', async () => {
     fireEvent.click(await screen.findByText('Force Sign In Dish'));
 
     await waitFor(() => {
-        expect(mockPost).toHaveBeenNthCalledWith(1, `${backendAddress}/api/dish/borrow`, {}, {
-            headers: { 'session-token': 'mocked-session-token' },
-            params: { qid: '6', email: 'dishzero@ualberta.ca' },
-        });
+        expect(mockPost).toHaveBeenNthCalledWith(
+            1,
+            `${BACKEND_ADDRESS}/api/dish/borrow`,
+            {},
+            {
+                headers: { 'session-token': 'mocked-session-token' },
+                params: { qid: '6', email: 'dishzero@ualberta.ca' },
+            },
+        );
     });
 
     await waitFor(() => {
@@ -245,7 +242,7 @@ test('can force sign in a dish and then return it', async () => {
                     'Content-Type': 'application/json',
                 },
                 params: { qid: '6' },
-                baseURL: backendAddress,
+                baseURL: BACKEND_ADDRESS,
             },
         );
     });

@@ -1,11 +1,11 @@
-import type { ReactNode } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import axios from 'axios';
+import type { ReactNode } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { vi } from 'vitest';
 
+import { BACKEND_ADDRESS } from '../../config/env';
 import * as AuthContextModule from '../../contexts/AuthContext';
-import { backendAddress } from '../../config/env';
 import Borrow from '../Borrow';
 
 vi.mock('axios');
@@ -63,10 +63,14 @@ test('submits a borrow request with the configured backend address', async () =>
     fireEvent.change(input, { target: { value: '6' } });
     fireEvent.click(screen.getByTestId('return-btn'));
 
-    expect(mockPost).toHaveBeenCalledWith(`${backendAddress}/api/dish/borrow`, {}, {
-        headers: { 'session-token': 'mocked-session-token' },
-        params: { qid: '6' },
-    });
+    expect(mockPost).toHaveBeenCalledWith(
+        `${BACKEND_ADDRESS}/api/dish/borrow`,
+        {},
+        {
+            headers: { 'session-token': 'mocked-session-token' },
+            params: { qid: '6' },
+        },
+    );
 });
 
 test('shows a success confirmation after a successful borrow', async () => {
@@ -103,9 +107,13 @@ test('auto-submits a dish id from a DishZero previous URL redirect', async () =>
     renderBorrow();
 
     await waitFor(() => {
-        expect(mockPost).toHaveBeenCalledWith(`${backendAddress}/api/dish/borrow`, {}, {
-            headers: { 'session-token': 'mocked-session-token' },
-            params: { qid: '44' },
-        });
+        expect(mockPost).toHaveBeenCalledWith(
+            `${BACKEND_ADDRESS}/api/dish/borrow`,
+            {},
+            {
+                headers: { 'session-token': 'mocked-session-token' },
+                params: { qid: '44' },
+            },
+        );
     });
 });

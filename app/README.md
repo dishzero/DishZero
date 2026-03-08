@@ -2,8 +2,8 @@
 
 ## Local development
 
-Set your local environment variables by copying `.env.example` to an `.env` file. To hit the production backend, set
-`VITE_BACKEND_ADDRESS=https://api.dishzero.ca`
+Set your local environment variables by copying `.env.example` to an `.env` file. To hit your local backend, set
+`VITE_BACKEND_ADDRESS=http://localhost:8080`
 
 Then, install dependencies:
 
@@ -29,9 +29,5 @@ pnpm run test
 
 ## Running tests
 
-1. Install dependencies with `cd app && pnpm install`
-2. To run all tests once, use `pnpm run test`
-3. To run Vitest in watch mode while you work, use `pnpm run test:watch`
-
-The current frontend tests have been ported to Vitest. Some older suites are still lightweight smoke/integration checks rather
-than deep behavioral coverage, so use `pnpm run typecheck` and `pnpm run build` alongside tests when validating changes.
+1. To run all tests once, use `pnpm run test`
+2. To run Vitest in watch mode while you work, use `pnpm run test:watch`

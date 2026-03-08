@@ -1,11 +1,11 @@
 import { fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
 import axios from 'axios';
+import { getIdToken, onAuthStateChanged, signInWithPopup } from 'firebase/auth';
 import Cookies from 'js-cookie';
 import { MemoryRouter } from 'react-router-dom';
-import { getIdToken, onAuthStateChanged, signInWithPopup } from 'firebase/auth';
 import { vi } from 'vitest';
 
-import { backendAddress } from '../../config/env';
+import { BACKEND_ADDRESS } from '../../config/env';
 import { AuthProvider, LoginLocation, useAuth } from '../AuthContext';
 
 const { mockNavigate, mockSignOut } = vi.hoisted(() => ({
@@ -158,7 +158,7 @@ test('logs in with the general Google provider and persists the session', async 
             { idToken: 'firebase-id-token' },
             {
                 headers: {},
-                baseURL: backendAddress,
+                baseURL: BACKEND_ADDRESS,
             },
         );
     });
@@ -220,12 +220,16 @@ test('logs out using the current session token and clears local state', async ()
     fireEvent.click(screen.getByText('logout'));
 
     await waitFor(() => {
-        expect(mockPost).toHaveBeenCalledWith(`/api/auth/logout/`, {}, {
-            baseURL: backendAddress,
-            headers: {
-                'session-token': 'stored-session-token',
+        expect(mockPost).toHaveBeenCalledWith(
+            `/api/auth/logout/`,
+            {},
+            {
+                baseURL: BACKEND_ADDRESS,
+                headers: {
+                    'session-token': 'stored-session-token',
+                },
             },
-        });
+        );
     });
 
     expect(mockSignOut).toHaveBeenCalled();

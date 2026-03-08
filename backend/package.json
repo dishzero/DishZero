@@ -9,8 +9,8 @@
     "license": "MIT",
     "scripts": {
         "build": "tsc && tsc-alias",
-        "start": "NODE_ENV=prod node ./build/server.js",
-        "dev": "NODE_ENV=dev tsx watch ./src/server.ts",
+        "start": "NODE_ENV=production node ./build/server.js",
+        "dev": "NODE_ENV=development tsx watch ./src/server.ts",
         "typecheck": "tsc --noEmit",
         "format": "prettier --write 'src/**/*.ts'",
         "format:check": "prettier --check 'src/**/*.ts'"
